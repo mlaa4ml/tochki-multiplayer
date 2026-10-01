@@ -1,0 +1,9 @@
+# Installed dependencies and local runtime state
+node_modules/
+data/
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+npm-debug.log*
