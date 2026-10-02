@@ -11,8 +11,14 @@
 [A05 — #10](https://github.com/mlaa4ml/tochki-multiplayer/issues/10),
 [A06 — #11](https://github.com/mlaa4ml/tochki-multiplayer/issues/11),
 [A07 — #12](https://github.com/mlaa4ml/tochki-multiplayer/issues/12),
-[A08 — #13](https://github.com/mlaa4ml/tochki-multiplayer/issues/13).
-A09 и A10 ещё предстоит зарегистрировать; всего будет десять новых issues.
+[A08 — #13](https://github.com/mlaa4ml/tochki-multiplayer/issues/13),
+[A09 — #14](https://github.com/mlaa4ml/tochki-multiplayer/issues/14),
+[A10 — #15](https://github.com/mlaa4ml/tochki-multiplayer/issues/15).
+Создано ровно десять новых issues (#6–#15); следующие одиннадцать шагов
+B01–B11 ниже оставлены для последующего создания, без превышения лимита.
+Каждая зарегистрированная задача содержит объём, зависимости и критерии
+приёмки. Номера не начинаются с #5: ориентироваться на ссылки, а не
+предполагать непрерывную нумерацию всех задач репозитория.
 
 ## Уже закрыто: не создавать повторно
 
