@@ -671,6 +671,21 @@ function createTrainingRunner({ dbPath, adminToken }){
     };
   }
 
+  let activeChild = null;
+
+  function stop(){
+    if (activeChild && activeChild.exitCode === null){
+      try {
+        activeChild.kill('SIGTERM');
+        setTimeout(() => {
+          if (activeChild && activeChild.exitCode === null){
+            try { activeChild.kill('SIGKILL'); } catch (e) {}
+          }
+        }, 1000);
+      } catch (e) {}
+    }
+  }
+
   function start(rawParams){
     if (state.running) return { ok: false, reason: 'already-running' };
     if (dbPath === ':memory:'){
@@ -693,6 +708,7 @@ function createTrainingRunner({ dbPath, adminToken }){
     ];
     if (params.fillPercent !== undefined) args.push('--fill-percent', String(params.fillPercent));
     const child = spawn(process.execPath, args, { cwd: __dirname });
+    activeChild = child;
     state.running = true;
     state.pid = child.pid;
     state.params = params;
@@ -704,12 +720,14 @@ function createTrainingRunner({ dbPath, adminToken }){
     child.stdout.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine(line); });
     child.stderr.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine('[stderr] ' + line); });
     child.on('close', (code) => {
+      if (activeChild === child) activeChild = null;
       state.running = false;
       state.finishedAt = Date.now();
       state.exitCode = code;
       state.ok = code === 0;
     });
     child.on('error', (err) => {
+      if (activeChild === child) activeChild = null;
       state.running = false;
       state.finishedAt = Date.now();
       state.ok = false;
