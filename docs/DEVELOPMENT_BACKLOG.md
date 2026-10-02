@@ -3,7 +3,16 @@
 План для issue #4 на основе [BOT_ANALYSIS](BOT_ANALYSIS.md),
 [OFFLINE_PLAN](OFFLINE_PLAN.md) и [PROJECT_REVIEW](PROJECT_REVIEW.md).
 Это задачи будущей разработки, а не уже реализованные возможности.
-Ссылки на созданные задачи будут добавлены после регистрации первой очереди.
+Зарегистрированная часть первой очереди (ID соответствуют таблице ниже):
+[A01 — #6](https://github.com/mlaa4ml/tochki-multiplayer/issues/6),
+[A02 — #7](https://github.com/mlaa4ml/tochki-multiplayer/issues/7),
+[A03 — #8](https://github.com/mlaa4ml/tochki-multiplayer/issues/8),
+[A04 — #9](https://github.com/mlaa4ml/tochki-multiplayer/issues/9),
+[A05 — #10](https://github.com/mlaa4ml/tochki-multiplayer/issues/10),
+[A06 — #11](https://github.com/mlaa4ml/tochki-multiplayer/issues/11),
+[A07 — #12](https://github.com/mlaa4ml/tochki-multiplayer/issues/12),
+[A08 — #13](https://github.com/mlaa4ml/tochki-multiplayer/issues/13).
+A09 и A10 ещё предстоит зарегистрировать; всего будет десять новых issues.
 
 ## Уже закрыто: не создавать повторно
 
