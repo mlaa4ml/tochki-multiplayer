@@ -637,7 +637,22 @@ function safeEqualStrings(a, b){
 // заголовке X-Admin-Token. Без этого кто угодно смог бы бесплатно грузить
 // CPU сервера повторными запусками self-play.
 function createTrainingRunner({ dbPath, adminToken }){
-  const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, ok: null, output: [] };
+  const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, signal: null, ok: null, output: [] };
+  let activeChild = null;
+  let completion = Promise.resolve();
+  let stopping = null;
+
+  // Await close (including stdio), not merely kill(): only then is it safe
+  // to remove the database directory. Escalate if SIGTERM is ignored.
+  function stop(){
+    if (!activeChild) return completion;
+    if (stopping) return stopping;
+    const child = activeChild;
+    child.kill('SIGTERM');
+    const timer = setTimeout(() => child.kill('SIGKILL'), 1000);
+    stopping = completion.finally(() => clearTimeout(timer));
+    return stopping;
+  }
 
   function pushLine(line){
     state.output.push(line);
@@ -693,25 +708,32 @@ function createTrainingRunner({ dbPath, adminToken }){
     ];
     if (params.fillPercent !== undefined) args.push('--fill-percent', String(params.fillPercent));
     const child = spawn(process.execPath, args, { cwd: __dirname });
+    activeChild = child;
+    stopping = null;
     state.running = true;
     state.pid = child.pid;
     state.params = params;
     state.startedAt = Date.now();
     state.finishedAt = null;
     state.exitCode = null;
+    state.signal = null;
     state.ok = null;
     state.output = [];
     child.stdout.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine(line); });
     child.stderr.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine('[stderr] ' + line); });
-    child.on('close', (code) => {
-      state.running = false;
-      state.finishedAt = Date.now();
-      state.exitCode = code;
-      state.ok = code === 0;
+    completion = new Promise((resolve) => {
+      child.once('close', (code, signal) => {
+        activeChild = null;
+        state.running = false;
+        state.finishedAt = Date.now();
+        state.exitCode = code;
+        state.signal = signal;
+        state.ok = code === 0 && !signal;
+        resolve();
+      });
     });
     child.on('error', (err) => {
-      state.running = false;
-      state.finishedAt = Date.now();
+      // Node emits close after error too; keep the runner busy until then.
       state.ok = false;
       pushLine('[spawn-error] ' + err.message);
     });
@@ -725,7 +747,7 @@ function createTrainingRunner({ dbPath, adminToken }){
     return { ...rest, outputTail: output.slice(-30) };
   }
 
-  return { start, publicState, isEnabled: () => !!adminToken };
+  return { start, stop, publicState, isEnabled: () => !!adminToken };
 }
 
 function sanitizeCreateOptions(raw){
