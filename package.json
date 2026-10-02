@@ -10,7 +10,7 @@
     "test": "node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^11.10.0 || ^12.0.0 || ^13.0.0",
     "ws": "^8.18.0"
   }
 }
