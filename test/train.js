@@ -112,7 +112,7 @@ async function main(){
     // "обучаемость" уже проверена вручную и в test/gamelog.js напрямую
     // через gameLog.saveBotWeights(); здесь важна интеграция по HTTP.
     const started = await request(port, 'POST', '/api/admin/train',
-      { difficulty: 'normal', generations: 1, population: 1, games: 1 }, headers);
+      { difficulty: 'normal', generations: 1, population: 1, games: 1, sizeKey: 'small', fillPercent: 10 }, headers);
     assert.strictEqual(started.status, 202);
     assert.strictEqual(started.body.started, true);
     assert.strictEqual(started.body.run.running, true);
