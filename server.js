@@ -637,7 +637,22 @@ function safeEqualStrings(a, b){
 // заголовке X-Admin-Token. Без этого кто угодно смог бы бесплатно грузить
 // CPU сервера повторными запусками self-play.
 function createTrainingRunner({ dbPath, adminToken }){
-  const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, ok: null, output: [] };
+    const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, signal: null, ok: null, output: [] };
+  let activeChild = null;
+  let completion = Promise.resolve();
+  let stopping = null;
+
+  // Await close (including stdio), not merely kill(): only then is it safe
+  // to remove the database directory. Escalate if SIGTERM is ignored.
+  function stop(){
+    if (!activeChild) return completion;
+    if (stopping) return stopping;
+    const child = activeChild;
+    child.kill('SIGTERM');
+    const timer = setTimeout(() => child.kill('SIGKILL'), 1000);
+    stopping = completion.finally(() => clearTimeout(timer));
+    return stopping;
+  }
 
   function pushLine(line){
     state.output.push(line);
