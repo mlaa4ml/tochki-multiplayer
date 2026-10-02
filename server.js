@@ -637,7 +637,7 @@ function safeEqualStrings(a, b){
 // заголовке X-Admin-Token. Без этого кто угодно смог бы бесплатно грузить
 // CPU сервера повторными запусками self-play.
 function createTrainingRunner({ dbPath, adminToken }){
-    const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, signal: null, ok: null, output: [] };
+  const state = { running: false, pid: null, params: null, startedAt: null, finishedAt: null, exitCode: null, signal: null, ok: null, output: [] };
   let activeChild = null;
   let completion = Promise.resolve();
   let stopping = null;
