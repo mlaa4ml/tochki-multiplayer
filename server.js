@@ -747,7 +747,7 @@ function createTrainingRunner({ dbPath, adminToken }){
     return { ...rest, outputTail: output.slice(-30) };
   }
 
-  return { start, publicState, isEnabled: () => !!adminToken };
+  return { start, stop, publicState, isEnabled: () => !!adminToken };
 }
 
 function sanitizeCreateOptions(raw){
