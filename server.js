@@ -708,25 +708,32 @@ function createTrainingRunner({ dbPath, adminToken }){
     ];
     if (params.fillPercent !== undefined) args.push('--fill-percent', String(params.fillPercent));
     const child = spawn(process.execPath, args, { cwd: __dirname });
+    activeChild = child;
+    stopping = null;
     state.running = true;
     state.pid = child.pid;
     state.params = params;
     state.startedAt = Date.now();
     state.finishedAt = null;
     state.exitCode = null;
+    state.signal = null;
     state.ok = null;
     state.output = [];
     child.stdout.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine(line); });
     child.stderr.on('data', (chunk) => { for (const line of chunk.toString().split('\n')) if (line) pushLine('[stderr] ' + line); });
-    child.on('close', (code) => {
-      state.running = false;
-      state.finishedAt = Date.now();
-      state.exitCode = code;
-      state.ok = code === 0;
+    completion = new Promise((resolve) => {
+      child.once('close', (code, signal) => {
+        activeChild = null;
+        state.running = false;
+        state.finishedAt = Date.now();
+        state.exitCode = code;
+        state.signal = signal;
+        state.ok = code === 0 && !signal;
+        resolve();
+      });
     });
     child.on('error', (err) => {
-      state.running = false;
-      state.finishedAt = Date.now();
+      // Node emits close after error too; keep the runner busy until then.
       state.ok = false;
       pushLine('[spawn-error] ' + err.message);
     });
