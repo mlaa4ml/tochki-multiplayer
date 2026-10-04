@@ -137,6 +137,10 @@
     }
 
     const snap = match.getSnapshot();
+    let endReason = snap.endReason;
+    if (!endReason && snap.gameOver) {
+      endReason = 'manual';
+    }
     return {
       ok: true,
       snapshot: snap,
@@ -144,7 +148,7 @@
         winner: snap.winner,
         scores: snap.scores,
         gameOver: snap.gameOver,
-        endReason: snap.endReason,
+        endReason: endReason,
         totalEvents: events.length
       }
     };
