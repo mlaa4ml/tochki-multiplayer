@@ -241,7 +241,10 @@ function createGameLog(db){
     const game = gameByRoomCode.get(String(code || '').toUpperCase());
     if (!game) return null;
     const moves = movesByGameId.all(game.id);
-    return { game, moves };
+        const replay = replayFor(game);
+    // Avoid duplicating the large JSON string in HTTP responses.
+    const { replay_json, ...publicGame } = game;
+    return { game: publicGame, moves, replay };
   }
 
   function getStats(userId){
