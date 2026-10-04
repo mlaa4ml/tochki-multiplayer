@@ -47,7 +47,7 @@ async function playOneCapture(c1, c2, snap){
 }
 
 async function main(){
-  const { httpServer } = createServer({ dbPath: ':memory:' });
+  const { httpServer, gameLog } = createServer({ dbPath: ':memory:' });
   await new Promise((resolve) => httpServer.listen(0, resolve));
   const port = httpServer.address().port;
   const url = `ws://localhost:${port}`;
