@@ -208,6 +208,7 @@ function createGameLog(db){
   // ник, под которым игрок её доиграл, даже если перелогинился на середине.
   function finish(room, winnerSeat, scores, endReason){
     if (!room.gameId) return;
+    saveReplay(room);
     finishGame.run({
       gameId: room.gameId,
       winnerSeat,
