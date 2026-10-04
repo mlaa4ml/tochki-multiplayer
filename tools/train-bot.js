@@ -109,16 +109,18 @@ function mutate(weights, rng, strength){
 function loadOpenings(gameLog, sizeKey, maxPrefixLen){
   const games = gameLog.getFinishedGamesForTraining({ limit: 500 });
   const openings = [];
-  for (const { game, moves } of games){
-    if (game.size_key !== sizeKey) continue;
+  for (const { game, replay } of games){
+    if (game.size_key !== sizeKey || !replay || !replay.exact) continue;
+    // Never guess missing legacy rules or use the append-only moves table:
+    // it contains cancelled moves. Validate the entire source first.
+    let source;
+    try { source = require('../replay.js').play(replay.data); }
+    catch (_) { continue; }
+    const moves = source.getMoveLog();
     if (!moves.length) continue;
     const prefixLen = Math.min(maxPrefixLen, moves.length);
-    const prefix = moves.slice(0, prefixLen).map(m => ({ x: m.x, y: m.y, seat: m.seat }));
-    openings.push({
-      prefix,
-      targetScore: game.target_score,
-      targetFillPercent: game.target_fill_percent
-    });
+    const prefix = moves.slice(0, prefixLen).map(m => ({ x: m.x, y: m.y, seat: m.p }));
+    openings.push({ prefix, ...source.getSnapshot().rules });
   }
   return openings;
 }
