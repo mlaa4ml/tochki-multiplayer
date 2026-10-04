@@ -116,6 +116,11 @@ function openDatabase(dbPath){
     );
     CREATE INDEX IF NOT EXISTS idx_moves_game_id ON moves (game_id);
 
+    -- Таблица событий реплеев и статус пригодности для точного воспроизведения (A02)
+    -- replay_status: 'exact' (полные версионированные события move/undo/end с правилами) или 'legacy' (старые записи)
+    ALTER TABLE games ADD COLUMN replay_status TEXT DEFAULT 'legacy';
+    ALTER TABLE games ADD COLUMN replay_json TEXT;
+
     -- Веса оценочной функции бота (см. BOT_WEIGHTS в gameEngine.js).
     -- Одна строка на "поколение" весов — history, не перезапись; текущими
     -- считаются веса с наибольшим id для данного difficulty. Так храним
