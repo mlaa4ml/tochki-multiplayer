@@ -155,7 +155,8 @@ function createGameLog(db){
     const limit = Math.max(1, Math.min(5000, opts.limit || 500));
     const rows = db.prepare(`
       SELECT id, size_key, target_score, target_fill_percent, vs_bot, bot_difficulty,
-             winner_seat, score1, score2, end_reason, started_at, ended_at
+             winner_seat, score1, score2, end_reason, started_at, ended_at,
+             replay_status, replay_json
       FROM games
       WHERE status = 'finished' ${opts.vsBotOnly ? 'AND vs_bot = 1' : ''}
       ORDER BY ended_at DESC
