@@ -920,8 +920,7 @@ function createServer(serverOptions){
   function recordMoveInLog(room, seat, x, y, result){
     const moveIndex = room.moveCount;
     room.moveCount += 1;
-    gameLog.recordMove(room.gameId, moveIndex, seat, x, y, result.gained.length, result.scores);
-    if (result.gameOver) gameLog.finish(room, result.winner, result.scores, 'rule');
+gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   }
 
   // Применяет уже одобренную отмену последнего хода (согласием живого
