@@ -138,6 +138,18 @@ function openDatabase(dbPath){
     CREATE INDEX IF NOT EXISTS idx_bot_weights_difficulty ON bot_weights (difficulty, id);
   `);
 
+    // Idempotent A02 migration. NULL is deliberately NOT backfilled from moves:
+  // old rows lack firstPlayer/extraTurnOnCapture and undo/end events.
+  db.transaction(() => {
+    const columns = new Set(db.prepare('PRAGMA table_info(games)').all().map(c => c.name));
+    if (!columns.has('replay_status')){
+      db.exec("ALTER TABLE games ADD COLUMN replay_status TEXT NOT NULL DEFAULT 'legacy'");
+    }
+    if (!columns.has('replay_json')){
+      db.exec('ALTER TABLE games ADD COLUMN replay_json TEXT');
+    }
+  })();
+
   return db;
 }
 
