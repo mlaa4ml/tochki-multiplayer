@@ -125,6 +125,18 @@
       ]
     },
     {
+            "id": "fill-threshold-counts-captured-empty-territory",
+      "options": {"sizeKey":"small","targetFillPercent":10,"extraTurnOnCapture":true},
+      "steps": [
+        {"move":[1,5,3]},{"move":[2,5,4]},
+        {"move":[1,4,4]},{"move":[2,0,0]},
+        {"move":[1,6,4]},{"move":[2,1,0]},
+        {"move":[1,4,5]},{"move":[2,2,0]},
+        {"move":[1,6,5]},{"move":[2,3,0]},
+        {"move":[1,5,6],"gained":[[5,4,0],[5,5,0]],"dead":[[5,4,1]],"territory":[[5,5,1]],"scores":[2,0],"current":1,"gameOver":true,"winner":1}
+      ]
+    },
+    {
       "id": "score-threshold-finishes-before-extra-turn",
       "options": {"sizeKey":"small","targetScore":1,"extraTurnOnCapture":true},
       "steps": [
