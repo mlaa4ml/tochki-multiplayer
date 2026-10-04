@@ -1,0 +1,24 @@
+{
+  "id": "original-bot-v1",
+  "sourceRevision": "4bfab9f4bc310c87096318dd31e870711fc037a6",
+  "sourcePath": "gameEngine.js",
+  "enginePath": "baselines/original-v1/gameEngine.js",
+  "sha256": "897302b1c3358e6914359e0d3488f4cf71363185381eca63f99f2bf5023aa30f",
+  "rulesVersion": "tochki-rules-v1",
+  "runtime": "Node 24.x",
+  "weights": {"potential":6,"cohesion":1.2,"stones":0.15,"liberty":5},
+  "difficulty": {
+    "normal": {"radius":2,"candidateCap":10,"timeLimit":220,"maxDepth":3,"branchWide":5,"branchMid":4,"branchNarrow":3,"quiescenceExt":2},
+    "strong": {"radius":4,"candidateCap":20,"timeLimit":2000,"maxDepth":6,"branchWide":8,"branchMid":6,"branchNarrow":5,"quiescenceExt":3}
+  },
+  "matchOptions": {
+    "sizeKey":"small",
+    "firstPlayer":1,
+    "extraTurnOnCapture":false,
+    "targetScore":0,
+    "targetFillPercent":100,
+    "undoAllowed":true
+  },
+  "opening": [[1,5,4],[2,6,4]],
+  "immutability": "Do not update this directory for experiments. Add a new version instead."
+}
