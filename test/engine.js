@@ -69,10 +69,9 @@ function sequence(engine, fixture) {
       history.push({snapshot:plain(expected), log:plain(log)});
       const [player,x,y] = step.move;
       expected.stone[y][x] = player;
-      expected.dead = layer(expected.rows, expected.cols, step.dead || []);
-      expected.territory = layer(expected.rows, expected.cols, step.territory || []);
-      const scores = step.scores || [0,0];
-      expected.scores = {1:scores[0],2:scores[1]};
+      if (step.dead) expected.dead = layer(expected.rows, expected.cols, step.dead);
+      if (step.territory) expected.territory = layer(expected.rows, expected.cols, step.territory);
+      if (step.scores) expected.scores = {1:step.scores[0],2:step.scores[1]};
       expected.stonesPlacedTotal++;
       expected.current = step.current ?? (3-player);
       expected.gameOver = step.gameOver || false;
