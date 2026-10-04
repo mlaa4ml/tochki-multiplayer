@@ -116,20 +116,6 @@ function openDatabase(dbPath){
     );
     CREATE INDEX IF NOT EXISTS idx_moves_game_id ON moves (game_id);
 
-    -- Таблица событий реплеев и статус пригодности для точного воспроизведения (A02)
-    -- replay_status: 'exact' (полные версионированные события move/undo/end с правилами) или 'legacy' (старые записи)
-    -- Идемпотентное добавление колонок через try/catch в JS при вызове openDatabase или проверку pragma
-  `);
-
-  try {
-    db.exec("ALTER TABLE games ADD COLUMN replay_status TEXT DEFAULT 'legacy';");
-  } catch (e) {}
-  try {
-    db.exec("ALTER TABLE games ADD COLUMN replay_json TEXT;");
-  } catch (e) {}
-
-  return db;
-
     -- Веса оценочной функции бота (см. BOT_WEIGHTS в gameEngine.js).
     -- Одна строка на "поколение" весов — history, не перезапись; текущими
     -- считаются веса с наибольшим id для данного difficulty. Так храним
@@ -138,7 +124,7 @@ function openDatabase(dbPath){
     -- self-play подбором.
     CREATE TABLE IF NOT EXISTS bot_weights (
       id             INTEGER PRIMARY KEY AUTOINCREMENT,
-      difficulty     TEXT NOT NULL,
+      difficulty     `TEXT` NOT NULL,
       potential      REAL NOT NULL,
       cohesion       REAL NOT NULL,
       stones         REAL NOT NULL,
@@ -151,6 +137,15 @@ function openDatabase(dbPath){
     );
     CREATE INDEX IF NOT EXISTS idx_bot_weights_difficulty ON bot_weights (difficulty, id);
   `);
+
+  try {
+    db.exec("ALTER TABLE games ADD COLUMN replay_status TEXT DEFAULT 'legacy';");
+  } catch (e) {}
+  try {
+    db.exec("ALTER TABLE games ADD COLUMN replay_json TEXT;");
+  } catch (e) {}
+
+  return db;
 
   return db;
 }
