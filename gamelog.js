@@ -162,7 +162,10 @@ function createGameLog(db){
       ORDER BY ended_at DESC
       LIMIT @limit
     `).all({ limit });
-    return rows.map(g => ({ game: g, moves: movesByGameId.all(g.id) }));
+        return rows.map(g => {
+      const { replay_json, ...game } = g;
+      return { game, moves: movesByGameId.all(g.id), replay: replayFor(g) };
+    });
   }
 
   // Партия создаётся в БД сразу при создании комнаты (а не при первом
