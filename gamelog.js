@@ -44,6 +44,27 @@ function createGameLog(db){
     WHERE id = @gameId AND status = 'in_progress'
   `);
 
+    const saveReplayStmt = db.prepare(`
+    UPDATE games SET replay_status = 'exact', replay_json = ? WHERE id = ?
+  `);
+  function saveReplay(room){
+    if (room.gameId) saveReplayStmt.run(JSON.stringify(room.match.getReplay()), room.gameId);
+  }
+  // Persist the legacy analytics row and the canonical event stream together.
+  const recordTransition = db.transaction((room, moveIndex, seat, x, y, result) => {
+    recordMove(room.gameId, moveIndex, seat, x, y, result.gained.length, result.scores);
+    saveReplay(room);
+    if (result.gameOver) finish(room, result.winner, result.scores, 'rule');
+  });
+
+  function replayFor(game){
+    if (game.replay_status !== 'exact' || !game.replay_json){
+      return { status: 'legacy', exact: false,
+        reason: 'Missing original rules and/or undo/end events; exact replay is unavailable.' };
+    }
+    return { status: 'exact', exact: true, data: JSON.parse(game.replay_json) };
+  }
+
   const gameById = db.prepare(`SELECT * FROM games WHERE id = ?`);
   const gameByRoomCode = db.prepare(`SELECT * FROM games WHERE room_code = ? ORDER BY id DESC LIMIT 1`);
   const movesByGameId = db.prepare(
