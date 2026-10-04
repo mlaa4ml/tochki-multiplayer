@@ -309,7 +309,8 @@ function createGameLog(db){
   }
 
   return {
-    startGame, recordSecondPlayer, recordMove, finish, abandonIfUnfinished,
+        startGame: db.transaction(startGame), recordSecondPlayer, recordMove,
+    recordTransition, saveReplay, finish: db.transaction(finish), abandonIfUnfinished,
     getGameByRoomCode, getStats, getRecentGames,
     getCurrentBotWeights, saveBotWeights, getFinishedGamesForTraining,
     getDbSummary, getBotWeightsHistory
