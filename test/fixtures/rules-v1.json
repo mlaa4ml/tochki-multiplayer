@@ -1,0 +1,182 @@
+{
+  "schema": "tochki-rule-fixtures-v1",
+  "rulesVersion": "tochki-rules-v1",
+  "positions": [
+    {
+      "id": "orthogonal-diamond-captures-diagonal-exit-is-not-an-exit",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,1,1],[1,2,1],[3,2,1],[2,3,1],[2,2,2]],
+      "dead": [], "territory": [],
+      "expectedDead": [[2,2,1]], "expectedTerritory": [],
+      "gained": [[2,2,0]]
+    },
+    {
+      "id": "empty-enclosure-does-not-score",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,1,1],[1,2,1],[3,2,1],[2,3,1]],
+      "dead": [], "territory": [],
+      "expectedDead": [], "expectedTerritory": [], "gained": []
+    },
+    {
+      "id": "edge-is-not-a-wall-even-with-zero-liberties",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,0,2],[1,0,1],[3,0,1],[2,1,1]],
+      "dead": [], "territory": [],
+      "expectedDead": [], "expectedTerritory": [], "gained": []
+    },
+    {
+      "id": "open-path-to-edge-prevents-capture",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,1,1],[1,2,1],[3,2,1],[2,2,2]],
+      "dead": [], "territory": [],
+      "expectedDead": [], "expectedTerritory": [], "gained": []
+    },
+    {
+      "id": "occupied-and-empty-cells-are-both-gained",
+      "rows": 6, "cols": 5, "player": 1,
+      "stone": [[2,1,1],[1,2,1],[3,2,1],[1,3,1],[3,3,1],[2,4,1],[2,2,2]],
+      "dead": [], "territory": [],
+      "expectedDead": [[2,2,1]], "expectedTerritory": [[2,3,1]],
+      "gained": [[2,2,0],[2,3,0]]
+    },
+    {
+      "id": "nested-recapture-own-prisoner-stays-dead",
+      "rows": 7, "cols": 7, "player": 2,
+      "stone": [[3,1,2],[2,2,2],[4,2,2],[1,3,2],[5,3,2],[2,4,2],[4,4,2],[3,5,2],[3,2,1],[2,3,1],[4,3,1],[3,4,1],[3,3,2]],
+      "dead": [[3,3,1]], "territory": [],
+      "expectedDead": [[3,2,2],[2,3,2],[4,3,2],[3,4,2],[3,3,2]],
+      "expectedTerritory": [],
+      "gained": [[3,2,0],[2,3,0],[4,3,0],[3,4,0],[3,3,1]]
+    },
+    {
+      "id": "dead-opponent-alone-is-not-capture-trigger",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,1,1],[1,2,1],[3,2,1],[2,3,1],[2,2,2]],
+      "dead": [[2,2,2]], "territory": [],
+      "expectedDead": [[2,2,2]], "expectedTerritory": [], "gained": []
+    },
+    {
+      "id": "territory-and-dead-form-walls",
+      "rows": 5, "cols": 5, "player": 1,
+      "stone": [[2,1,2],[1,2,1],[2,3,1],[2,2,2]],
+      "dead": [[2,1,1]], "territory": [[3,2,1]],
+      "expectedDead": [[2,1,1],[2,2,1]], "expectedTerritory": [[3,2,1]],
+      "gained": [[2,2,0]]
+    }
+  ],
+  "sequences": [
+    {
+      "id": "capture-territory-score-extra-turn-and-undo",
+      "options": {"sizeKey":"small","firstPlayer":1,"extraTurnOnCapture":true},
+      "steps": [
+        {"move":[1,5,3]},
+        {"move":[2,5,4]},
+        {"move":[1,4,4]},
+        {"move":[2,0,0]},
+        {"move":[1,6,4]},
+        {"move":[2,1,0]},
+        {"move":[1,4,5]},
+        {"move":[2,2,0]},
+        {"move":[1,6,5]},
+        {"move":[2,3,0]},
+        {"move":[1,5,6],"gained":[[5,4,0],[5,5,0]],"dead":[[5,4,1]],"territory":[[5,5,1]],"scores":[2,0],"current":1,"extraTurn":true},
+        {"reject":[1,5,5],"reason":"illegal-cell"},
+        {"undo":true},
+        {"move":[1,5,6],"gained":[[5,4,0],[5,5,0]],"dead":[[5,4,1]],"territory":[[5,5,1]],"scores":[2,0],"current":1,"extraTurn":true},
+        {"end":true,"winner":1},
+        {"undo":true,"reason":"game-over"},
+        {"reject":[2,8,8],"reason":"game-over"},
+        {"end":true,"reason":"game-over"}
+      ]
+    },
+    {
+      "id": "score-threshold-finishes-before-extra-turn",
+      "options": {"sizeKey":"small","targetScore":1,"extraTurnOnCapture":true},
+      "steps": [
+        {"move":[1,5,3]},{"move":[2,5,4]},
+        {"move":[1,4,4]},{"move":[2,0,0]},
+        {"move":[1,6,4]},{"move":[2,1,0]},
+        {"move":[1,5,5],"gained":[[5,4,0]],"dead":[[5,4,1]],"scores":[1,0],"current":1,"gameOver":true,"winner":1}
+      ]
+    },
+    {
+      "id": "second-seat-starts-and-wins-with-normal-turns",
+      "options": {"sizeKey":"small","firstPlayer":2},
+      "steps": [
+        {"move":[2,5,3]},{"move":[1,5,4]},
+        {"move":[2,4,4]},{"move":[1,0,0]},
+        {"move":[2,6,4]},{"move":[1,1,0]},
+        {"move":[2,5,5],"gained":[[5,4,0]],"dead":[[5,4,2]],"scores":[0,1]},
+        {"end":true,"winner":2}
+      ]
+    },
+    {
+      "id": "fill-threshold-ceil-and-tie",
+      "options": {"sizeKey":"small","firstPlayer":2,"targetFillPercent":1},
+      "steps": [
+        {"move":[2,4,3]},
+        {"move":[1,5,3],"gameOver":true,"winner":0,"current":1},
+        {"reject":[1,6,3],"reason":"game-over"},
+        {"undo":true,"reason":"game-over"}
+      ]
+    },
+    {
+      "id": "legality-opening-undo-and-no-mutation",
+      "options": {"sizeKey":"small"},
+      "steps": [
+        {"undo":true,"reason":"nothing-to-undo"},
+        {"reject":[2,4,3],"reason":"not-your-turn"},
+        {"reject":[1,0,0],"reason":"illegal-cell"},
+        {"reject":[1,-1,3],"reason":"illegal-cell"},
+        {"reject":[1,12,3],"reason":"illegal-cell"},
+        {"reject":[1,4,10],"reason":"illegal-cell"},
+        {"reject":[1,4,-1],"reason":"illegal-cell"},
+        {"reject":[1,4.5,3],"reason":"illegal-cell"},
+        {"reject":[1,"4",3],"reason":"illegal-cell"},
+        {"reject":[1,null,3],"reason":"illegal-cell"},
+        {"move":[1,4,3]},
+        {"reject":[2,0,0],"reason":"illegal-cell"},
+        {"reject":[2,4,3],"reason":"illegal-cell"},
+        {"move":[2,7,6]},
+        {"move":[1,0,0]},
+        {"undo":true},{"undo":true},
+        {"reject":[2,0,0],"reason":"illegal-cell"},
+        {"undo":true},
+        {"undo":true,"reason":"nothing-to-undo"},
+        {"end":true,"winner":0}
+      ]
+    },
+    {
+      "id": "undo-disabled-priority",
+      "options": {"sizeKey":"small","undoAllowed":false},
+      "steps": [
+        {"undo":true,"reason":"undo-disabled"},
+        {"move":[1,4,3]},
+        {"undo":true,"reason":"undo-disabled"},
+        {"end":true,"winner":0},
+        {"undo":true,"reason":"undo-disabled"}
+      ]
+    },
+    {
+      "id": "enter-empty-enclosure-only-mover-captures",
+      "options": {"sizeKey":"small","firstPlayer":1},
+      "steps": [
+        {"move":[1,5,3]},{"move":[2,7,3]},
+        {"move":[1,4,4]},{"move":[2,0,0]},
+        {"move":[1,6,4]},{"move":[2,1,0]},
+        {"move":[1,5,5]},{"move":[2,5,4]},
+        {"move":[1,9,8],"gained":[[5,4,0]],"dead":[[5,4,1]],"scores":[1,0]}
+      ]
+    }
+  ],
+  "fullBoard": {
+    "id":"two-solid-half-boards-no-captures",
+    "options":{"sizeKey":"small","targetFillPercent":0},
+    "opening":[[1,4,3],[2,6,3]],
+    "recipe":"alternate row-major remaining cells: player 1 x<6, player 2 x>=6",
+    "expectedScores":[0,0],
+    "expectedWinner":0,
+    "expectedCurrent":2,
+    "expectedStones":120
+  }
+}
