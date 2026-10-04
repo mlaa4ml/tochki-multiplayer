@@ -7,7 +7,7 @@ console.log('Running Replay & Validator tests...');
 
 // 1) Test export & play round-trip with moves, captures, undo, and end
 {
-  const match = Engine.createMatch({ sizeKey: 'small', firstPlayer: 1, extraTurnOnCapture: false, undoAllowed: true });
+  const match = Engine.createMatch({ sizeKey: 'medium', firstPlayer: 1, extraTurnOnCapture: false, undoAllowed: true });
   const zone = match.getSnapshot().openingZone;
   const cx = zone.minX, cy = zone.minY;
 
