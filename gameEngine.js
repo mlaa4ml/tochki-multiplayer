@@ -527,7 +527,7 @@
   // Это то, что нужно серверу: можно создать много независимых createMatch()
   // (по одной на комнату), и они не будут делить между собой никакие
   // module-level переменные — в отличие от однопользовательской версии.
-  function createMatch(options){
+  function createRawMatch(options){
     options = options || {};
     const sizeKey = options.sizeKey && SIZES[options.sizeKey] ? options.sizeKey : 'medium';
     const size = SIZES[sizeKey];
