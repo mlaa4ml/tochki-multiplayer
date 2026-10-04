@@ -230,7 +230,11 @@ function createGameLog(db){
   // просто не участвует в статистике побед/поражений.
   function abandonIfUnfinished(room){
     if (!room.gameId) return;
-    abandonGame.run({ gameId: room.gameId, endedAt: Date.now() });
+        db.transaction(() => {
+      if (!room.match.getSnapshot().gameOver) room.match.endNow('abandoned');
+      saveReplay(room);
+      abandonGame.run({ gameId: room.gameId, endedAt: Date.now() });
+    })();
   }
 
   function getGameByRoomCode(code){
