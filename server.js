@@ -951,9 +951,18 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       if (!stillThere) return; // комнату успели удалить (не должно случаться так быстро, но проверим)
       const freshSnap = stillThere.match.getSnapshot();
       if (freshSnap.gameOver || freshSnap.current !== stillThere.botSeat) return;
-      const move = stillThere.match.botMove(stillThere.botDifficulty, botWeightsFor(stillThere.botDifficulty));
+      const weights = botWeightsFor(stillThere.botDifficulty);
+      const move = stillThere.match.botMove(stillThere.botDifficulty, weights);
       if (!move) return;
-      const result = stillThere.match.applyMove(stillThere.botSeat, move.x, move.y);
+      const result = stillThere.match.applyMove(stillThere.botSeat, move.x, move.y, {
+        difficulty: stillThere.botDifficulty,
+        botVersion: Engine.BOT_VERSION,
+        weightsVersion: weights.meta ? `db-${weights.meta.createdAt}` : Engine.WEIGHTS_VERSION,
+        seed: null,
+        budgets: { ...Engine.DIFFICULTY[stillThere.botDifficulty] },
+        weights: { potential: weights.potential, cohesion: weights.cohesion,
+          stones: weights.stones, liberty: weights.liberty }
+      });
       if (!result.ok) return; // защитная проверка — по правилам бот всегда должен ходить легально
       recordMoveInLog(stillThere, stillThere.botSeat, move.x, move.y, result);
       broadcastRoom(stillThere, stateMessage(stillThere, { lastMove: { x: move.x, y: move.y, player: stillThere.botSeat }, extraTurn: result.extraTurn }));
