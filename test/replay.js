@@ -25,7 +25,7 @@ console.log('Running Replay & Validator tests...');
   assert.strictEqual(rep.version, Replay.CURRENT_VERSION);
   assert.strictEqual(rep.rules.sizeKey, 'medium');
   assert.strictEqual(rep.rules.firstPlayer, 1);
-  assert.strictEqual(rep.events.length, 3); // 2 moves + end
+  assert.strictEqual(rep.events.length, 2); // 2 moves
 
   const playRes = Replay.playReplay(rep, Engine);
   assert.strictEqual(playRes.ok, true);
