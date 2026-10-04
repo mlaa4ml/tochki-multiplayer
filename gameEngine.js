@@ -722,7 +722,63 @@
     return { rows, cols, sizeKey, applyMove, endNow, botMove, getSnapshot, getMoveLog, undoLastMove, canUndoLastMove, lastMoverSeat };
   }
 
+  // Replay identity describes rule semantics, not the npm package version.
+  const ENGINE_VERSION = 'tochki-rules-1';
+  const BOT_VERSION = 'tochki-ab-1';
+  const WEIGHTS_VERSION = 'tochki-weights-1';
+
+  // Record successful transitions at the shared engine boundary so server,
+  // CLI and offline callers cannot silently lose undo/end events.
+  function createMatch(options){
+    const match = createRawMatch(options);
+    const initial = match.getSnapshot();
+    const events = [];
+    const copy = value => JSON.parse(JSON.stringify(value));
+    const metadata = copy((options && options.replayMetadata) || {
+      botVersion: BOT_VERSION, weightsVersion: WEIGHTS_VERSION,
+      seed: null, budgets: null, weights: null
+    });
+    const apply = match.applyMove;
+    const undo = match.undoLastMove;
+    const end = match.endNow;
+    const terminal = reason => {
+      const s = match.getSnapshot();
+      events.push({ type: 'end', reason, winner: s.scores[1] > s.scores[2] ? 1 : s.scores[2] > s.scores[1] ? 2 : 0,
+        scores: s.scores });
+    };
+    match.applyMove = (player, x, y, decision) => {
+      // Clone before mutation: even invalid metadata must not partially apply.
+      const recordedDecision = decision === undefined ? undefined : copy(decision);
+      const result = apply(player, x, y);
+      if (result.ok){
+        const event = { type: 'move', player, x, y };
+        if (recordedDecision !== undefined) event.decision = recordedDecision;
+        events.push(event);
+        if (result.gameOver) terminal('rule');
+      }
+      return result;
+    };
+    match.undoLastMove = () => {
+      const result = undo();
+      if (result.ok) events.push({ type: 'undo' });
+      return result;
+    };
+    match.endNow = (reason = 'manual') => {
+      if (reason !== 'manual' && reason !== 'abandoned') return { ok: false, reason: 'invalid-end-reason' };
+      const result = end();
+      if (result.ok) terminal(reason);
+      return result;
+    };
+    match.getReplay = () => copy({
+      format: 'tochki-replay', version: 1, engineVersion: ENGINE_VERSION,
+      board: { sizeKey: initial.sizeKey, rows: initial.rows, cols: initial.cols },
+      rules: initial.rules, metadata, events
+    });
+    return match;
+  }
+
   return {
+    ENGINE_VERSION, BOT_VERSION, WEIGHTS_VERSION,
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
     OPENING_ZONE_SIDE, getOpeningZone, inZone,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
