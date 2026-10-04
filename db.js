@@ -118,11 +118,17 @@ function openDatabase(dbPath){
 
     -- Таблица событий реплеев и статус пригодности для точного воспроизведения (A02)
     -- replay_status: 'exact' (полные версионированные события move/undo/end с правилами) или 'legacy' (старые записи)
-    -- Безопасная миграция через проверку существования колонки (идемпотентно)
-    BEGIN;
-    SELECT 1 FROM pragma_table_info('games') WHERE name='replay_status';
-    -- ALTER TABLE через try/catch в открытии или стандартную проверку
-    COMMIT;
+    -- Идемпотентное добавление колонок через try/catch в JS при вызове openDatabase или проверку pragma
+  `);
+
+  try {
+    db.exec("ALTER TABLE games ADD COLUMN replay_status TEXT DEFAULT 'legacy';");
+  } catch (e) {}
+  try {
+    db.exec("ALTER TABLE games ADD COLUMN replay_json TEXT;");
+  } catch (e) {}
+
+  return db;
 
     -- Веса оценочной функции бота (см. BOT_WEIGHTS в gameEngine.js).
     -- Одна строка на "поколение" весов — history, не перезапись; текущими
