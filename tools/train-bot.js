@@ -147,7 +147,10 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
   const match = Engine.createMatch({
     sizeKey,
     targetScore: opening ? opening.targetScore : 0,
-    targetFillPercent
+    targetFillPercent,
+    firstPlayer: opening ? opening.firstPlayer : 1,
+    extraTurnOnCapture: opening ? opening.extraTurnOnCapture : false,
+    undoAllowed: opening ? opening.undoAllowed : true
   });
 
   if (opening){
