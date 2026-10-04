@@ -172,7 +172,7 @@
       }
     }
 
-    if (snap.gameOver && events.length > 0 && events[events.length - 1].type !== 'end' && snap.endReason === 'manual') {
+    if (snap.gameOver) {
       events.push({ type: 'end' });
     }
 
