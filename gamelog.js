@@ -182,6 +182,7 @@ function createGameLog(db){
       player2Name: room.playerNames[2] || null,
       startedAt: Date.now()
     });
+        saveReplayStmt.run(JSON.stringify(room.match.getReplay()), info.lastInsertRowid);
     return info.lastInsertRowid;
   }
 
