@@ -7,7 +7,10 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
+        "test:engine": "node test/engine.js",
+    "test:baseline": "node tools/baseline-v1.js --verify",
+    "baseline:v1": "node tools/baseline-v1.js",
+    "test": "npm run test:engine && npm run test:baseline && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
   },
   "engines": {
     "node": "24.x"
