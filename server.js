@@ -933,6 +933,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     const result = room.match.undoLastMove();
     room.pendingUndo = null;
     if (!result.ok) return result;
+    gameLog.saveReplay(room);
     broadcastRoom(room, stateMessage(room, { note: 'undo-applied' }));
     // Если после отмены снова наступила очередь бота (например, отменили
     // ход человека, который шёл после хода бота, и до отмены ход опять
