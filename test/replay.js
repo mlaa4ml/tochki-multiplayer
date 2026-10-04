@@ -23,7 +23,7 @@ console.log('Running Replay & Validator tests...');
   match.endNow();
   const rep = Replay.exportReplay(match, { engineVersion: '0.1.0' });
   assert.strictEqual(rep.version, Replay.CURRENT_VERSION);
-  assert.strictEqual(rep.rules.sizeKey, 'small');
+  assert.strictEqual(rep.rules.sizeKey, 'medium');
   assert.strictEqual(rep.rules.firstPlayer, 1);
   assert.strictEqual(rep.events.length, 3); // 2 moves + end
 
