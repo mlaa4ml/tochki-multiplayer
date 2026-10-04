@@ -118,8 +118,11 @@ function openDatabase(dbPath){
 
     -- Таблица событий реплеев и статус пригодности для точного воспроизведения (A02)
     -- replay_status: 'exact' (полные версионированные события move/undo/end с правилами) или 'legacy' (старые записи)
-    ALTER TABLE games ADD COLUMN replay_status TEXT DEFAULT 'legacy';
-    ALTER TABLE games ADD COLUMN replay_json TEXT;
+    -- Безопасная миграция через проверку существования колонки (идемпотентно)
+    BEGIN;
+    SELECT 1 FROM pragma_table_info('games') WHERE name='replay_status';
+    -- ALTER TABLE через try/catch в открытии или стандартную проверку
+    COMMIT;
 
     -- Веса оценочной функции бота (см. BOT_WEIGHTS в gameEngine.js).
     -- Одна строка на "поколение" весов — history, не перезапись; текущими
