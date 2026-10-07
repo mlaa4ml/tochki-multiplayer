@@ -144,13 +144,24 @@
         }
         if (!touchesBorder && containsLiveOpponent){
           for (const [cx,cy] of region){
-            if (stone[cy][cx] !== 0){
+            if (stone[cy][cx] === player){
+              // Классическое освобождение: своя ранее пленённая точка внутри
+              // нового контура снова живая (dead = 0); очков за неё никто
+              // не получает, противник теряет очко (см. computeScores).
+              if (dead[cy][cx] !== 0){
+                gained.push({x:cx, y:cy, prevOwner: dead[cy][cx], kind:'freed'});
+                dead[cy][cx] = 0;
+              }
+            } else if (stone[cy][cx] !== 0){
+              // Точка противника (живая или его ранее «отбитая») — пленена.
               if (dead[cy][cx] !== player){
-                gained.push({x:cx, y:cy, prevOwner: dead[cy][cx]});
+                gained.push({x:cx, y:cy, prevOwner: dead[cy][cx], kind:'captured'});
                 dead[cy][cx] = player;
               }
             } else if (territory[cy][cx] !== player){
-              gained.push({x:cx, y:cy, prevOwner: territory[cy][cx]});
+              // Пустая клетка внутри контура: отмечается владельцем окружения,
+              // но очков НЕ даёт (классические правила).
+              gained.push({x:cx, y:cy, prevOwner: territory[cy][cx], kind:'territory'});
               territory[cy][cx] = player;
             }
           }
@@ -158,6 +169,26 @@
       }
     }
     return gained;
+  }
+
+  // Классический счёт: очко даёт только пленённая точка противника
+  // (stone = цвет противника, dead = владелец окружения). Пустые клетки и
+  // свои точки внутри контура очков не дают. Счёт всегда выводится из
+  // состояния доски, поэтому освобождение/перезахват корректны автоматически.
+  function computeScores(state, rows, cols){
+    const scores = {1:0, 2:0};
+    for (let y=0; y<rows; y++)
+      for (let x=0; x<cols; x++){
+        const s = state.stone[y][x], d = state.dead[y][x];
+        if (s !== 0 && d !== 0 && d !== s) scores[d] += 1;
+      }
+    return scores;
+  }
+
+  function countCaptured(gained){
+    let n = 0;
+    for (const g of gained) if (g.kind === 'captured') n++;
+    return n;
   }
 
   // ---------- Бот ----------
