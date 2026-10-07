@@ -44,6 +44,27 @@ function createGameLog(db){
     WHERE id = @gameId AND status = 'in_progress'
   `);
 
+    const saveReplayStmt = db.prepare(`
+    UPDATE games SET replay_status = 'exact', replay_json = ? WHERE id = ?
+  `);
+  function saveReplay(room){
+    if (room.gameId) saveReplayStmt.run(JSON.stringify(room.match.getReplay()), room.gameId);
+  }
+  // Persist the legacy analytics row and the canonical event stream together.
+  const recordTransition = db.transaction((room, moveIndex, seat, x, y, result) => {
+    recordMove(room.gameId, moveIndex, seat, x, y, result.gained.length, result.scores);
+    saveReplay(room);
+    if (result.gameOver) finish(room, result.winner, result.scores, 'rule');
+  });
+
+  function replayFor(game){
+    if (game.replay_status !== 'exact' || !game.replay_json){
+      return { status: 'legacy', exact: false,
+        reason: 'Missing original rules and/or undo/end events; exact replay is unavailable.' };
+    }
+    return { status: 'exact', exact: true, data: JSON.parse(game.replay_json) };
+  }
+
   const gameById = db.prepare(`SELECT * FROM games WHERE id = ?`);
   const gameByRoomCode = db.prepare(`SELECT * FROM games WHERE room_code = ? ORDER BY id DESC LIMIT 1`);
   const movesByGameId = db.prepare(
@@ -134,13 +155,17 @@ function createGameLog(db){
     const limit = Math.max(1, Math.min(5000, opts.limit || 500));
     const rows = db.prepare(`
       SELECT id, size_key, target_score, target_fill_percent, vs_bot, bot_difficulty,
-             winner_seat, score1, score2, end_reason, started_at, ended_at
+             winner_seat, score1, score2, end_reason, started_at, ended_at,
+             replay_status, replay_json
       FROM games
       WHERE status = 'finished' ${opts.vsBotOnly ? 'AND vs_bot = 1' : ''}
       ORDER BY ended_at DESC
       LIMIT @limit
     `).all({ limit });
-    return rows.map(g => ({ game: g, moves: movesByGameId.all(g.id) }));
+        return rows.map(g => {
+      const { replay_json, ...game } = g;
+      return { game, moves: movesByGameId.all(g.id), replay: replayFor(g) };
+    });
   }
 
   // Партия создаётся в БД сразу при создании комнаты (а не при первом
@@ -161,6 +186,7 @@ function createGameLog(db){
       player2Name: room.playerNames[2] || null,
       startedAt: Date.now()
     });
+        saveReplayStmt.run(JSON.stringify(room.match.getReplay()), info.lastInsertRowid);
     return info.lastInsertRowid;
   }
 
@@ -186,6 +212,7 @@ function createGameLog(db){
   // ник, под которым игрок её доиграл, даже если перелогинился на середине.
   function finish(room, winnerSeat, scores, endReason){
     if (!room.gameId) return;
+    saveReplay(room);
     finishGame.run({
       gameId: room.gameId,
       winnerSeat,
@@ -207,14 +234,21 @@ function createGameLog(db){
   // просто не участвует в статистике побед/поражений.
   function abandonIfUnfinished(room){
     if (!room.gameId) return;
-    abandonGame.run({ gameId: room.gameId, endedAt: Date.now() });
+        db.transaction(() => {
+      if (!room.match.getSnapshot().gameOver) room.match.endNow('abandoned');
+      saveReplay(room);
+      abandonGame.run({ gameId: room.gameId, endedAt: Date.now() });
+    })();
   }
 
   function getGameByRoomCode(code){
     const game = gameByRoomCode.get(String(code || '').toUpperCase());
     if (!game) return null;
     const moves = movesByGameId.all(game.id);
-    return { game, moves };
+        const replay = replayFor(game);
+    // Avoid duplicating the large JSON string in HTTP responses.
+    const { replay_json, ...publicGame } = game;
+    return { game: publicGame, moves, replay };
   }
 
   function getStats(userId){
@@ -279,7 +313,8 @@ function createGameLog(db){
   }
 
   return {
-    startGame, recordSecondPlayer, recordMove, finish, abandonIfUnfinished,
+        startGame: db.transaction(startGame), recordSecondPlayer, recordMove,
+    recordTransition, saveReplay, finish: db.transaction(finish), abandonIfUnfinished,
     getGameByRoomCode, getStats, getRecentGames,
     getCurrentBotWeights, saveBotWeights, getFinishedGamesForTraining,
     getDbSummary, getBotWeightsHistory

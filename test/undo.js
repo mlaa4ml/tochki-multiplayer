@@ -47,7 +47,7 @@ async function playOneCapture(c1, c2, snap){
 }
 
 async function main(){
-  const { httpServer } = createServer({ dbPath: ':memory:' });
+  const { httpServer, gameLog } = createServer({ dbPath: ':memory:' });
   await new Promise((resolve) => httpServer.listen(0, resolve));
   const port = httpServer.address().port;
   const url = `ws://localhost:${port}`;
@@ -120,6 +120,25 @@ async function main(){
     assert.strictEqual(stateAtC1.snapshot.scores[1], scoreBeforeUndo[1] - 1, 'захваченное очко вернулось назад');
     assert.deepStrictEqual(stateAtC1.snapshot, stateAtC2.snapshot, 'оба клиента видят одинаковое состояние после отката');
     console.log('OK: полный цикл запрос → согласие → откат применён у обоих клиентов, счёт и доска синхронны');
+
+    const Replay = require('../replay.js');
+    const undoneRecord = gameLog.getGameByRoomCode(code);
+    assert.strictEqual(undoneRecord.replay.exact, true);
+    assert.deepStrictEqual(undoneRecord.replay.data.events.map(e => e.type),
+      ['move', 'move', 'move', 'move', 'move', 'move', 'move', 'undo']);
+    assert.deepStrictEqual(Replay.play(undoneRecord.replay.data).getSnapshot(), stateAtC1.snapshot);
+
+    c1.send(JSON.stringify({ type: 'end' }));
+    const [ended] = await Promise.all([
+      onceMessage(c1, m => m.type === 'state'),
+      onceMessage(c2, m => m.type === 'state'),
+    ]);
+    const endedRecord = gameLog.getGameByRoomCode(code);
+    assert.strictEqual(endedRecord.game.status, 'finished');
+    assert.strictEqual(endedRecord.replay.data.events.at(-1).type, 'end');
+    assert.strictEqual(endedRecord.replay.data.events.at(-1).reason, 'manual');
+    assert.deepStrictEqual(Replay.play(endedRecord.replay.data).getSnapshot(), ended.snapshot);
+    console.log('OK: server persists capture, undo and manual end as an exact replay');
 
     c1.close(); c2.close();
   }
