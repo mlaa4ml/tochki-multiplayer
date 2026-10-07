@@ -682,16 +682,29 @@
     return value;
   }
 
-  function chooseMove(state, rows, cols, mover, diff, weights){
-    const opponent = mover === 1 ? 2 : 1;
+  // ctx (необязательный) — полные правила позиции: { stonesPlacedTotal,
+  // gameOver, rules } (подходит прямо getSnapshot() матча). Без ctx —
+  // прежние правила по умолчанию: без порогов и доп. хода, конец только при
+  // полном поле, stonesPlacedTotal = число точек на доске.
+  function chooseMove(state, rows, cols, mover, diff, weights, ctx){
+    ctx = ctx || {};
+    weights = weights || BOT_WEIGHTS;
+    const root = createSearchNode({
+      stone: state.stone, dead: state.dead, territory: state.territory, rows, cols,
+      current: mover, stonesPlacedTotal: ctx.stonesPlacedTotal, gameOver: ctx.gameOver, rules: ctx.rules
+    });
+    if (root.gameOver) return null;
     const extInit = diff.quiescenceExt ?? 2;
 
-    let ordered = generateCandidates(state, rows, cols, diff.radius);
-    if (!ordered.length) return null;
-    const urgentTop = computeUrgentCells(state, rows, cols, mover);
-    ordered.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, mover, urgentTop); });
-    ordered.sort((a,b) => b.q - a.q);
-    ordered = ordered.slice(0, diff.candidateCap);
+    let ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
+    if (!ordered.length) return firstLegalMove(root);
+
+    // Немедленная победа — терминальный факт: её не перевешивает никакая
+    // эвристика и не отменяет обрыв итеративного углубления по времени.
+    for (const c of ordered){
+      const t = applyTransition(root, mover, c.x, c.y);
+      if (t.ok && t.node.gameOver && t.node.winner === mover) return c;
+    }
 
     const deadline = now() + diff.timeLimit;
     let bestMove = null;
