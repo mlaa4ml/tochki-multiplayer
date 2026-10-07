@@ -742,10 +742,7 @@
     // на несколько ходов назад.
     const history = [];
 
-    const targetScore = Math.max(0, Math.min(9999, Math.floor(options.targetScore) || 0));
-    let targetFillPercent = options.targetFillPercent;
-    if (typeof targetFillPercent !== 'number' || isNaN(targetFillPercent)) targetFillPercent = 100;
-    targetFillPercent = Math.max(0, Math.min(100, Math.floor(targetFillPercent)));
+const {targetScore, targetFillPercent} = normalizeRules(options);
     const scoreRuleActive = targetScore > 0;
     const fillRuleActive = targetFillPercent > 0 && targetFillPercent < 100;
 
