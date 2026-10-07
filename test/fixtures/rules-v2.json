@@ -1,7 +1,41 @@
 {
   "version": "rules-v2-classic",
   "description": "Машинно-читаемые эталоны правил «Точек» (классика, см. docs/RULES_V2.md). Координаты [player, x, y]; cells: x,y и ожидаемые stone/dead/territory. Поле medium 16x12, дебютная зона x 6..9, y 4..7; small 12x10, зона x 4..7, y 3..6.",
-  "sequences": [
+    "sequences": [
+    {
+      "name": "suicide-in-empty-enclosure: нейтральная пустая область уже окружена, вход сразу пленяет точку; доп. хода нет",
+      "options": {"sizeKey":"medium","extraTurnOnCapture":true},
+      "moves": [[1,7,4],[2,9,7],[1,6,5],[2,1,1],[1,8,5],[2,2,1],[1,7,6]],
+      "expect": {"scores":{"1":0,"2":0},"current":2,"cells":[{"x":7,"y":5,"stone":0,"dead":0,"territory":0}]},
+      "then": [
+        {"move":[2,7,5],"expect":{"ok":true,"suicide":true,"extraTurn":false,"current":1,"scores":{"1":1,"2":0},"cells":[{"x":7,"y":5,"stone":2,"dead":1,"territory":0}]}},
+        {"undo":true,"expect":{"ok":true,"current":2,"scores":{"1":0,"2":0},"cells":[{"x":7,"y":5,"stone":0,"dead":0,"territory":0}]}}
+      ]
+    },
+    {
+      "name": "fill-includes-empty-territory: 6% от 192 = 12 клеток, 11 точек плюс пустая захваченная клетка",
+      "options": {"sizeKey":"medium","targetFillPercent":6},
+      "moves": [[1,7,4],[2,7,5],[1,8,4],[2,1,1],[1,6,5],[2,2,1],[1,9,5],[2,3,1],[1,7,6],[2,4,1]],
+      "expect": {"gameOver":false,"stonesPlacedTotal":10},
+      "then": [
+        {"move":[1,8,6],"expect":{"ok":true,"gameOver":true,"winner":1,"current":1,"stonesPlacedTotal":11,"scores":{"1":1,"2":0},"cells":[{"x":8,"y":5,"stone":0,"dead":0,"territory":1}]}},
+        {"move":[2,8,5],"expect":{"ok":false,"reason":"game-over"},"noMutation":true},
+        {"undo":true,"expect":{"ok":false,"reason":"game-over"},"noMutation":true}
+      ]
+    },
+    {
+      "name": "undo-disabled + invalid coordinates leave state unchanged",
+      "options": {"sizeKey":"small","undoAllowed":false},
+      "moves": [[1,4,3],[2,5,3]],
+      "then": [
+        {"undo":true,"expect":{"ok":false,"reason":"undo-disabled"},"noMutation":true},
+        {"move":[1,12,0],"expect":{"ok":false,"reason":"illegal-cell"},"noMutation":true},
+        {"move":[1,0,10],"expect":{"ok":false,"reason":"illegal-cell"},"noMutation":true},
+        {"move":[1,"4",4],"expect":{"ok":false,"reason":"illegal-cell"},"noMutation":true},
+        {"endNow":true,"expect":{"ok":true,"winner":0}},
+        {"endNow":true,"expect":{"ok":false,"reason":"game-over"},"noMutation":true}
+      ]
+    },
     {
       "name": "simple-capture: одиночная точка окружена 4 точками, очко только за пленную точку",
       "options": { "sizeKey": "medium" },
