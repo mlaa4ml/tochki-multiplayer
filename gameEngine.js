@@ -435,15 +435,16 @@
     return cand.slice(0, branchFactorForDepth(diff, depth));
   }
 
-  function hasForcingCapture(state, rows, cols, player, diff){
+  function hasForcingCapture(node, diff){
+    const {state, rows, cols, current} = node;
     const cand = generateCandidates(state, rows, cols, diff.radius)
-      .map(c => ({...c, q: quickScore(state, rows, cols, c.x, c.y, player)}))
+      .filter(c => isLegalTransition(node, c.x, c.y))
+      .map(c => ({...c, q: quickScore(state, rows, cols, c.x, c.y, current)}))
       .sort((a,b) => b.q - a.q)
       .slice(0, 10);
     for (const c of cand){
-      const s = cloneState(state);
-      s.stone[c.y][c.x] = player;
-      if (runCaptures(s, player, rows, cols).length) return true;
+      const result = applyTransition(node, current, c.x, c.y);
+      if (result.gained.length) return true;
     }
     return false;
   }
