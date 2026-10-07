@@ -738,99 +738,29 @@
       };
     }
 
-    function isLegal(x, y){
-      if (gameOver) return false;
-      if (!Number.isInteger(x) || !Number.isInteger(y)) return false;
-      if (x<0 || y<0 || x>=cols || y>=rows) return false;
-      if (state.stone[y][x] !== 0) return false;
-      // Своя окружённая пустая клетка — ход запрещён. Клетка внутри контура
-      // противника разрешена, но ход туда — самоубийство (см. applyMove).
-      if (state.territory[y][x] !== 0 && state.territory[y][x] === current) return false;
-      if (stonesPlacedTotal < 2 && !inZone(x, y, getOpeningZone(rows, cols))) return false;
-      return true;
-    }
-
-    // Самоубийство: если точка player-а оказалась в области, уже окружённой
-    // противником (область вокруг неё замкнута стеной противника и не касается
-    // края), эта область сразу отходит противнику. Возвращает список клеток.
-    function captureSuicideRegion(player, x, y){
-      const opp = player === 1 ? 2 : 1;
-      const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
-      const stack = [[x,y]];
-      const region = [];
-      visited[y][x] = true;
-      while (stack.length){
-        const [cx,cy] = stack.pop();
-        region.push([cx,cy]);
-        if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
-        for (const [dx,dy] of DIRS4){
-          const nx=cx+dx, ny=cy+dy;
-          if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-          if (visited[ny][nx]) continue;
-          visited[ny][nx] = true;
-          if (isWall(state, nx, ny, opp)) continue;
-          stack.push([nx,ny]);
-        }
-      }
-      const out = [];
-      for (const [cx,cy] of region){
-        if (state.stone[cy][cx] === opp){
-          if (state.dead[cy][cx] !== 0){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'freed'}); state.dead[cy][cx] = 0; }
-        } else if (state.stone[cy][cx] !== 0){
-          if (state.dead[cy][cx] !== opp){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'captured'}); state.dead[cy][cx] = opp; }
-        } else if (state.territory[cy][cx] !== opp){
-          out.push({x:cx, y:cy, prevOwner: state.territory[cy][cx], kind:'territory'});
-          state.territory[cy][cx] = opp;
-        }
-      }
-      return out;
-    }
-
-    // Выполняет ход player-а. Возвращает {ok:true, ...} при успехе или
-    // {ok:false, reason} при недопустимом ходе — второе не мутирует состояние.
-    function applyMove(player, x, y){
-      if (gameOver) return { ok:false, reason:'game-over' };
-      if (player !== current) return { ok:false, reason:'not-your-turn' };
-      if (!isLegal(x, y)) return { ok:false, reason:'illegal-cell' };
-
-      history.push(snapshotForHistory());
-
-      state.stone[y][x] = player;
-      if (state.territory[y][x] !== 0) state.territory[y][x] = 0;
-      stonesPlacedTotal++;
-      moveLog.push({x, y, p: player});
-      lastMoveByPlayer[player] = {x, y};
-
-      // Сначала собственные окружения ходившего (замыкание контура имеет
-      // приоритет), затем — проверка самоубийства в окружении противника.
-      const gained = runCaptures(state, player, rows, cols);
-      let suicide = [];
-      if (state.dead[y][x] === 0) suicide = captureSuicideRegion(player, x, y);
-      moveLog[moveLog.length - 1].gained = gained.length;
-      if (suicide.length) moveLog[moveLog.length - 1].suicide = true;
-      const sc = computeScores(state, rows, cols);
-      scores[1] = sc[1];
-      scores[2] = sc[2];
-
-      let winner = null;
-      let extraTurn = false;
-      const ended = checkEndConditions({ state, rows, cols, scores, scoreRuleActive, targetScore, fillRuleActive, targetFillPercent, totalCells });
-      if (ended){
-        gameOver = true;
-        winner = scores[1] > scores[2] ? 1 : (scores[2] > scores[1] ? 2 : 0);
-      } else if (extraTurnOnCapture && countCaptured(gained) > 0){
-        // Игрок только что окружил точку(и) соперника — ход остаётся за
-        // ним же (current не меняется), а не переходит сопернику.
-        extraTurn = true;
-      } else {
-        current = player === 1 ? 2 : 1;
-      }
-
+    function transitionView(){
       return {
-        ok: true, player, x, y,
-        gained, suicide, scores: {...scores}, current, gameOver, winner,
-        extraTurn, stonesPlacedTotal
+        state, rows, cols, scores, current, gameOver, stonesPlacedTotal,
+        rules: {targetScore, targetFillPercent, extraTurnOnCapture}
       };
+    }
+
+    // Keep history/logging outside the lightweight shared rule transition.
+    function applyMove(player, x, y){
+      const node = transitionView();
+      if (gameOver) return {ok:false, reason:'game-over'};
+      if (player !== current) return {ok:false, reason:'not-your-turn'};
+      if (!isLegalTransition(node, x, y)) return {ok:false, reason:'illegal-cell'};
+      history.push(snapshotForHistory());
+      const result = applyTransitionInPlace(node, player, x, y);
+      current = node.current;
+      gameOver = node.gameOver;
+      stonesPlacedTotal = node.stonesPlacedTotal;
+      const entry = {x, y, p:player, gained:result.gained.length};
+      if (result.suicide.length) entry.suicide = true;
+      moveLog.push(entry);
+      lastMoveByPlayer[player] = {x, y};
+      return result;
     }
 
     // Досрочное завершение (аналог кнопки «Закончить игру»).
