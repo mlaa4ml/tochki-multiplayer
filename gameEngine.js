@@ -962,7 +962,10 @@
 
     function botMove(difficultyKey, weights){
       const diff = DIFFICULTY[difficultyKey] || DIFFICULTY.normal;
-      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS);
+      // Полные правила матча: пороги очков/заполнения, доп. ход, дебютная
+      // зона по stonesPlacedTotal, конец партии.
+      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS,
+        { stonesPlacedTotal, gameOver, rules: matchRules });
     }
 
     // Полный снимок состояния — то, что уходит клиенту по WebSocket.
