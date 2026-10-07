@@ -654,7 +654,7 @@
       if (gameOver) return false;
       if (!Number.isInteger(x) || !Number.isInteger(y)) return false;
       if (x<0 || y<0 || x>=cols || y>=rows) return false;
-      if (state.stone[y][x] !== 0 || state.territory[y][x] !== 0) return false;
+      if (state.stone[y][x] !== 0 || state.territory[y][x] === current) return false;
       if (stonesPlacedTotal < 2 && !inZone(x, y, getOpeningZone(rows, cols))) return false;
       return true;
     }
