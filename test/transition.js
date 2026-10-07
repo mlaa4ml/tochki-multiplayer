@@ -181,5 +181,31 @@ for (const firstPlayer of [1,2]) for (const extraTurnOnCapture of [false,true]){
   assert.strictEqual(S._alphaBeta(after,2,-Infinity,Infinity,diff,1000,
     firstPlayer,E.BOT_WEIGHTS,0,0), minimax(after,2,firstPlayer));
 }
+// Exercise the real CLI consumer, checking the complete context at its
+// chooseMove boundary rather than merely grepping the call site.
+const trainer = require('../tools/train-bot');
+const originalChooseMove = E.chooseMove;
+let cliCalls = 0;
+try {
+  E.chooseMove = (state, rows, cols, mover, searchDiff, weights, context) => {
+    cliCalls++;
+    assert(context && context.rules);
+    assert.strictEqual(context.rules.targetScore,1);
+    assert.strictEqual(context.rules.targetFillPercent,80);
+    assert.strictEqual(context.rules.extraTurnOnCapture,true);
+    assert.strictEqual(context.stonesPlacedTotal,6);
+    assert.strictEqual(context.gameOver,false);
+    assert.strictEqual(mover,2);
+    return originalChooseMove(state,rows,cols,mover,searchDiff,weights,context);
+  };
+  const winner = trainer.playSelfPlayGame('medium',{
+    prefix:capturePrefix.map(([p,x,y]) => ({seat:3-p,x,y})),
+    targetScore:1,targetFillPercent:80,firstPlayer:2,extraTurnOnCapture:true
+  },{1:E.BOT_WEIGHTS,2:E.BOT_WEIGHTS},1);
+  assert.strictEqual(winner,2);
+  assert.strictEqual(cliCalls,1);
+} finally {
+  E.chooseMove = originalChooseMove;
+}
 assert(captures > 0 && suicides > 0 && extraTurns > 0 && terminals > 0);
 console.log(`transition: OK (${edges} edges, ${captures} captures, ${suicides} suicides, ${extraTurns} extra turns, ${terminals} terminal checks)`);
