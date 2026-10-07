@@ -1022,6 +1022,8 @@
     generateCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, isBoardFull, countFilledCells, checkEndConditions,
+    normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
+    isTransitionLegal, terminalValue, WIN_SCORE,
     createMatch
   };
 });
