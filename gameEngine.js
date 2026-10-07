@@ -809,7 +809,7 @@
 
     function botMove(difficultyKey, weights){
       const diff = DIFFICULTY[difficultyKey] || DIFFICULTY.normal;
-      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS);
+      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS, transitionView());
     }
 
     // Полный снимок состояния — то, что уходит клиенту по WebSocket.
