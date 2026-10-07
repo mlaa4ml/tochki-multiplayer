@@ -841,16 +841,18 @@
       };
     }
 
+    const matchRules = { targetScore, targetFillPercent, scoreRuleActive, fillRuleActive, extraTurnOnCapture };
+
+    // Лёгкий узел перехода поверх ЖИВОГО состояния матча (без копирования
+    // доски): applyMove выполняет ход тем же applyTransitionInPlace, что и
+    // поиск бота/self-play, и затем забирает обратно очередь, счёт и т.д.
+    function liveNode(){
+      return { state, rows, cols, scores: { 1: scores[1], 2: scores[2] }, current,
+        stonesPlacedTotal, gameOver, winner: null, rules: matchRules };
+    }
+
     function isLegal(x, y){
-      if (gameOver) return false;
-      if (!Number.isInteger(x) || !Number.isInteger(y)) return false;
-      if (x<0 || y<0 || x>=cols || y>=rows) return false;
-      if (state.stone[y][x] !== 0) return false;
-      // Своя окружённая пустая клетка — ход запрещён. Клетка внутри контура
-      // противника разрешена, но ход туда — самоубийство (см. applyMove).
-      if (state.territory[y][x] !== 0 && state.territory[y][x] === current) return false;
-      if (stonesPlacedTotal < 2 && !inZone(x, y, getOpeningZone(rows, cols))) return false;
-      return true;
+      return transitionRejectReason(liveNode(), current, x, y) === null;
     }
 
     // Самоубийство: если точка player-а оказалась в области, уже окружённой
