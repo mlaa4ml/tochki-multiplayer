@@ -669,18 +669,19 @@
       history.push(snapshotForHistory());
 
       state.stone[y][x] = player;
+      state.territory[y][x] = 0;
       stonesPlacedTotal++;
       moveLog.push({x, y, p: player});
       lastMoveByPlayer[player] = {x, y};
 
       const gained = runCaptures(state, player, rows, cols);
+      const suicide = state.dead[y][x] === 0
+        ? captureSuicideRegion(state, player, x, y, rows, cols) : [];
       moveLog[moveLog.length - 1].gained = gained.length;
-      for (const g of gained){
-        if (g.prevOwner && g.prevOwner !== player){
-          scores[g.prevOwner] = Math.max(0, scores[g.prevOwner] - 1);
-        }
-        scores[player] += 1;
-      }
+      if (suicide.length) moveLog[moveLog.length - 1].suicide = true;
+      const updatedScores = computeScores(state, rows, cols);
+      scores[1] = updatedScores[1];
+      scores[2] = updatedScores[2];
 
       let winner = null;
       let extraTurn = false;
