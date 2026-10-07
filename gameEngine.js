@@ -858,7 +858,7 @@
     // Самоубийство: если точка player-а оказалась в области, уже окружённой
     // противником (область вокруг неё замкнута стеной противника и не касается
     // края), эта область сразу отходит противнику. Возвращает список клеток.
-    function captureSuicideRegion(player, x, y){
+    function captureSuicideRegionLegacyUnused(player, x, y){
       const opp = player === 1 ? 2 : 1;
       const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
       const stack = [[x,y]];
