@@ -689,7 +689,7 @@
       if (ended){
         gameOver = true;
         winner = scores[1] > scores[2] ? 1 : (scores[2] > scores[1] ? 2 : 0);
-      } else if (extraTurnOnCapture && gained.length > 0){
+      } else if (extraTurnOnCapture && gained.some(g => g.kind === 'captured')){
         // Игрок только что окружил точку(и) соперника — ход остаётся за
         // ним же (current не меняется), а не переходит сопернику.
         extraTurn = true;
