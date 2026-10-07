@@ -920,6 +920,8 @@ const {targetScore, targetFillPercent} = normalizeRules(options);
     generateCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, isBoardFull, countFilledCells, checkEndConditions,
+    normalizeRules, createSearchNode, cloneSearchNode, isLegalTransition,
+    applyTransition, terminalValue,
     createMatch
   };
 });
