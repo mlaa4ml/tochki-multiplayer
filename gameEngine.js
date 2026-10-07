@@ -144,13 +144,18 @@
         }
         if (!touchesBorder && containsLiveOpponent){
           for (const [cx,cy] of region){
-            if (stone[cy][cx] !== 0){
+            if (stone[cy][cx] === player){
+              if (dead[cy][cx] !== 0){
+                gained.push({x:cx, y:cy, prevOwner:dead[cy][cx], kind:'freed'});
+                dead[cy][cx] = 0;
+              }
+            } else if (stone[cy][cx] !== 0){
               if (dead[cy][cx] !== player){
-                gained.push({x:cx, y:cy, prevOwner: dead[cy][cx]});
+                gained.push({x:cx, y:cy, prevOwner:dead[cy][cx], kind:'captured'});
                 dead[cy][cx] = player;
               }
             } else if (territory[cy][cx] !== player){
-              gained.push({x:cx, y:cy, prevOwner: territory[cy][cx]});
+              gained.push({x:cx, y:cy, prevOwner:territory[cy][cx], kind:'territory'});
               territory[cy][cx] = player;
             }
           }
