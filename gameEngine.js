@@ -900,42 +900,20 @@
 
       history.push(snapshotForHistory());
 
-      state.stone[y][x] = player;
-      if (state.territory[y][x] !== 0) state.territory[y][x] = 0;
-      stonesPlacedTotal++;
-      moveLog.push({x, y, p: player});
+      // Тот же переход, что у поиска бота и self-play (см. applyTransitionInPlace).
+      const node = liveNode();
+      const res = applyTransitionInPlace(node, player, x, y);
+      if (!res.ok){ history.pop(); return res; } // защитно: isLegal уже проверен
+      stonesPlacedTotal = node.stonesPlacedTotal;
+      current = node.current;
+      scores[1] = node.scores[1];
+      scores[2] = node.scores[2];
+      gameOver = node.gameOver;
+      const logEntry = {x, y, p: player, gained: res.gained.length};
+      if (res.suicide.length) logEntry.suicide = true;
+      moveLog.push(logEntry);
       lastMoveByPlayer[player] = {x, y};
-
-      // Сначала собственные окружения ходившего (замыкание контура имеет
-      // приоритет), затем — проверка самоубийства в окружении противника.
-      const gained = runCaptures(state, player, rows, cols);
-      let suicide = [];
-      if (state.dead[y][x] === 0) suicide = captureSuicideRegion(player, x, y);
-      moveLog[moveLog.length - 1].gained = gained.length;
-      if (suicide.length) moveLog[moveLog.length - 1].suicide = true;
-      const sc = computeScores(state, rows, cols);
-      scores[1] = sc[1];
-      scores[2] = sc[2];
-
-      let winner = null;
-      let extraTurn = false;
-      const ended = checkEndConditions({ state, rows, cols, scores, scoreRuleActive, targetScore, fillRuleActive, targetFillPercent, totalCells });
-      if (ended){
-        gameOver = true;
-        winner = scores[1] > scores[2] ? 1 : (scores[2] > scores[1] ? 2 : 0);
-      } else if (extraTurnOnCapture && countCaptured(gained) > 0){
-        // Игрок только что окружил точку(и) соперника — ход остаётся за
-        // ним же (current не меняется), а не переходит сопернику.
-        extraTurn = true;
-      } else {
-        current = player === 1 ? 2 : 1;
-      }
-
-      return {
-        ok: true, player, x, y,
-        gained, suicide, scores: {...scores}, current, gameOver, winner,
-        extraTurn, stonesPlacedTotal
-      };
+      return res;
     }
 
     // Досрочное завершение (аналог кнопки «Закончить игру»).
