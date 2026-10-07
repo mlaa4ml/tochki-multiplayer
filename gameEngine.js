@@ -643,17 +643,22 @@
     return null;
   }
 
-  function alphaBeta(state, rows, cols, depth, alpha, beta, player, diff, deadline, forPlayer, weights, extensionsLeft){
+  // Игрок узла — всегда фактический node.current: после захвата с
+  // доп. ходом поиск продолжает за того же игрока, а не за соперника.
+  // Терминальный узел не порождает продолжений и оценивается терминально.
+  function alphaBeta(node, depth, alpha, beta, diff, deadline, forPlayer, weights, extensionsLeft, ply){
+    if (node.gameOver) return terminalValue(node, forPlayer, ply);
+    const { state, rows, cols } = node;
+    const player = node.current;
     const forcedExtension = depth <= 0 && extensionsLeft > 0 &&
       (hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player));
     if ((depth <= 0 && !forcedExtension) || now() > deadline){
       return evaluateStatic(state, rows, cols, forPlayer, weights);
     }
     const searchDepth = depth > 0 ? depth : 1;
-    const candidates = orderedCandidates(state, rows, cols, player, diff, searchDepth);
+    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
     if (!candidates.length) return evaluateStatic(state, rows, cols, forPlayer, weights);
 
-    const opponent = player === 1 ? 2 : 1;
     const maximizing = player === forPlayer;
     let value = maximizing ? -Infinity : Infinity;
     const nextDepth = depth > 0 ? depth - 1 : 0;
@@ -661,10 +666,9 @@
 
     for (const c of candidates){
       if (now() > deadline) break;
-      const s2 = cloneState(state);
-      s2.stone[c.y][c.x] = player;
-      runCaptures(s2, player, rows, cols);
-      const childVal = alphaBeta(s2, rows, cols, nextDepth, alpha, beta, opponent, diff, deadline, forPlayer, weights, nextExt);
+      const t = applyTransition(node, player, c.x, c.y);
+      if (!t.ok) continue;
+      const childVal = alphaBeta(t.node, nextDepth, alpha, beta, diff, deadline, forPlayer, weights, nextExt, ply + 1);
       if (maximizing){
         if (childVal > value) value = childVal;
         alpha = Math.max(alpha, value);
@@ -674,6 +678,7 @@
       }
       if (beta <= alpha) break;
     }
+    if (value === Infinity || value === -Infinity) return evaluateStatic(state, rows, cols, forPlayer, weights);
     return value;
   }
 
