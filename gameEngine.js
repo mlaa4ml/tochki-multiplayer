@@ -448,74 +448,98 @@
     return false;
   }
 
-  function alphaBeta(state, rows, cols, depth, alpha, beta, player, diff, deadline, forPlayer, weights, extensionsLeft){
-    const forcedExtension = depth <= 0 && extensionsLeft > 0 &&
-      (hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player));
-    if ((depth <= 0 && !forcedExtension) || now() > deadline){
-      return evaluateStatic(state, rows, cols, forPlayer, weights);
-    }
-    const searchDepth = depth > 0 ? depth : 1;
-    const candidates = orderedCandidates(state, rows, cols, player, diff, searchDepth);
-    if (!candidates.length) return evaluateStatic(state, rows, cols, forPlayer, weights);
+  // Keep every nonterminal heuristic strictly below a terminal result,
+  // including custom weights supplied by callers.
+  const TERMINAL_VALUE = 1e9;
+  function terminalValue(node, forPlayer, ply = 0){
+    if (!node.gameOver) return null;
+    if (node.winner === 0) return 0;
+    const value = TERMINAL_VALUE - Math.min(ply, TERMINAL_VALUE / 4);
+    return node.winner === forPlayer ? value : -value;
+  }
 
-    const opponent = player === 1 ? 2 : 1;
-    const maximizing = player === forPlayer;
+  function searchValue(node, forPlayer, weights){
+    const value = evaluateStatic(node.state, node.rows, node.cols, forPlayer, weights);
+    return Number.isNaN(value) ? 0
+      : Math.max(-TERMINAL_VALUE / 2, Math.min(TERMINAL_VALUE / 2, value));
+  }
+
+  function searchCandidates(node, diff){
+    if (node.gameOver) return [];
+    const {state, rows, cols, current} = node;
+    const urgent = computeUrgentCells(state, rows, cols, current);
+    return generateCandidates(state, rows, cols, diff.radius)
+      .filter(c => isLegalTransition(node, c.x, c.y))
+      .map(c => ({...c, q:quickScore(state, rows, cols, c.x, c.y, current, urgent)}))
+      .sort((a,b) => b.q - a.q);
+  }
+
+  function alphaBeta(node, depth, alpha, beta, diff, deadline, forPlayer, weights, extensionsLeft, ply){
+    const terminal = terminalValue(node, forPlayer, ply);
+    if (terminal !== null) return terminal;
+    if (now() > deadline) return searchValue(node, forPlayer, weights);
+    const forcedExtension = depth <= 0 && extensionsLeft > 0 &&
+      (hasForcingCapture(node, diff) ||
+        hasUrgentAtari(node.state, node.rows, node.cols, node.current));
+    if (depth <= 0 && !forcedExtension) return searchValue(node, forPlayer, weights);
+    const candidates = searchCandidates(node, diff)
+      .slice(0, branchFactorForDepth(diff, depth > 0 ? depth : 1));
+    const maximizing = node.current === forPlayer;
     let value = maximizing ? -Infinity : Infinity;
+    let searched = false;
     const nextDepth = depth > 0 ? depth - 1 : 0;
     const nextExt = depth > 0 ? extensionsLeft : extensionsLeft - 1;
-
     for (const c of candidates){
       if (now() > deadline) break;
-      const s2 = cloneState(state);
-      s2.stone[c.y][c.x] = player;
-      runCaptures(s2, player, rows, cols);
-      const childVal = alphaBeta(s2, rows, cols, nextDepth, alpha, beta, opponent, diff, deadline, forPlayer, weights, nextExt);
+      const child = applyTransition(node, node.current, c.x, c.y).node;
+      const childVal = alphaBeta(child, nextDepth, alpha, beta, diff, deadline,
+        forPlayer, weights, nextExt, ply + 1);
+      searched = true;
       if (maximizing){
-        if (childVal > value) value = childVal;
+        value = Math.max(value, childVal);
         alpha = Math.max(alpha, value);
       } else {
-        if (childVal < value) value = childVal;
+        value = Math.min(value, childVal);
         beta = Math.min(beta, value);
       }
       if (beta <= alpha) break;
     }
-    return value;
+    return searched ? value : searchValue(node, forPlayer, weights);
   }
 
-  function chooseMove(state, rows, cols, mover, diff, weights){
-    const opponent = mover === 1 ? 2 : 1;
+  // Optional context is a snapshot (or {rules, stonesPlacedTotal, gameOver}).
+  // Legacy board-only callers retain default match rules.
+  function chooseMove(state, rows, cols, mover, diff, weights, context = {}){
+    const node = createSearchNode({...context, state, rows, cols, current:mover});
+    if (node.gameOver) return null;
     const extInit = diff.quiescenceExt ?? 2;
-
-    let ordered = generateCandidates(state, rows, cols, diff.radius);
+    let ordered = searchCandidates(node, diff);
     if (!ordered.length) return null;
-    const urgentTop = computeUrgentCells(state, rows, cols, mover);
-    ordered.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, mover, urgentTop); });
-    ordered.sort((a,b) => b.q - a.q);
+    // Check terminal wins before heuristic width pruning. Candidate generation
+    // itself is unchanged; expanding it is a separate experiment.
+    for (const c of ordered){
+      const child = applyTransition(node, mover, c.x, c.y).node;
+      if (child.gameOver && child.winner === mover) return c;
+    }
     ordered = ordered.slice(0, diff.candidateCap);
-
     const deadline = now() + diff.timeLimit;
     let bestMove = null;
-
     for (let targetDepth = 2; targetDepth <= diff.maxDepth; targetDepth++){
       if (now() > deadline) break;
       let localBest = null, localBestScore = -Infinity;
       let completedFully = true;
       let alpha = -Infinity;
-      const beta = Infinity;
-
       for (const c of ordered){
         if (now() > deadline){ completedFully = false; break; }
-        const s1 = cloneState(state);
-        s1.stone[c.y][c.x] = mover;
-        runCaptures(s1, mover, rows, cols);
-        const val = alphaBeta(s1, rows, cols, targetDepth-1, alpha, beta, opponent, diff, deadline, mover, weights, extInit);
+        const child = applyTransition(node, mover, c.x, c.y).node;
+        const val = alphaBeta(child, targetDepth-1, alpha, Infinity, diff,
+          deadline, mover, weights, extInit, 1);
         if (val > localBestScore){
           localBestScore = val;
           localBest = c;
         }
         alpha = Math.max(alpha, localBestScore);
       }
-
       if (localBest && completedFully){
         bestMove = localBest;
         const idx = ordered.indexOf(bestMove);
@@ -524,7 +548,6 @@
         bestMove = localBest;
       }
     }
-
     return bestMove || ordered[0];
   }
 
