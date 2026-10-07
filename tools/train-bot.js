@@ -133,7 +133,7 @@ function pickMove(match, weights){
   // createMatch в gameEngine.js) — этого достаточно для chooseMove, ему не
   // нужны внутренние поля матча.
   const state = { stone: snap.stone, dead: snap.dead, territory: snap.territory };
-  return Engine.chooseMove(state, snap.rows, snap.cols, snap.current, Engine.TRAIN_DIFF, weights);
+  return Engine.chooseMove(state, snap.rows, snap.cols, snap.current, Engine.TRAIN_DIFF, weights, snap);
 }
 
 // weightsBySeat: {1: weights, 2: weights}. Возвращает 1, 2 или 0 (ничья).
