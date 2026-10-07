@@ -554,6 +554,117 @@
     return false;
   }
 
+    // Lightweight rule state: no history, replay events or match closures.
+  function normalizeRules(options = {}){
+    let fill = options.targetFillPercent;
+    if (typeof fill !== 'number' || isNaN(fill)) fill = 100;
+    return {
+      targetScore: Math.max(0, Math.min(9999, Math.floor(options.targetScore) || 0)),
+      targetFillPercent: Math.max(0, Math.min(100, Math.floor(fill))),
+      extraTurnOnCapture: options.extraTurnOnCapture === true
+    };
+  }
+
+  function createSearchNode(snapshot){
+    const state = cloneState(snapshot.state || snapshot);
+    const { rows, cols } = snapshot;
+    const scores = computeScores(state, rows, cols);
+    const gameOver = snapshot.gameOver === true;
+    return {
+      state, rows, cols, scores, current: snapshot.current,
+      stonesPlacedTotal: snapshot.stonesPlacedTotal ??
+        state.stone.reduce((n, row) => n + row.filter(Boolean).length, 0),
+      rules: normalizeRules(snapshot.rules),
+      gameOver,
+      winner: gameOver ? (scores[1] > scores[2] ? 1 : scores[2] > scores[1] ? 2 : 0) : null
+    };
+  }
+
+  function cloneSearchNode(node){
+    return { ...node, state: cloneState(node.state), scores: {...node.scores}, rules: {...node.rules} };
+  }
+
+  function isLegalTransition(node, x, y){
+    const {state, rows, cols, current, stonesPlacedTotal, gameOver} = node;
+    return !gameOver && Number.isInteger(x) && Number.isInteger(y) &&
+      x >= 0 && y >= 0 && x < cols && y < rows &&
+      state.stone[y][x] === 0 && state.territory[y][x] !== current &&
+      (stonesPlacedTotal >= 2 || inZone(x, y, getOpeningZone(rows, cols)));
+  }
+
+  function captureSuicideRegion(state, rows, cols, player, x, y){
+    const opp = player === 1 ? 2 : 1;
+    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    const stack = [[x,y]], region = [];
+    visited[y][x] = true;
+    while (stack.length){
+      const [cx,cy] = stack.pop();
+      region.push([cx,cy]);
+      if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
+      for (const [dx,dy] of DIRS4){
+        const nx=cx+dx, ny=cy+dy;
+        if (nx<0||ny<0||nx>=cols||ny>=rows || visited[ny][nx]) continue;
+        visited[ny][nx] = true;
+        if (!isWall(state, nx, ny, opp)) stack.push([nx,ny]);
+      }
+    }
+    const out = [];
+    for (const [cx,cy] of region){
+      if (state.stone[cy][cx] === opp){
+        if (state.dead[cy][cx] !== 0){
+          out.push({x:cx, y:cy, prevOwner:state.dead[cy][cx], kind:'freed'});
+          state.dead[cy][cx] = 0;
+        }
+      } else if (state.stone[cy][cx] !== 0){
+        if (state.dead[cy][cx] !== opp){
+          out.push({x:cx, y:cy, prevOwner:state.dead[cy][cx], kind:'captured'});
+          state.dead[cy][cx] = opp;
+        }
+      } else if (state.territory[cy][cx] !== opp){
+        out.push({x:cx, y:cy, prevOwner:state.territory[cy][cx], kind:'territory'});
+        state.territory[cy][cx] = opp;
+      }
+    }
+    return out;
+  }
+
+  function applyTransitionInPlace(node, player, x, y){
+    if (node.gameOver) return {ok:false, reason:'game-over'};
+    if (player !== node.current) return {ok:false, reason:'not-your-turn'};
+    if (!isLegalTransition(node, x, y)) return {ok:false, reason:'illegal-cell'};
+    const {state, rows, cols, rules} = node;
+    state.stone[y][x] = player;
+    state.territory[y][x] = 0;
+    node.stonesPlacedTotal++;
+    const gained = runCaptures(state, player, rows, cols);
+    const suicide = state.dead[y][x] === 0
+      ? captureSuicideRegion(state, rows, cols, player, x, y) : [];
+    const scores = computeScores(state, rows, cols);
+    node.scores[1] = scores[1];
+    node.scores[2] = scores[2];
+    node.gameOver = checkEndConditions({
+      state, rows, cols, scores, ...rules,
+      scoreRuleActive: rules.targetScore > 0,
+      fillRuleActive: rules.targetFillPercent > 0 && rules.targetFillPercent < 100,
+      totalCells: rows * cols
+    });
+    const extraTurn = !node.gameOver && rules.extraTurnOnCapture && countCaptured(gained) > 0;
+    node.winner = node.gameOver ? (scores[1] > scores[2] ? 1 : scores[2] > scores[1] ? 2 : 0) : null;
+    if (!node.gameOver && !extraTurn) node.current = player === 1 ? 2 : 1;
+    return {
+      ok:true, player, x, y, gained, suicide, scores:{...scores},
+      current:node.current, gameOver:node.gameOver, winner:node.winner,
+      extraTurn, stonesPlacedTotal:node.stonesPlacedTotal
+    };
+  }
+
+  // Pure transition; rejected moves never mutate the input either.
+  function applyTransition(node, player, x, y){
+    const next = cloneSearchNode(node);
+    const result = applyTransitionInPlace(next, player, x, y);
+    return result.ok ? {...result, node:next} : result;
+  }
+
   // ---------- Партия целиком: инкапсулированное состояние одной игры ----------
   // Это то, что нужно серверу: можно создать много независимых createMatch()
   // (по одной на комнату), и они не будут делить между собой никакие
