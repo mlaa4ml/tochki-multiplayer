@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node server.js",
     "test:rules": "node test/rules.js",
-    "test": "node test/replay.js && node test/replay-db.js && node test/rules.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
+    "test": "node test/transition.js && node test/replay.js && node test/replay-db.js && node test/rules.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
   },
   "engines": {
     "node": "24.x"
