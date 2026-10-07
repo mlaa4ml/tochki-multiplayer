@@ -165,6 +165,55 @@
     return gained;
   }
 
+    // Очки дают только пленённые точки противника, не пустая территория.
+  function computeScores(state, rows, cols){
+    const scores = {1:0, 2:0};
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      const s = state.stone[y][x], d = state.dead[y][x];
+      if (s !== 0 && d !== 0 && s !== d) scores[d]++;
+    }
+    return scores;
+  }
+
+  // Проверяем только область нового хода: старые пустые контуры сами
+  // по себе не захватываются. Собственное окружение применяется первым.
+  function captureSuicideRegion(state, player, x, y, rows, cols){
+    const opponent = player === 1 ? 2 : 1;
+    if (isWall(state, x, y, opponent)) return [];
+    const visited = Array.from({length:rows}, () => new Array(cols).fill(false));
+    const stack = [[x,y]], region = [];
+    visited[y][x] = true;
+    while (stack.length){
+      const [cx,cy] = stack.pop();
+      region.push([cx,cy]);
+      if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
+      for (const [dx,dy] of DIRS4){
+        const nx=cx+dx, ny=cy+dy;
+        if (visited[ny][nx]) continue;
+        visited[ny][nx] = true;
+        if (!isWall(state, nx, ny, opponent)) stack.push([nx,ny]);
+      }
+    }
+    const gained = [];
+    for (const [cx,cy] of region){
+      if (state.stone[cy][cx] === opponent){
+        if (state.dead[cy][cx] !== 0){
+          gained.push({x:cx,y:cy,prevOwner:state.dead[cy][cx],kind:'freed'});
+          state.dead[cy][cx] = 0;
+        }
+      } else if (state.stone[cy][cx] !== 0){
+        if (state.dead[cy][cx] !== opponent){
+          gained.push({x:cx,y:cy,prevOwner:state.dead[cy][cx],kind:'captured'});
+          state.dead[cy][cx] = opponent;
+        }
+      } else if (state.territory[cy][cx] !== opponent){
+        gained.push({x:cx,y:cy,prevOwner:state.territory[cy][cx],kind:'territory'});
+        state.territory[cy][cx] = opponent;
+      }
+    }
+    return gained;
+  }
+
   // ---------- Бот ----------
 
   function generateCandidates(state, rows, cols, radius){
