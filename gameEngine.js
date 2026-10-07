@@ -717,7 +717,7 @@
 
       return {
         ok: true, player, x, y,
-        gained, scores: {...scores}, current, gameOver, winner,
+        gained, suicide, scores: {...scores}, current, gameOver, winner,
         extraTurn, stonesPlacedTotal
       };
     }
