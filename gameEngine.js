@@ -718,10 +718,11 @@
 
       for (const c of ordered){
         if (now() > deadline){ completedFully = false; break; }
-        const s1 = cloneState(state);
-        s1.stone[c.y][c.x] = mover;
-        runCaptures(s1, mover, rows, cols);
-        const val = alphaBeta(s1, rows, cols, targetDepth-1, alpha, beta, opponent, diff, deadline, mover, weights, extInit);
+        const t = applyTransition(root, mover, c.x, c.y);
+        if (!t.ok) continue;
+        // Дочерний узел сам знает, чей ход (доп. ход за захват) и не
+        // окончена ли партия — поиск не чередует игроков вслепую.
+        const val = alphaBeta(t.node, targetDepth-1, alpha, beta, diff, deadline, mover, weights, extInit, 1);
         if (val > localBestScore){
           localBestScore = val;
           localBest = c;
