@@ -855,41 +855,8 @@
       return transitionRejectReason(liveNode(), current, x, y) === null;
     }
 
-    // Самоубийство: если точка player-а оказалась в области, уже окружённой
-    // противником (область вокруг неё замкнута стеной противника и не касается
-    // края), эта область сразу отходит противнику. Возвращает список клеток.
-    function captureSuicideRegionLegacyUnused(player, x, y){
-      const opp = player === 1 ? 2 : 1;
-      const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
-      const stack = [[x,y]];
-      const region = [];
-      visited[y][x] = true;
-      while (stack.length){
-        const [cx,cy] = stack.pop();
-        region.push([cx,cy]);
-        if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
-        for (const [dx,dy] of DIRS4){
-          const nx=cx+dx, ny=cy+dy;
-          if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-          if (visited[ny][nx]) continue;
-          visited[ny][nx] = true;
-          if (isWall(state, nx, ny, opp)) continue;
-          stack.push([nx,ny]);
-        }
-      }
-      const out = [];
-      for (const [cx,cy] of region){
-        if (state.stone[cy][cx] === opp){
-          if (state.dead[cy][cx] !== 0){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'freed'}); state.dead[cy][cx] = 0; }
-        } else if (state.stone[cy][cx] !== 0){
-          if (state.dead[cy][cx] !== opp){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'captured'}); state.dead[cy][cx] = opp; }
-        } else if (state.territory[cy][cx] !== opp){
-          out.push({x:cx, y:cy, prevOwner: state.territory[cy][cx], kind:'territory'});
-          state.territory[cy][cx] = opp;
-        }
-      }
-      return out;
-    }
+    // Самоубийство обрабатывается общим captureSuicideRegion внутри
+    // applyTransitionInPlace (см. выше, «Единый лёгкий переход»).
 
     // Выполняет ход player-а. Возвращает {ok:true, ...} при успехе или
     // {ok:false, reason} при недопустимом ходе — второе не мутирует состояние.
