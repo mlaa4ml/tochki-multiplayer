@@ -1,0 +1,140 @@
+{
+  "version": "rules-v2-classic",
+  "description": "Машинно-читаемые эталоны правил «Точек» (классика, см. docs/RULES_V2.md). Координаты [player, x, y]; cells: x,y и ожидаемые stone/dead/territory. Поле medium 16x12, дебютная зона x 6..9, y 4..7; small 12x10, зона x 4..7, y 3..6.",
+  "sequences": [
+    {
+      "name": "simple-capture: одиночная точка окружена 4 точками, очко только за пленную точку",
+      "options": { "sizeKey": "medium" },
+      "moves": [[1,7,4],[2,7,5],[1,6,5],[2,1,1],[1,8,5],[2,2,1],[1,7,6]],
+      "expect": {
+        "scores": {"1":1,"2":0}, "current": 2, "gameOver": false,
+        "cells": [ {"x":7,"y":5,"stone":2,"dead":1,"territory":0}, {"x":7,"y":4,"stone":1,"dead":0,"territory":0} ]
+      },
+      "then": [
+        { "undo": true, "expect": { "ok": true, "scores": {"1":0,"2":0}, "current": 1,
+          "cells": [ {"x":7,"y":5,"stone":2,"dead":0,"territory":0}, {"x":7,"y":6,"stone":0,"dead":0,"territory":0} ] } },
+        { "move": [1,7,6], "expect": { "ok": true, "scores": {"1":1,"2":0}, "current": 2 } },
+        { "endNow": true, "expect": { "ok": true, "gameOver": true, "winner": 1, "scores": {"1":1,"2":0} } },
+        { "move": [2,3,3], "expect": { "ok": false, "reason": "game-over" } },
+        { "undo": true, "expect": { "ok": false, "reason": "game-over" } }
+      ]
+    },
+    {
+      "name": "empty-cells-no-score + own-territory-illegal + suicide",
+      "options": { "sizeKey": "medium" },
+      "moves": [[1,7,4],[2,7,5],[1,8,4],[2,1,1],[1,6,5],[2,2,1],[1,9,5],[2,3,1],[1,7,6],[2,4,1],[1,8,6]],
+      "expect": {
+        "scores": {"1":1,"2":0}, "current": 2,
+        "cells": [ {"x":7,"y":5,"stone":2,"dead":1,"territory":0}, {"x":8,"y":5,"stone":0,"dead":0,"territory":1} ]
+      },
+      "then": [
+        { "move": [2,5,1], "expect": { "ok": true, "current": 1 } },
+        { "move": [1,8,5], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [1,5,2], "expect": { "ok": true, "current": 2 } },
+        { "move": [2,8,5], "expect": { "ok": true, "scores": {"1":2,"2":0}, "current": 1, "suicide": true,
+          "cells": [ {"x":8,"y":5,"stone":2,"dead":1,"territory":0} ] } },
+        { "undo": true, "expect": { "ok": true, "scores": {"1":1,"2":0}, "current": 2,
+          "cells": [ {"x":8,"y":5,"stone":0,"dead":0,"territory":1} ] } }
+      ]
+    },
+    {
+      "name": "empty-enclosure: пустое окружение без точки противника не захватывается",
+      "options": { "sizeKey": "medium" },
+      "moves": [[1,7,4],[2,1,1],[1,6,5],[2,2,1],[1,8,5],[2,3,1],[1,7,6]],
+      "expect": { "scores": {"1":0,"2":0}, "current": 2,
+        "cells": [ {"x":7,"y":5,"stone":0,"dead":0,"territory":0} ] }
+    },
+    {
+      "name": "border: область у края не захватывается",
+      "options": { "sizeKey": "medium" },
+      "moves": [[1,7,4],[2,7,5],[1,1,1],[2,0,1],[1,0,0],[2,5,5],[1,0,2]],
+      "expect": { "scores": {"1":0,"2":0},
+        "cells": [ {"x":0,"y":1,"stone":2,"dead":0,"territory":0} ] }
+    },
+    {
+      "name": "liberation: внешний контур вокруг кольца с пленной точкой — кольцо мертво, своя точка оживает, противник теряет очко",
+      "options": { "sizeKey": "medium" },
+      "moves": [[1,7,5],[2,7,4],[1,5,5],[2,6,5],[1,9,5],[2,8,5],[1,7,7],[2,7,6]],
+      "expect": { "scores": {"1":0,"2":1}, "current": 1,
+        "cells": [ {"x":7,"y":5,"stone":1,"dead":2,"territory":0} ] },
+      "then": [
+        { "move": [1,7,3], "expect": { "ok": true } },
+        { "move": [2,1,1], "expect": { "ok": true } },
+        { "move": [1,6,4], "expect": { "ok": true } },
+        { "move": [2,2,1], "expect": { "ok": true } },
+        { "move": [1,8,4], "expect": { "ok": true } },
+        { "move": [2,3,1], "expect": { "ok": true } },
+        { "move": [1,6,6], "expect": { "ok": true } },
+        { "move": [2,4,1], "expect": { "ok": true, "scores": {"1":0,"2":1} } },
+        { "move": [1,8,6], "expect": { "ok": true, "scores": {"1":4,"2":0}, "current": 2,
+          "cells": [ {"x":7,"y":5,"stone":1,"dead":0,"territory":0},
+                     {"x":7,"y":4,"stone":2,"dead":1,"territory":0}, {"x":6,"y":5,"stone":2,"dead":1,"territory":0},
+                     {"x":8,"y":5,"stone":2,"dead":1,"territory":0}, {"x":7,"y":6,"stone":2,"dead":1,"territory":0} ] } },
+        { "undo": true, "expect": { "ok": true, "scores": {"1":0,"2":1}, "current": 1,
+          "cells": [ {"x":7,"y":5,"stone":1,"dead":2,"territory":0}, {"x":7,"y":4,"stone":2,"dead":0,"territory":0} ] } }
+      ]
+    },
+    {
+      "name": "extra-turn: при extraTurnOnCapture захват оставляет ход",
+      "options": { "sizeKey": "medium", "extraTurnOnCapture": true },
+      "moves": [[1,7,4],[2,7,5],[1,6,5],[2,1,1],[1,8,5],[2,2,1]],
+      "then": [
+        { "move": [1,7,6], "expect": { "ok": true, "extraTurn": true, "current": 1, "scores": {"1":1,"2":0} } },
+        { "move": [2,3,3], "expect": { "ok": false, "reason": "not-your-turn" } },
+        { "move": [1,3,3], "expect": { "ok": true, "extraTurn": false, "current": 2 } }
+      ]
+    },
+    {
+      "name": "score-threshold: targetScore=1 завершает партию, current остаётся за ходившим",
+      "options": { "sizeKey": "medium", "targetScore": 1, "extraTurnOnCapture": true },
+      "moves": [[1,7,4],[2,7,5],[1,6,5],[2,1,1],[1,8,5],[2,2,1]],
+      "then": [
+        { "move": [1,7,6], "expect": { "ok": true, "gameOver": true, "winner": 1, "current": 1, "extraTurn": false } },
+        { "undo": true, "expect": { "ok": false, "reason": "game-over" } }
+      ]
+    },
+    {
+      "name": "fill-threshold: 1% от 192 клеток = 2 клетки, ничья",
+      "options": { "sizeKey": "medium", "targetFillPercent": 1 },
+      "moves": [[1,7,4]],
+      "then": [
+        { "move": [2,7,5], "expect": { "ok": true, "gameOver": true, "winner": 0, "current": 2 } }
+      ]
+    },
+    {
+      "name": "first-player-2: первым ходит игрок 2, дебютная зона для первых двух ходов",
+      "options": { "sizeKey": "medium", "firstPlayer": 2 },
+      "moves": [],
+      "then": [
+        { "move": [1,7,5], "expect": { "ok": false, "reason": "not-your-turn" }, "noMutation": true },
+        { "move": [2,0,0], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [2,6,4], "expect": { "ok": true, "current": 1 } },
+        { "move": [1,10,4], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [1,9,7], "expect": { "ok": true, "current": 2 } },
+        { "move": [2,0,0], "expect": { "ok": true, "current": 1 } },
+        { "move": [1,0,0], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [1,-1,0], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [1,1.5,0], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "endNow": true, "expect": { "ok": true, "winner": 0 } }
+      ]
+    },
+    {
+      "name": "first-player-1: дебютная зона",
+      "options": { "sizeKey": "medium" },
+      "moves": [],
+      "then": [
+        { "move": [2,7,5], "expect": { "ok": false, "reason": "not-your-turn" }, "noMutation": true },
+        { "move": [1,5,5], "expect": { "ok": false, "reason": "illegal-cell" }, "noMutation": true },
+        { "move": [1,6,7], "expect": { "ok": true, "current": 2 } },
+        { "undo": true, "expect": { "ok": true, "current": 1, "stonesPlacedTotal": 0 } },
+        { "undo": true, "expect": { "ok": false, "reason": "nothing-to-undo" } }
+      ]
+    }
+  ],
+  "fullBoard": {
+    "name": "full-board: small 12x10, вертикальные полосы (чётные x — игрок 1, нечётные — игрок 2), без захватов, ничья по заполнению",
+    "options": { "sizeKey": "small" },
+    "firstMoves": [[1,4,3],[2,5,3]],
+    "expect": { "gameOver": true, "winner": 0, "scores": {"1":0,"2":0}, "stonesPlacedTotal": 120 }
+  }
+}
