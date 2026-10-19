@@ -1092,7 +1092,7 @@
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
     generateCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
-    chooseMove, isBoardFull, countFilledCells, checkEndConditions,
+    chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
     isTransitionLegal, terminalValue, WIN_SCORE,
     createMatch
