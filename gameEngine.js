@@ -1027,7 +1027,7 @@
 
     function getMoveLog(){ return moveLog.slice(); }
 
-    return { rows, cols, sizeKey, applyMove, endNow, botMove, getSnapshot, getMoveLog, undoLastMove, canUndoLastMove, lastMoverSeat };
+    return { rows, cols, sizeKey, applyMove, endNow, botMove, botSearch, getSnapshot, getMoveLog, undoLastMove, canUndoLastMove, lastMoverSeat };
   }
 
   // Replay identity describes rule semantics, not the npm package version.
