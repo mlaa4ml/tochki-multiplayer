@@ -70,6 +70,12 @@ test('невалидный ход бота -> InvalidMoveError, не ничья'
     e => e instanceof Runner.InvalidMoveError);
 });
 
+test('null-ход при наличии легальных ходов -> InvalidMoveError, не штатное завершение', () => {
+  const lazy = () => ({ move: null });
+  assert.throws(() => Runner.playGame(Engine, { rules: RULES, players: { 1: lazy, 2: lazy }, maxMoves: 10 }),
+    e => e instanceof Runner.InvalidMoveError && /no move/.test(e.message));
+});
+
 test('строгая проверка префикса дебюта', () => {
   const m = Engine.createMatch(RULES);
   assert.throws(() => Runner.applyPrefix(m, [{ x: 6, y: 5, seat: 1 }, { x: 6, y: 5, seat: 2 }], () => {}),
