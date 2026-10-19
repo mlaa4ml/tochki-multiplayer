@@ -352,8 +352,11 @@ function runBenchmark(opts){
       }
     }
   }
-  const overall = bootstrapPairs(allBaselinePairs, opts.bootstrap, opts.seed + 1);
-  report.vsBaseline = { pairs: allBaselinePairs.length, score: overall.mean, ci95: { lo: overall.lo, hi: overall.hi } };
+  const merged = new Map();
+  for (const [k, v] of allBaselinePairs){ if (!merged.has(k)) merged.set(k, []); merged.get(k).push(...v); }
+  const overall = bootstrapClusters([...merged.values()], opts.bootstrap, opts.seed + 1);
+  report.vsBaseline = { pairs: overall.n, clusters: overall.clusters, score: overall.mean,
+    ci95: { lo: overall.lo, hi: overall.hi, method: 'cluster bootstrap over source openings' } };
   report.acceptance.correctnessErrors = report.errors.length;
   report.acceptance.accepted = overall.lo !== null && overall.lo > 0.5 && report.errors.length === 0;
   report.acceptance.note = 'Только отчёт: benchmark не публикует и не сохраняет веса.';
