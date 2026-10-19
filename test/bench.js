@@ -136,4 +136,29 @@ test('кластерный bootstrap шире наивного при повто
   assert((cl.hi - cl.lo) > (naive.hi - naive.lo));
 });
 
+test('стратегический корпус: версионирован, строго валиден, ожидания пересчитываются движком', () => {
+  const S = require('../tools/bench/strategic.js');
+  const st = JSON.parse(fs.readFileSync(S.DEFAULT_PATH, 'utf8'));
+  assert.strictEqual(st.format, 'tochki-bench-strategic');
+  assert.strictEqual(st.version, 1);
+  assert.strictEqual(S.validateStrategic(st, true), true);
+  for (const kind of S.KINDS)
+    assert(Object.values(st.positions).some(l => l.some(p => p.kind === kind)), 'нет позиций вида ' + kind);
+  // Порча ожидаемого хода ловится глубокой проверкой.
+  const broken = JSON.parse(JSON.stringify(st));
+  const p = Object.values(broken.positions).find(l => l.length)[0];
+  p.expected = p.expected.slice(1).concat(p.expected.length > 1 ? [] : [{ x: -1, y: -1 }]);
+  assert.throws(() => S.validateStrategic(broken, true), /strategic corpus invalid/);
+});
+
+test('отчёт содержит стратегические пропуски по видам', () => {
+  const base = { id: 'baseline', weights: { ...Engine.BOT_WEIGHTS } };
+  const rep = Bench.runBenchmark({ corpus, split: 'validation', sizes: ['small'], difficulties: ['normal'], nodeLimit: 60, runs: 1, seed: 2,
+    maxMoves: 4, maxMs: 0, bootstrap: 50, maxPairs: 1, candidate: { id: 'c', weights: { ...Engine.BOT_WEIGHTS } }, pool: [base] });
+  const s = rep.configs[0].strategic;
+  assert(s && s.total > 0, 'нет strategic в отчёте');
+  for (const kind of ['defend-threat', 'endgame-fill']) assert(kind in s.byKind);
+  assert.strictEqual(typeof s.misses, 'number');
+});
+
 console.log(`bench smoke: ${passed} passed`);
