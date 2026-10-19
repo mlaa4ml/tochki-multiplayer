@@ -65,7 +65,8 @@
     const match = Engine.createMatch(Object.assign({}, opts.rules));
     emit({ type: 'header', runnerVersion: RUNNER_VERSION, engineVersion: Engine.ENGINE_VERSION,
       botVersion: Engine.BOT_VERSION, weightsVersion: Engine.WEIGHTS_VERSION,
-      rules: match.getSnapshot().rules, meta: opts.meta || null });
+            rules: Object.assign({ sizeKey: match.getSnapshot().sizeKey }, match.getSnapshot().rules),
+      meta: opts.meta || null });
     applyPrefix(match, opts.prefix || [], emit);
 
     const stats = { 1: { nodes: 0, depthSum: 0, moves: 0, times: [] }, 2: { nodes: 0, depthSum: 0, moves: 0, times: [] } };
