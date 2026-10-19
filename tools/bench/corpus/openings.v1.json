@@ -1,0 +1,2250 @@
+{
+  "format": "tochki-corpus",
+  "version": 1,
+  "generator": "synthetic-v1",
+  "openings": [
+    {
+      "id": "small-train-0",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "small-train-1",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "small-train-2",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "small-train-3",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-train-4",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-train-5",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-train-6",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-train-7",
+      "split": "train",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-validation-0",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-validation-1",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-validation-2",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "small-validation-3",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-validation-4",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-validation-5",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-validation-6",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-validation-7",
+      "split": "validation",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "small-test-0",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-test-1",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-test-2",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "small-test-3",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 3
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "small-test-4",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 4,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "small-test-5",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "small-test-6",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "small-test-7",
+      "split": "test",
+      "sizeKey": "small",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "medium-train-0",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "medium-train-1",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "medium-train-2",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "medium-train-3",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-train-4",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-train-5",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-train-6",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-train-7",
+      "split": "train",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-0",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-1",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-2",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-3",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-4",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-5",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-6",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-validation-7",
+      "split": "validation",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "medium-test-0",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-test-1",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-test-2",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "medium-test-3",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "medium-test-4",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "medium-test-5",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "medium-test-6",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 8,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "medium-test-7",
+      "split": "test",
+      "sizeKey": "medium",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "large-train-0",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "large-train-1",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "large-train-2",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "large-train-3",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-train-4",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-train-5",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-train-6",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-train-7",
+      "split": "train",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-validation-0",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-validation-1",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-validation-2",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "large-validation-3",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-validation-4",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-validation-5",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-validation-6",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-validation-7",
+      "split": "validation",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "large-test-0",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-test-1",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-test-2",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "large-test-3",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "large-test-4",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 9,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "large-test-5",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "large-test-6",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 11,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "large-test-7",
+      "split": "test",
+      "sizeKey": "large",
+      "prefix": [
+        {
+          "p": 1,
+          "x": 12,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 6
+        }
+      ]
+    }
+  ],
+  "positions": [
+    {
+      "id": "small-capture-0",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 4
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-capture-1",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-capture-2",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-capture-3",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 5,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 4
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-capture-4",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 1,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-capture-5",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "small",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 1,
+          "x": 5,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "small-safety",
+      "kind": "strategic",
+      "split": "test",
+      "options": {
+        "sizeKey": "small"
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 5,
+          "y": 4
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 4,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "forbiddenMoves": [
+        {
+          "x": 5,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "medium-capture-0",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 5
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-capture-1",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-capture-2",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-capture-3",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 7,
+          "y": 7
+        },
+        {
+          "p": 1,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 5
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-capture-4",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-capture-5",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 1,
+          "x": 7,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "medium-safety",
+      "kind": "strategic",
+      "split": "test",
+      "options": {
+        "sizeKey": "medium"
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 7
+        },
+        {
+          "p": 1,
+          "x": 6,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 8,
+          "y": 6
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "forbiddenMoves": [
+        {
+          "x": 7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "large-capture-0",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 9
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-capture-1",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 9
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-capture-2",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 1
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 9
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-capture-3",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 10,
+          "y": 9
+        },
+        {
+          "p": 1,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 7
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-capture-4",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 1,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 9
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-capture-5",
+      "kind": "tactical",
+      "split": "test",
+      "options": {
+        "sizeKey": "large",
+        "firstPlayer": 2
+      },
+      "prefix": [
+        {
+          "p": 2,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 1,
+          "x": 10,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 2,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 1,
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "bestMoves": [
+        {
+          "x": 10,
+          "y": 9
+        }
+      ],
+      "minScoreGain": 1
+    },
+    {
+      "id": "large-safety",
+      "kind": "strategic",
+      "split": "test",
+      "options": {
+        "sizeKey": "large"
+      },
+      "prefix": [
+        {
+          "p": 1,
+          "x": 10,
+          "y": 7
+        },
+        {
+          "p": 2,
+          "x": 12,
+          "y": 9
+        },
+        {
+          "p": 1,
+          "x": 9,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 11,
+          "y": 8
+        },
+        {
+          "p": 2,
+          "x": 1,
+          "y": 0
+        },
+        {
+          "p": 1,
+          "x": 10,
+          "y": 9
+        }
+      ],
+      "forbiddenMoves": [
+        {
+          "x": 10,
+          "y": 8
+        }
+      ]
+    }
+  ]
+}
