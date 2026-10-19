@@ -66,7 +66,11 @@ test('train split forbidden and mini paired report reproducible', () => {
   const config = { corpus, runs: 1, openingCount: 1, nodeLimit: 4 };
   const a = B.runBenchmark(config), b = B.runBenchmark(config);
   assert.equal(a.summary.errors, 0); assert.equal(a.summary.truncated, 0);
-  assert.equal(a.summary.games, 2); assert.equal(a.accepted, false);
+    assert.equal(a.summary.games, 2); assert.equal(a.accepted, false);
+  assert.equal(a.audit.results.length, 0, 'validation must not expose test positions');
+  const heldOutAudit = B.auditPositions(corpus, E.BOT_WEIGHTS, ['normal'], 4);
+  assert.equal(heldOutAudit.errors, 0);
+  assert.equal(heldOutAudit.results.length, corpus.positions.length);
   assert.deepEqual(a.baseline.interval95, b.baseline.interval95);
   assert.deepEqual(a.pairs.map(p => p.games.map(g => g.result)), b.pairs.map(p => p.games.map(g => g.result)));
   assert.deepEqual(a.pairs[0].games.map(g => g.candidateSeat), [1, 2]);
