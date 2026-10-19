@@ -419,4 +419,4 @@ function main(){
 
 if (require.main === module) main();
 
-module.exports = { BENCH_VERSION, makeRng, generateCorpus, validateCorpus, bootstrapPairs, quantile, playPair, evalTactics, runBenchmark, RULESETS };
+module.exports = { BENCH_VERSION, makeRng, generateCorpus, validateCorpus, bootstrapPairs, bootstrapClusters, bootstrapPairsNaive, derivePosition, quantile, playPair, evalTactics, runBenchmark, RULESETS };
