@@ -36,6 +36,16 @@
     };
   }
 
+    // Есть ли у ходящего хоть один легальный ход (по правилам движка).
+  function hasLegalMove(Engine, snap) {
+    if (snap.gameOver) return false;
+    const node = Engine.createSearchNode(snap);
+    for (let y = 0; y < snap.rows; y++)
+      for (let x = 0; x < snap.cols; x++)
+        if (Engine.isTransitionLegal(node, x, y)) return true;
+    return false;
+  }
+
   // Строгое применение префикса дебюта: любой нелегальный ход — ошибка.
   function applyPrefix(match, prefix, emit) {
     for (let i = 0; i < prefix.length; i++) {
