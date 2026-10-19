@@ -84,7 +84,9 @@ const fallback = searchOn(m, diff, { nodeLimit: 1 }).move;
     check(allFinite(r.trace), 'свип tl=' + tl + ': нет ±Infinity/NaN ' + J(r.trace.candidates));
     check(r.move && isLegalForSnap(m, r.move), 'свип tl=' + tl + ': легальный ход');
     const d = r.trace.completedDepth;
-    const expected = d === 0 ? fallback : full[d].move;
+    if (r.trace.fallback === 'first-legal') sawRootStop++;
+    if (r.trace.fallback === 'first-candidate') sawWinLoopStop++;
+    const expected = r.trace.fallback === 'first-legal' ? firstLegal : (d === 0 ? fallback : full[d].move);
     check(r.move.x === expected.x && r.move.y === expected.y,
       'свип tl=' + tl + ': ход ' + J(r.move) + ' != ход завершённой глубины ' + d + ' ' + J(expected));
     if (d > 0) check(J(r.trace.candidates) === J(full[d].trace.candidates), 'свип tl=' + tl + ': кандидаты = эталон');
