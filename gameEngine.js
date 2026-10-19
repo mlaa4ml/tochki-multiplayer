@@ -708,7 +708,7 @@
     }
     const searchDepth = depth > 0 ? depth : 1;
     const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
-    if (budgetExceeded(sc)) return 0;
+    if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     if (!candidates.length) return staticVal();
 
     const maximizing = player === forPlayer;
@@ -717,7 +717,7 @@
     const nextExt = depth > 0 ? extensionsLeft : extensionsLeft - 1;
 
     for (const c of candidates){
-      if (budgetExceeded(sc)) return 0;
+      if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
       const t = applyTransition(node, player, c.x, c.y);
       if (!t.ok) continue;
       const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1);
