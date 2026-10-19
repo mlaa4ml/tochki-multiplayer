@@ -148,8 +148,9 @@ function runBenchmark({ corpus, split = 'validation', seed = 12012, runs = 2,
   }
   const summary = summarize(pairs, seed);
   const baseline = summarize(pairs.filter(p => p.opponent === frozen.id), seed);
-  const audit = auditPositions(corpus, candidateWeights, difficulties, nodeLimit);
-  const baselineAudit = auditPositions(corpus, frozen.weights, difficulties, nodeLimit);
+  // Exploratory validation must not expose held-out tactical test results.
+  const audit = auditPositions(corpus, candidateWeights, difficulties, nodeLimit, split);
+  const baselineAudit = auditPositions(corpus, frozen.weights, difficulties, nodeLimit, split);
   let commit = 'unknown';
   try { commit = cp.execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); } catch (_) { /* source archive */ }
   const hashes = Object.fromEntries(['gameEngine.js', 'tools/bench/runner.js', 'tools/bench/benchmark.js',
