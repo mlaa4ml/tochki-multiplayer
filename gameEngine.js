@@ -835,62 +835,6 @@
     return searchMove(state, rows, cols, mover, diff, weights, ctx).move;
   }
 
-  // Старая реализация — будет удалена (A04).
-  function chooseMoveLegacy(state, rows, cols, mover, diff, weights, ctx){
-    ctx = ctx || {};
-    weights = weights || BOT_WEIGHTS;
-    const root = createSearchNode({
-      stone: state.stone, dead: state.dead, territory: state.territory, rows, cols,
-      current: mover, stonesPlacedTotal: ctx.stonesPlacedTotal, gameOver: ctx.gameOver, rules: ctx.rules
-    });
-    if (root.gameOver) return null;
-    const extInit = diff.quiescenceExt ?? 2;
-
-    let ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
-    if (!ordered.length) return firstLegalMove(root);
-
-    // Немедленная победа — терминальный факт: её не перевешивает никакая
-    // эвристика и не отменяет обрыв итеративного углубления по времени.
-    for (const c of ordered){
-      const t = applyTransition(root, mover, c.x, c.y);
-      if (t.ok && t.node.gameOver && t.node.winner === mover) return c;
-    }
-
-    const deadline = now() + diff.timeLimit;
-    let bestMove = null;
-
-    for (let targetDepth = 2; targetDepth <= diff.maxDepth; targetDepth++){
-      if (now() > deadline) break;
-      let localBest = null, localBestScore = -Infinity;
-      let completedFully = true;
-      let alpha = -Infinity;
-      const beta = Infinity;
-
-      for (const c of ordered){
-        if (now() > deadline){ completedFully = false; break; }
-        const t = applyTransition(root, mover, c.x, c.y);
-        if (!t.ok) continue;
-        // Дочерний узел сам знает, чей ход (доп. ход за захват) и не
-        // окончена ли партия — поиск не чередует игроков вслепую.
-        const val = alphaBeta(t.node, targetDepth-1, alpha, beta, diff, deadline, mover, weights, extInit, 1);
-        if (val > localBestScore){
-          localBestScore = val;
-          localBest = c;
-        }
-        alpha = Math.max(alpha, localBestScore);
-      }
-
-      if (localBest && completedFully){
-        bestMove = localBest;
-        const idx = ordered.indexOf(bestMove);
-        if (idx > 0){ ordered.splice(idx, 1); ordered.unshift(bestMove); }
-      } else if (!bestMove && localBest){
-        bestMove = localBest;
-      }
-    }
-
-    return bestMove || ordered[0];
-  }
 
   function isBoardFull(state, rows, cols){
     for (let y=0;y<rows;y++)
