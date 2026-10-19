@@ -109,6 +109,65 @@
 до дорогих операций. Для воспроизводимых тестов добавить лимит узлов,
 а таймер использовать как аварийное ограничение.
 
+**Сделано (A04, issue #9).** `alphaBeta` заменён на `alphaBetaSearch` с
+явным бюджетом (`createSearchBudget`). Флаг `aborted` распространяется
+вверх, а значения прерванных узлов не используются. Корень принимает
+только полностью завершённую итерацию; иначе берётся ход предыдущей
+завершённой итерации или первый кандидат по порядку. Оценки всегда
+конечны, без ±Infinity и NaN. Бюджет проверяется:
+
+- в корне — до генерации корневых кандидатов (резервный ход:
+  `firstLegalMove`, в trace `fallback: "first-legal"`) и перед каждым
+  шагом перебора немедленных побед (резерв: первый кандидат,
+  `fallback: "first-candidate"`);
+- перед каждым узлом;
+- перед каждой статической оценкой (`evaluateStatic`), включая резервную
+  оценку узла без детей;
+- до и после проверки продления (`hasForcingCapture`/`hasUrgentAtari`);
+- после генерации кандидатов;
+- перед каждым ребёнком.
+
+Порядок кандидатов: `quickScore` по убыванию, при равенстве — y, затем x.
+
+Интерфейс:
+
+- `searchMove(state, rows, cols, mover, diff, weights, opts)` возвращает
+  `{move, trace}`. Поля `opts`: `stonesPlacedTotal`, `gameOver`, `rules`,
+  `nodeLimit`, `timeLimit`, `emergencyTimeLimit`, `clock`.
+  - С `nodeLimit` поиск детерминирован: таймер выключен, если не задан
+    аварийный `emergencyTimeLimit`.
+  - Без `nodeLimit` действует прежний мягкий `diff.timeLimit`.
+- `chooseMove` и `match.botMove(diff, weights)` возвращают по-прежнему
+  только ход или `null`.
+- `match.botSearch(diff, weights, opts)` и `botMove(..., {onTrace})`
+  отдают диагностику. Это же можно вызвать в Worker и вернуть trace в
+  ответе.
+- Worker: `botWorker.js` — один файл для Web Worker (`importScripts('gameEngine.js')`)
+  и Node `worker_threads`. Запрос `{type:'search', requestId, gameId, revision,
+  snapshot, difficulty, weights, searchOpts}`, ответ `{type:'result', requestId,
+  gameId, revision, move, trace}` или `{type:'error', ...}`. Синхронный
+  `handleBotRequest(Engine, msg)` доступен для тестов/CLI. Отмена —
+  `worker.terminate()`. Ход проверяет владелец партии через `applyMove`.
+- CLI: `node tools/train-bot.js --node-limit N [--emergency-ms M] --trace`
+  печатает trace каждого хода в stderr.
+
+Поля `trace`:
+
+- `move`;
+- `candidates` — `{x, y, score}` последней завершённой итерации; при
+  alpha-отсечении `score` — граница, а не точная оценка;
+- `nodes`, `completedDepth`;
+- `stopReason`: `node-limit`, `time`, `max-depth`, `immediate-win`,
+  `game-over`, `no-candidates` или `no-legal-moves`;
+- `elapsedMs`, `params`.
+
+Тесты (`test/search.js`) используют управляемые часы и счётчик узлов.
+Замер реального таймера на одной машине (codespace, Node 24) при
+лимитах 20/50/100 мс показал превышение 0–2 мс. Это не гарантия
+жёсткого real-time: превышение ограничено длительностью одной
+неделимой операции, например `evaluateStatic` или генерации
+кандидатов.
+
 ## Почему одного self-play подбора весов недостаточно
 
 В `tools/train-bot.js`:

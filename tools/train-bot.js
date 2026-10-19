@@ -127,15 +127,37 @@ function loadOpenings(gameLog, sizeKey, maxPrefixLen){
 
 // ---------- Одна self-play партия между двумя наборами весов ----------
 
+// Диагностика поиска (A04, issue #9):
+//   --node-limit N        детерминированный лимит узлов на ход (таймер
+//                         TRAIN_DIFF.timeLimit тогда отключён, остаётся только
+//                         аварийный --emergency-ms, если задан);
+//   --emergency-ms M      аварийный таймер на ход при --node-limit;
+//   --trace               печатать trace каждого хода (JSON-строка в stderr).
+function parseSearchFlags(argv){
+  const out = { nodeLimit: undefined, emergencyTimeLimit: undefined, trace: false };
+  for (let i = 0; i < argv.length; i++){
+    if (argv[i] === '--node-limit') out.nodeLimit = parseInt(argv[++i], 10);
+    else if (argv[i] === '--emergency-ms') out.emergencyTimeLimit = parseInt(argv[++i], 10);
+    else if (argv[i] === '--trace') out.trace = true;
+  }
+  return out;
+}
+const SEARCH_CLI = parseSearchFlags(process.argv.slice(2));
+
 function pickMove(match, weights){
   const snap = match.getSnapshot();
   // getSnapshot() уже отдаёт свежие копии stone/dead/territory (см.
-  // createMatch в gameEngine.js) — этого достаточно для chooseMove, ему не
+  // createMatch в gameEngine.js) — этого достаточно для поиска, ему не
   // нужны внутренние поля матча.
   const state = { stone: snap.stone, dead: snap.dead, territory: snap.territory };
-    // Полные правила матча (пороги, доп. ход, дебютная зона по
+  // Полные правила матча (пороги, доп. ход, дебютная зона по
   // stonesPlacedTotal, конец партии) — snapshot подходит как ctx напрямую.
-  return Engine.chooseMove(state, snap.rows, snap.cols, snap.current, Engine.TRAIN_DIFF, weights, snap);
+  const opts = Object.assign({}, snap);
+  if (SEARCH_CLI.nodeLimit > 0) opts.nodeLimit = SEARCH_CLI.nodeLimit;
+  if (SEARCH_CLI.emergencyTimeLimit > 0) opts.emergencyTimeLimit = SEARCH_CLI.emergencyTimeLimit;
+  const r = Engine.searchMove(state, snap.rows, snap.cols, snap.current, Engine.TRAIN_DIFF, weights, opts);
+  if (SEARCH_CLI.trace) process.stderr.write(JSON.stringify({ trace: r.trace }) + '\n');
+  return r.move;
 }
 
 // weightsBySeat: {1: weights, 2: weights}. Возвращает 1, 2 или 0 (ничья).

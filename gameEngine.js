@@ -632,7 +632,8 @@
       .filter(c => isTransitionLegal(node, c.x, c.y));
     const urgent = computeUrgentCells(state, rows, cols, player);
     cand.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, player, urgent); });
-    cand.sort((a,b) => b.q - a.q);
+    // Детерминированный порядок: quickScore по убыванию, равенства — по y, затем по x.
+    cand.sort((a,b) => (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
     return cand;
   }
 
@@ -646,101 +647,190 @@
   // Игрок узла — всегда фактический node.current: после захвата с
   // доп. ходом поиск продолжает за того же игрока, а не за соперника.
   // Терминальный узел не порождает продолжений и оценивается терминально.
-  function alphaBeta(node, depth, alpha, beta, diff, deadline, forPlayer, weights, extensionsLeft, ply){
-    if (node.gameOver) return terminalValue(node, forPlayer, ply);
-    const { state, rows, cols } = node;
-    const player = node.current;
-    const forcedExtension = depth <= 0 && extensionsLeft > 0 &&
-      (hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player));
-    if ((depth <= 0 && !forcedExtension) || now() > deadline){
-      return evaluateStatic(state, rows, cols, forPlayer, weights);
-    }
-    const searchDepth = depth > 0 ? depth : 1;
-    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
-    if (!candidates.length) return evaluateStatic(state, rows, cols, forPlayer, weights);
-
-    const maximizing = player === forPlayer;
-    let value = maximizing ? -Infinity : Infinity;
-    const nextDepth = depth > 0 ? depth - 1 : 0;
-    const nextExt = depth > 0 ? extensionsLeft : extensionsLeft - 1;
-
-    for (const c of candidates){
-      if (now() > deadline) break;
-      const t = applyTransition(node, player, c.x, c.y);
-      if (!t.ok) continue;
-      const childVal = alphaBeta(t.node, nextDepth, alpha, beta, diff, deadline, forPlayer, weights, nextExt, ply + 1);
-      if (maximizing){
-        if (childVal > value) value = childVal;
-        alpha = Math.max(alpha, value);
-      } else {
-        if (childVal < value) value = childVal;
-        beta = Math.min(beta, value);
-      }
-      if (beta <= alpha) break;
-    }
-    if (value === Infinity || value === -Infinity) return evaluateStatic(state, rows, cols, forPlayer, weights);
-    return value;
-  }
+  // (Прежний alphaBeta с ±Infinity и без распространения abort заменён
+  // alphaBetaSearch ниже — см. A04, issue #9.)
 
   // ctx (необязательный) — полные правила позиции: { stonesPlacedTotal,
   // gameOver, rules } (подходит прямо getSnapshot() матча). Без ctx —
   // прежние правила по умолчанию: без порогов и доп. хода, конец только при
   // полном поле, stonesPlacedTotal = число точек на доске.
-  function chooseMove(state, rows, cols, mover, diff, weights, ctx){
-    ctx = ctx || {};
+  // ---------- Поиск с явным бюджетом (A04, issue #9) ----------
+  // Бюджет поиска: детерминированный лимит узлов (тесты/benchmark) и/или
+  // таймер (реальная игра). clock можно подменить управляемыми часами.
+  function createSearchBudget(opts){
+    const clock = typeof opts.clock === 'function' ? opts.clock : now;
+    const start = clock();
+    const tl = Number(opts.timeLimit);
+    const deadline = (opts.timeLimit !== undefined && opts.timeLimit !== null && Number.isFinite(tl) && tl >= 0)
+      ? start + tl : Infinity;
+    const nl = Math.floor(Number(opts.nodeLimit));
+    return { clock, start, deadline, nodeLimit: Number.isFinite(nl) && nl > 0 ? nl : 0,
+      nodes: 0, aborted: false, stopReason: null };
+  }
+
+  // Проверка бюджета; при исчерпании поиск помечается прерванным (abort
+  // распространяется вверх через sc.aborted — значения прерванных узлов
+  // не используются никем).
+  // where — метка точки проверки (для trace.stopAt и тестов): 'root',
+  // 'node', 'extension-before'/'extension-after' (вокруг проверки продления),
+  // 'extension-node' (внутри узла продления), 'static-eval'.
+  function budgetExceeded(sc, where){
+    if (sc.aborted) return true;
+    if (sc.nodeLimit > 0 && sc.nodes >= sc.nodeLimit){ sc.aborted = true; sc.stopReason = 'node-limit'; }
+    else if (sc.clock() > sc.deadline){ sc.aborted = true; sc.stopReason = 'time'; }
+    if (sc.aborted) sc.stopAt = where || 'root';
+    return sc.aborted;
+  }
+
+  function finiteScore(v, fallback){ return Number.isFinite(v) ? v : fallback; }
+
+  // Возвращает конечную оценку. Если после вызова sc.aborted === true —
+  // результат недействителен и должен быть отброшен вызывающим.
+  function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply){
+    if (node.gameOver) return terminalValue(node, forPlayer, ply);
+    // Узел продления: depth<=0, но поиск продолжается из-за форсированных ходов.
+    const inExt = depth <= 0;
+    if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
+    sc.nodes++;
+    const { state, rows, cols } = node;
+    const player = node.current;
+    // Статическая оценка — дорогая операция: бюджет проверяется перед ней
+    // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
+    const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
+      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+    if (depth <= 0){
+      if (extensionsLeft <= 0) return staticVal();
+      // Продление — дорогая операция: бюджет проверяется до и после неё.
+      if (budgetExceeded(sc, 'extension-before')) return 0;
+      const forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+      if (budgetExceeded(sc, 'extension-after')) return 0;
+      if (!forced) return staticVal();
+    }
+    const searchDepth = depth > 0 ? depth : 1;
+    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
+    if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
+    if (!candidates.length) return staticVal();
+
+    const maximizing = player === forPlayer;
+    let value = null;
+    const nextDepth = depth > 0 ? depth - 1 : 0;
+    const nextExt = depth > 0 ? extensionsLeft : extensionsLeft - 1;
+
+    for (const c of candidates){
+      if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
+      const t = applyTransition(node, player, c.x, c.y);
+      if (!t.ok) continue;
+      const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1);
+      if (sc.aborted) return 0;
+      if (value === null || (maximizing ? childVal > value : childVal < value)) value = childVal;
+      if (maximizing) alpha = Math.max(alpha, value);
+      else beta = Math.min(beta, value);
+      if (beta <= alpha) break;
+    }
+    // Значение детей уже конечно; статическая оценка (с проверкой бюджета)
+    // считается только если ни одного ребёнка не было или значение не конечно.
+    if (value !== null && Number.isFinite(value)) return value;
+    return staticVal();
+  }
+
+  // Полный поиск с диагностикой. opts: { stonesPlacedTotal, gameOver, rules,
+  // nodeLimit, timeLimit, emergencyTimeLimit, clock }.
+  // С nodeLimit поиск детерминирован: таймер только аварийный
+  // (emergencyTimeLimit/timeLimit, по умолчанию выключен). Без nodeLimit —
+  // прежний таймер diff.timeLimit (мягкий, не жёсткий real-time).
+  // Возвращает { move, trace }; принимается только полностью завершённая
+  // итерация, иначе — ход предыдущей завершённой или первый по порядку
+  // кандидатов (сортировка quickScore, равенства — по y, затем x).
+  function searchMove(state, rows, cols, mover, diff, weights, opts){
+    opts = opts || {};
+    diff = diff || DIFFICULTY.normal;
     weights = weights || BOT_WEIGHTS;
+    const nodeLimit = opts.nodeLimit;
+    const timeLimit = opts.timeLimit !== undefined ? opts.timeLimit
+      : (nodeLimit > 0 ? opts.emergencyTimeLimit : diff.timeLimit);
+    const sc = createSearchBudget({ clock: opts.clock, timeLimit, nodeLimit });
+    const trace = {
+      move: null, candidates: [], nodes: 0, completedDepth: 0, stopReason: null, elapsedMs: 0,
+      params: {
+        maxDepth: diff.maxDepth, candidateCap: diff.candidateCap, quiescenceExt: diff.quiescenceExt ?? 2,
+        timeLimit: Number.isFinite(sc.deadline) ? sc.deadline - sc.start : null,
+        nodeLimit: sc.nodeLimit || null
+      }
+    };
+    const finish = (move, reason) => {
+      trace.move = move ? { x: move.x, y: move.y } : null;
+      trace.nodes = sc.nodes;
+            trace.stopReason = reason;
+      // Точка проверки бюджета, на которой произошёл обрыв (или null).
+      trace.stopAt = sc.aborted ? (sc.stopAt || 'root') : null;
+      trace.elapsedMs = sc.clock() - sc.start;
+      return { move: move || null, trace };
+    };
+
     const root = createSearchNode({
       stone: state.stone, dead: state.dead, territory: state.territory, rows, cols,
-      current: mover, stonesPlacedTotal: ctx.stonesPlacedTotal, gameOver: ctx.gameOver, rules: ctx.rules
+      current: mover, stonesPlacedTotal: opts.stonesPlacedTotal, gameOver: opts.gameOver, rules: opts.rules
     });
-    if (root.gameOver) return null;
+    if (root.gameOver) return finish(null, 'game-over');
     const extInit = diff.quiescenceExt ?? 2;
 
-    let ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
-    if (!ordered.length) return firstLegalMove(root);
-
-    // Немедленная победа — терминальный факт: её не перевешивает никакая
-    // эвристика и не отменяет обрыв итеративного углубления по времени.
-    for (const c of ordered){
-      const t = applyTransition(root, mover, c.x, c.y);
-      if (t.ok && t.node.gameOver && t.node.winner === mover) return c;
+    // Бюджет проверяется и до дорогой генерации корневых кандидатов: при
+    // исчерпании — дешёвый легальный резервный ход (первый по y, затем x).
+    if (budgetExceeded(sc)){
+      trace.fallback = 'first-legal';
+      const f = firstLegalMove(root);
+      return finish(f, f ? sc.stopReason : 'no-legal-moves');
     }
 
-    const deadline = now() + diff.timeLimit;
+    const ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
+    if (!ordered.length){
+      trace.fallback = 'first-legal';
+      const f = firstLegalMove(root);
+      return finish(f, f ? 'no-candidates' : 'no-legal-moves');
+    }
+
+    // Перебор немедленных побед тоже под бюджетом: при исчерпании —
+    // первый кандидат по детерминированному порядку.
+    for (const c of ordered){
+      if (budgetExceeded(sc)){
+        trace.fallback = 'first-candidate';
+        return finish(ordered[0], sc.stopReason);
+      }
+      const t = applyTransition(root, mover, c.x, c.y);
+      if (t.ok && t.node.gameOver && t.node.winner === mover) return finish(c, 'immediate-win');
+    }
+
     let bestMove = null;
-
     for (let targetDepth = 2; targetDepth <= diff.maxDepth; targetDepth++){
-      if (now() > deadline) break;
-      let localBest = null, localBestScore = -Infinity;
-      let completedFully = true;
-      let alpha = -Infinity;
-      const beta = Infinity;
-
+      if (budgetExceeded(sc)) break;
+      let localBest = null, localBestScore = -Infinity, alpha = -Infinity;
+      const scores = [];
       for (const c of ordered){
-        if (now() > deadline){ completedFully = false; break; }
+        if (budgetExceeded(sc)) break;
         const t = applyTransition(root, mover, c.x, c.y);
         if (!t.ok) continue;
-        // Дочерний узел сам знает, чей ход (доп. ход за захват) и не
-        // окончена ли партия — поиск не чередует игроков вслепую.
-        const val = alphaBeta(t.node, targetDepth-1, alpha, beta, diff, deadline, mover, weights, extInit, 1);
-        if (val > localBestScore){
-          localBestScore = val;
-          localBest = c;
-        }
+        const val = alphaBetaSearch(t.node, targetDepth-1, alpha, Infinity, diff, sc, mover, weights, extInit, 1);
+        if (sc.aborted) break;
+        // При отсечении score — граница, а не точная оценка.
+        scores.push({ x: c.x, y: c.y, score: val });
+        if (localBest === null || val > localBestScore){ localBestScore = val; localBest = c; }
         alpha = Math.max(alpha, localBestScore);
       }
-
-      if (localBest && completedFully){
-        bestMove = localBest;
-        const idx = ordered.indexOf(bestMove);
-        if (idx > 0){ ordered.splice(idx, 1); ordered.unshift(bestMove); }
-      } else if (!bestMove && localBest){
-        bestMove = localBest;
-      }
+      if (sc.aborted || !localBest) break; // неполная итерация не принимается
+      bestMove = localBest;
+      trace.completedDepth = targetDepth;
+      trace.candidates = scores;
+      const idx = ordered.indexOf(bestMove);
+      if (idx > 0){ ordered.splice(idx, 1); ordered.unshift(bestMove); }
     }
-
-    return bestMove || ordered[0];
+    return finish(bestMove || ordered[0], sc.aborted ? sc.stopReason : 'max-depth');
   }
+
+  // Совместимый интерфейс: возвращает только ход (или null).
+  function chooseMove(state, rows, cols, mover, diff, weights, ctx){
+    return searchMove(state, rows, cols, mover, diff, weights, ctx).move;
+  }
+
 
   function isBoardFull(state, rows, cols){
     for (let y=0;y<rows;y++)
@@ -927,12 +1017,22 @@
       return { ok:true, current, scores: {...scores}, stonesPlacedTotal };
     }
 
-    function botMove(difficultyKey, weights){
+    // Поиск с диагностикой: { move, trace }. searchOpts — { nodeLimit,
+    // timeLimit, emergencyTimeLimit, clock } (см. searchMove).
+    function botSearch(difficultyKey, weights, searchOpts){
       const diff = DIFFICULTY[difficultyKey] || DIFFICULTY.normal;
       // Полные правила матча: пороги очков/заполнения, доп. ход, дебютная
       // зона по stonesPlacedTotal, конец партии.
-      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS,
-        { stonesPlacedTotal, gameOver, rules: matchRules });
+      return searchMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS,
+        Object.assign({}, searchOpts || {}, { stonesPlacedTotal, gameOver, rules: matchRules }));
+    }
+
+    // Совместимый интерфейс: только ход {x,y} или null. Необязательный
+    // searchOpts.onTrace(trace) получает диагностику без смены возврата.
+    function botMove(difficultyKey, weights, searchOpts){
+      const r = botSearch(difficultyKey, weights, searchOpts);
+      if (searchOpts && typeof searchOpts.onTrace === 'function') searchOpts.onTrace(r.trace);
+      return r.move;
     }
 
     // Полный снимок состояния — то, что уходит клиенту по WebSocket.
@@ -956,7 +1056,7 @@
 
     function getMoveLog(){ return moveLog.slice(); }
 
-    return { rows, cols, sizeKey, applyMove, endNow, botMove, getSnapshot, getMoveLog, undoLastMove, canUndoLastMove, lastMoverSeat };
+    return { rows, cols, sizeKey, applyMove, endNow, botMove, botSearch, getSnapshot, getMoveLog, undoLastMove, canUndoLastMove, lastMoverSeat };
   }
 
   // Replay identity describes rule semantics, not the npm package version.
@@ -1021,7 +1121,7 @@
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
     generateCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
-    chooseMove, isBoardFull, countFilledCells, checkEndConditions,
+    chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
     isTransitionLegal, terminalValue, WIN_SCORE,
     createMatch
