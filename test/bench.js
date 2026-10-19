@@ -109,4 +109,25 @@ test('мини-benchmark: машинный отчёт и запрет split=trai
   assert.throws(() => Bench.runBenchmark(Object.assign({}, opts, { split: 'train' })), /train/);
 });
 
+test('прогоны дают разные позиции; bootstrap кластеризует по дебюту', () => {
+  const base = { id: 'baseline', weights: { ...Engine.BOT_WEIGHTS } };
+  const rep = Bench.runBenchmark({ corpus, split: 'validation', sizes: ['small'], difficulties: ['normal'], nodeLimit: 60, runs: 2, seed: 3,
+    maxMoves: 8, maxMs: 0, bootstrap: 100, maxPairs: 1, candidate: { id: 'c', weights: { ...Engine.BOT_WEIGHTS } }, pool: [base] });
+  const c = rep.configs[0];
+  assert.strictEqual(rep.errors.length, 0);
+  assert.strictEqual(c.pairs, 2);
+  assert.strictEqual(c.uniquePositions, 2, 'прогоны повторяют ту же позицию');
+  assert.strictEqual(c.clusters, 1, 'прогоны одного дебюта должны быть одним кластером');
+  assert.strictEqual(rep.vsBaseline.clusters, 1);
+  // Один кластер -> интервал вырожден в его среднее, а не «сужен» повторами.
+  assert.strictEqual(c.ci95.lo, c.ci95.hi);
+});
+
+test('кластерный bootstrap шире наивного при повторах', () => {
+  const vals = [1, 0, 1, 0.5];
+  const naive = Bench.bootstrapPairs(vals.concat(vals, vals), 1000, 5);
+  const cl = Bench.bootstrapClusters(vals.map(v => [v, v, v]), 1000, 5);
+  assert((cl.hi - cl.lo) > (naive.hi - naive.lo));
+});
+
 console.log(`bench smoke: ${passed} passed`);
