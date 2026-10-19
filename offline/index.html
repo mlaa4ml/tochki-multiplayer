@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Точки — offline-лаборатория</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 8px; background: #f6f4ee; color: #222; }
+  .wrap { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  fieldset { border: 1px solid #ccc; padding: 6px 8px; margin: 0 0 8px; }
+  label { display: block; margin: 3px 0; }
+  button { min-height: 36px; min-width: 44px; margin: 2px; font-size: 15px; }
+  #board { touch-action: none; background: #fffdf6; border: 1px solid #bbb; max-width: 100%; height: auto; }
+  #status { min-height: 1.4em; font-weight: 600; }
+  #error { color: #b00020; font-weight: 600; }
+  .p1 { color: #1f5fd1; } .p2 { color: #d1301f; }
+  #spinner { display: none; } #spinner.on { display: inline; }
+  textarea { width: 100%; font-size: 11px; }
+  @media (max-width: 640px) { .panel { width: 100%; } }
+</style>
+</head>
+<body>
+<h1 style="font-size:18px;margin:4px 0">Точки — offline (без сервера, аккаунта, WS/API)</h1>
+<div class="wrap">
+  <div class="panel">
+    <fieldset><legend>Правила</legend>
+      <label>Поле <select id="size"></select></label>
+      <label>Порог очков (0 — нет) <input id="targetScore" type="number" min="0" max="9999" value="0" style="width:70px"></label>
+      <label>Порог заполнения, % (100 — нет) <input id="targetFill" type="number" min="1" max="100" value="100" style="width:70px"></label>
+      <label><input id="extra" type="checkbox"> Доп. ход за окружение</label>
+      <label><input id="undoAllowed" type="checkbox" checked> Разрешить отмену</label>
+      <label>Первым ходит <select id="first"><option value="1">Игрок 1</option><option value="2">Игрок 2</option></select></label>
+    </fieldset>
+    <fieldset><legend>Места</legend>
+      <label class="p1">Игрок 1 <select id="c1"><option value="human">человек</option><option value="normal">normal</option><option value="strong">strong</option></select></label>
+      <label>Веса 1 (JSON, пусто — по умолчанию) <input id="w1" style="width:160px"></label>
+      <label class="p2">Игрок 2 <select id="c2"><option value="human">человек</option><option value="normal" selected>normal</option><option value="strong">strong</option></select></label>
+      <label>Веса 2 (JSON) <input id="w2" style="width:160px"></label>
+    </fieldset>
+    <div>
+      <button id="btnNew">Новая партия</button>
+      <button id="btnUndo">Отменить</button>
+      <button id="btnEnd">Закончить</button>
+    </div>
+    <fieldset id="botbot"><legend>Бот–бот</legend>
+      <button id="btnStart">▶ Запуск</button>
+      <button id="btnPause">⏸ Пауза</button>
+      <button id="btnStep">Шаг</button>
+      <label>Скорость показа, мс <input id="delay" type="range" min="0" max="2000" step="50" value="300"> <span id="delayVal">300</span></label>
+    </fieldset>
+    <div id="status"></div>
+    <div><span id="spinner">⏳ бот думает…</span></div>
+    <div id="info"></div>
+    <div id="error"></div>
+    <details><summary>Диагностика поиска</summary><textarea id="trace" rows="8" readonly></textarea></details>
+  </div>
+  <canvas id="board" width="600" height="500"></canvas>
+</div>
+<script src="../gameEngine.js"></script>
+<script src="localSession.js"></script>
+<script>
+(function(){
+  'use strict';
+  const E = window.TochkiEngine;
+  const $ = id => document.getElementById(id);
+  const sizeSel = $('size');
+  Object.keys(E.SIZES).forEach(k => {
+    const o = document.createElement('option'); const s = E.SIZES[k];
+    o.value = k; o.textContent = k + ' (' + s.cols + '×' + s.rows + ')';
+    if (k === 'small') o.selected = true; sizeSel.appendChild(o);
+  });
+  const canvas = $('board'), ctx = canvas.getContext('2d');
+  const COLORS = { 1: '#1f5fd1', 2: '#d1301f' };
+  let geom = null, lastSnap = null, lastStatus = null;
+
+  // --- Renderer: только рисует snapshot, состояние не меняет. ---
+  function render(snap){
+    const cell = Math.max(18, Math.min(40, Math.floor(Math.min(window.innerWidth - 24, 900) / (snap.cols + 1))));
+    const w = cell * (snap.cols + 1), h = cell * (snap.rows + 1);
+    if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
+    geom = { cell, rows: snap.rows, cols: snap.cols };
+    ctx.clearRect(0, 0, w, h);
+    const px = x => cell * (x + 1), py = y => cell * (y + 1);
+    for (let y = 0; y < snap.rows; y++) for (let x = 0; x < snap.cols; x++){
+      const t = snap.territory[y][x];
+      if (t){ ctx.fillStyle = t === 1 ? 'rgba(31,95,209,0.15)' : 'rgba(209,48,31,0.15)';
+        ctx.fillRect(px(x) - cell / 2, py(y) - cell / 2, cell, cell); }
+    }
+    ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1;
+    for (let y = 0; y < snap.rows; y++){ ctx.beginPath(); ctx.moveTo(px(0), py(y)); ctx.lineTo(px(snap.cols - 1), py(y)); ctx.stroke(); }
+    for (let x = 0; x < snap.cols; x++){ ctx.beginPath(); ctx.moveTo(px(x), py(0)); ctx.lineTo(px(x), py(snap.rows - 1)); ctx.stroke(); }
+    for (let y = 0; y < snap.rows; y++) for (let x = 0; x < snap.cols; x++){
+      const p = snap.stone[y][x]; if (!p) continue;
+      ctx.globalAlpha = snap.dead[y][x] ? 0.35 : 1;
+      ctx.fillStyle = COLORS[p] || '#555';
+      ctx.beginPath(); ctx.arc(px(x), py(y), cell * 0.28, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    [1, 2].forEach(p => { const m = snap.lastMoveByPlayer[p]; if (!m) return;
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(px(m.x), py(m.y), cell * 0.38, 0, Math.PI * 2); ctx.stroke(); });
+  }
+
+  function fmtMove(m){ return m ? '(' + m.x + ',' + m.y + ')' : '—'; }
+
+  function update(snap, st){
+    lastSnap = snap; lastStatus = st;
+    render(snap);
+    const name = p => 'Игрок ' + p + ' [' + st.controllers[p].type + ']';
+    let s;
+    if (snap.gameOver){
+      const w = snap.scores[1] > snap.scores[2] ? 1 : snap.scores[2] > snap.scores[1] ? 2 : 0;
+      s = 'Партия окончена: ' + (w ? name(w) + ' победил' : 'ничья');
+    } else {
+      s = 'Ходит: ' + name(snap.current) + (st.humanTurn ? ' — ваш ход' : '');
+    }
+    $('status').textContent = s;
+    $('status').className = snap.gameOver ? '' : 'p' + snap.current;
+    $('info').innerHTML = 'Счёт: <span class="p1">' + snap.scores[1] + '</span> : <span class="p2">' + snap.scores[2] +
+      '</span><br>Ходов: ' + st.moveCount + ' · режим: ' + st.mode + (st.mode === 'bot-bot' ? (st.running ? ' (идёт)' : ' (пауза)') : '') +
+      '<br>Последние ходы: <span class="p1">1 ' + fmtMove(snap.lastMoveByPlayer[1]) + '</span>, <span class="p2">2 ' + fmtMove(snap.lastMoveByPlayer[2]) + '</span>';
+    $('spinner').className = st.searching ? 'on' : '';
+    $('error').textContent = st.workerError ? 'Ошибка бота (Worker): ' + st.workerError + '. Ход бота не выполнен; нажмите «Шаг»/«Запуск» или начните новую партию.'
+      : (st.lastError ? 'Недопустимый ход: ' + st.lastError : '');
+    $('btnUndo').disabled = !snap.canUndo;
+    $('btnEnd').disabled = snap.gameOver;
+    const bb = st.mode === 'bot-bot';
+    $('btnStart').disabled = !bb || snap.gameOver || st.running;
+    $('btnPause').disabled = !bb || !st.running;
+    $('btnStep').disabled = !bb || snap.gameOver || st.searching;
+    if (st.lastTrace) $('trace').value = JSON.stringify(st.lastTrace, null, 1);
+  }
+
+  function parseWeights(id){
+    const v = $(id).value.trim(); if (!v) return null;
+    try { return JSON.parse(v); } catch (e){ alert('Некорректный JSON весов в ' + id); throw e; }
+  }
+
+  const session = window.TochkiLocalSession.createLocalSession({ delayMs: 300 });
+  session.subscribe(update);
+
+  function newGame(){
+    session.newGame({
+      sizeKey: sizeSel.value,
+      firstPlayer: Number($('first').value),
+      extraTurnOnCapture: $('extra').checked,
+      undoAllowed: $('undoAllowed').checked,
+      targetScore: Number($('targetScore').value) || 0,
+      targetFillPercent: Number($('targetFill').value) || 100,
+      controllers: { 1: { type: $('c1').value, weights: parseWeights('w1') }, 2: { type: $('c2').value, weights: parseWeights('w2') } },
+      delayMs: Number($('delay').value)
+    });
+  }
+
+  // Клик/касание: только в ход человека; легальность проверяет движок.
+  canvas.addEventListener('pointerdown', ev => {
+    if (!geom || !lastStatus || !lastStatus.humanTurn) return;
+    const r = canvas.getBoundingClientRect();
+    const sx = canvas.width / r.width, sy = canvas.height / r.height;
+    const x = Math.round((ev.clientX - r.left) * sx / geom.cell) - 1;
+    const y = Math.round((ev.clientY - r.top) * sy / geom.cell) - 1;
+    if (x < 0 || y < 0 || x >= geom.cols || y >= geom.rows) return;
+    ev.preventDefault();
+    session.move(x, y);
+  });
+  $('btnNew').onclick = newGame;
+  $('btnUndo').onclick = () => session.undo();
+  $('btnEnd').onclick = () => session.end();
+  $('btnStart').onclick = () => session.start();
+  $('btnPause').onclick = () => session.pause();
+  $('btnStep').onclick = () => session.step();
+  $('delay').oninput = () => { $('delayVal').textContent = $('delay').value; session.setDelay(Number($('delay').value)); };
+  window.addEventListener('resize', () => { if (lastSnap) render(lastSnap); });
+  window.addEventListener('pagehide', () => session.dispose());
+  newGame();
+})();
+</script>
+</body>
+</html>
