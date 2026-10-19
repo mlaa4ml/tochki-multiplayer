@@ -2,9 +2,9 @@
   "format": "tochki-bench-report",
   "benchVersion": 1,
   "runnerVersion": 1,
-  "createdAt": "2026-10-19T09:05:08.852Z",
+  "createdAt": "2026-10-19T09:13:12.043Z",
   "code": {
-    "commit": "788788692ac6ff77616416e09f41a4fb4870e73a",
+    "commit": "977527451d8030c6150aa0cf011f6e3eb82e0cb1",
     "engineVersion": "tochki-rules-1",
     "botVersion": "tochki-ab-1",
     "weightsVersion": "tochki-weights-1"
@@ -39,7 +39,8 @@
         "branchNarrow": 3,
         "quiescenceExt": 2
       }
-    }
+    },
+    "runPlies": 2
   },
   "candidate": {
     "id": "engine-default",
@@ -92,6 +93,8 @@
       "opponent": "baseline",
       "pairs": 6,
       "games": 12,
+      "clusters": 3,
+      "uniquePositions": 6,
       "W": 2,
       "D": 8,
       "L": 2,
@@ -101,13 +104,13 @@
       "ci95": {
         "lo": 0.5,
         "hi": 0.5,
-        "method": "bootstrap over opening pairs"
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
       },
-      "nodesPerMove": 221.6610714285714,
-      "completedDepth": 2.3926190476190476,
+      "nodesPerMove": 197.28297932330827,
+      "completedDepth": 2.6066165413533833,
       "moveMs": {
-        "p50": 27,
-        "p95": 38
+        "p50": 58,
+        "p95": 116
       },
       "tactics": {
         "total": 4,
@@ -135,22 +138,24 @@
       "opponent": "no-liberty",
       "pairs": 6,
       "games": 12,
-      "W": 6,
-      "D": 4,
-      "L": 2,
+      "clusters": 3,
+      "uniquePositions": 6,
+      "W": 4,
+      "D": 5,
+      "L": 3,
       "truncationRate": 0,
-      "scoreDiffMean": 1,
-      "score": 0.6666666666666666,
+      "scoreDiffMean": 0.5,
+      "score": 0.5416666666666666,
       "ci95": {
-        "lo": 0.4166666666666667,
-        "hi": 0.9166666666666666,
-        "method": "bootstrap over opening pairs"
+        "lo": 0.25,
+        "hi": 0.75,
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
       },
-      "nodesPerMove": 186.64180555555558,
-      "completedDepth": 2.624861111111111,
+      "nodesPerMove": 181.06421713250518,
+      "completedDepth": 2.7067757936507935,
       "moveMs": {
-        "p50": 24,
-        "p95": 34
+        "p50": 59,
+        "p95": 136
       },
       "runs": [
         {
@@ -163,7 +168,7 @@
           "run": 1,
           "seed": 20264,
           "pairs": 3,
-          "score": 0.6666666666666666
+          "score": 0.4166666666666667
         }
       ]
     },
@@ -173,6 +178,8 @@
       "opponent": "territory-heavy",
       "pairs": 6,
       "games": 12,
+      "clusters": 3,
+      "uniquePositions": 6,
       "W": 2,
       "D": 8,
       "L": 2,
@@ -182,13 +189,13 @@
       "ci95": {
         "lo": 0.5,
         "hi": 0.5,
-        "method": "bootstrap over opening pairs"
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
       },
-      "nodesPerMove": 221.6610714285714,
-      "completedDepth": 2.3926190476190476,
+      "nodesPerMove": 197.32464598997493,
+      "completedDepth": 2.6066165413533833,
       "moveMs": {
-        "p50": 27,
-        "p95": 36
+        "p50": 28,
+        "p95": 64
       },
       "runs": [
         {
@@ -209,10 +216,12 @@
   "errors": [],
   "vsBaseline": {
     "pairs": 6,
+    "clusters": 3,
     "score": 0.5,
     "ci95": {
       "lo": 0.5,
-      "hi": 0.5
+      "hi": 0.5,
+      "method": "cluster bootstrap over source openings"
     }
   }
 }
