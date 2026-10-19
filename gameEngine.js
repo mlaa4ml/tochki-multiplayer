@@ -760,7 +760,9 @@
     const finish = (move, reason) => {
       trace.move = move ? { x: move.x, y: move.y } : null;
       trace.nodes = sc.nodes;
-      trace.stopReason = reason;
+            trace.stopReason = reason;
+      // Точка проверки бюджета, на которой произошёл обрыв (или null).
+      trace.stopAt = sc.aborted ? (sc.stopAt || 'root') : null;
       trace.elapsedMs = sc.clock() - sc.start;
       return { move: move || null, trace };
     };
