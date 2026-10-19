@@ -77,8 +77,18 @@ const fallback = searchOn(m, diff, { nodeLimit: 1 }).move;
 {
   const maxTicks = full[3].trace.nodes * 12 + 50;
   const step = Math.max(1, Math.floor(maxTicks / 400));
-  let sawTime = 0;
-  for (let tl = 0; tl <= maxTicks; tl += step){
+  let sawTime = 0, sawRootStop = 0, sawWinLoopStop = 0;
+  // Независимый расчёт первого легального хода (сканирование y, затем x).
+  let firstLegal = null;
+  { const s0 = m.getSnapshot();
+    for (let y = 0; y < s0.rows && !firstLegal; y++)
+      for (let x = 0; x < s0.cols && !firstLegal; x++)
+        if (isLegalForSnap(m, { x, y })) firstLegal = { x, y }; }
+  // Малые лимиты (0..5 тиков) — всегда: обрыв до генерации корневых
+  // кандидатов и внутри перебора немедленных побед.
+  const tls = [0, 1, 2, 3, 4, 5];
+  for (let tl = 6; tl <= maxTicks; tl += step) tls.push(tl);
+  for (const tl of tls){
     const r = searchOn(m, diff, { timeLimit: tl, clock: stepClock() });
     if (r.trace.stopReason === 'time') sawTime++;
     check(allFinite(r.trace), 'свип tl=' + tl + ': нет ±Infinity/NaN ' + J(r.trace.candidates));
