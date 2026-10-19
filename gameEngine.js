@@ -632,7 +632,8 @@
       .filter(c => isTransitionLegal(node, c.x, c.y));
     const urgent = computeUrgentCells(state, rows, cols, player);
     cand.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, player, urgent); });
-    cand.sort((a,b) => b.q - a.q);
+    // Детерминированный порядок: quickScore по убыванию, равенства — по y, затем по x.
+    cand.sort((a,b) => (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
     return cand;
   }
 
