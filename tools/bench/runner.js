@@ -82,7 +82,14 @@
       const out = opts.players[seat](snap);
       const dt = now() - t0;
       const move = out && out.move;
-      if (!move) { end = 'no-move'; break; }
+            if (!move) {
+        // null-ход допустим ТОЛЬКО если легальных ходов действительно нет;
+        // иначе это ошибка игрока (не штатное завершение и не ничья).
+        if (hasLegalMove(Engine, snap)) {
+          throw new InvalidMoveError('bot returned no move while legal moves exist', { seat, ply: moves });
+        }
+        end = 'no-move'; break;
+      }
       const res = match.applyMove(seat, move.x, move.y);
       if (!res.ok) {
         throw new InvalidMoveError('invalid bot move: ' + res.reason, { seat, move, reason: res.reason, ply: moves });
