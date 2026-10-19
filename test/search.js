@@ -101,7 +101,9 @@ const fallback = searchOn(m, diff, { nodeLimit: 1 }).move;
       'свип tl=' + tl + ': ход ' + J(r.move) + ' != ход завершённой глубины ' + d + ' ' + J(expected));
     if (d > 0) check(J(r.trace.candidates) === J(full[d].trace.candidates), 'свип tl=' + tl + ': кандидаты = эталон');
   }
-  check(sawTime > 10, 'свип: остановки по таймеру происходили (' + sawTime + ')');
+    check(sawTime > 10, 'свип: остановки по таймеру происходили (' + sawTime + ')');
+  check(sawRootStop > 0, 'свип: был обрыв до генерации корневых кандидатов (' + sawRootStop + ')');
+  check(sawWinLoopStop > 0, 'свип: был обрыв в переборе немедленных побед (' + sawWinLoopStop + ')');
 }
 
 // 5. Свип лимита узлов — то же для node-limit.
