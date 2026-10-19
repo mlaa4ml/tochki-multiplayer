@@ -211,5 +211,41 @@ const fallback = searchOn(m, diff, { nodeLimit: 1 }).move;
   console.log(`превышение таймера (wall - limit), мс: min=${Math.min(...overs)} max=${Math.max(...overs)}`);
 }
 
-if (failed){ console.error(failed + ' check(s) failed'); process.exit(1); }
-console.log('OK: search budget/abort/trace tests passed');
+// 10. Диагностика через Worker (botWorker.js): синхронный обработчик и
+// настоящий worker_threads — ход и trace совпадают с searchMove/botSearch.
+(async () => {
+  const W = require('../botWorker.js');
+  const mm = buildMatch(6);
+  const snap = mm.getSnapshot();
+  const req = { type: 'search', requestId: 7, gameId: 'g1', revision: 3, snapshot: snap,
+    difficulty: 'normal', searchOpts: { nodeLimit: 400 } };
+  const direct = mm.botSearch('normal', null, { nodeLimit: 400 });
+  const strip = t => { const c = Object.assign({}, t); delete c.elapsedMs; return J(c); };
+  const sync = W.handleBotRequest(E, req);
+  check(sync.type === 'result' && sync.requestId === 7 && sync.gameId === 'g1' && sync.revision === 3,
+    'worker sync: идентификаторы запроса возвращены ' + J(sync.type));
+  check(J(sync.move) === J(direct.move) && strip(sync.trace) === strip(direct.trace), 'worker sync: ход и trace = botSearch');
+  const bad = W.handleBotRequest(E, { requestId: 1 });
+  check(bad.type === 'error' && bad.requestId === 1, 'worker sync: ошибка на запросе без snapshot');
+
+  const { Worker } = require('worker_threads');
+  const w = new Worker(require.resolve('../botWorker.js'));
+  try {
+    const res = await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('worker timeout')), 30000);
+      w.once('message', m => { clearTimeout(timer); resolve(m); });
+      w.once('error', e => { clearTimeout(timer); reject(e); });
+      w.postMessage(req);
+    });
+    check(res.type === 'result' && res.requestId === 7, 'worker_threads: ответ на запрос');
+    check(J(res.move) === J(direct.move) && strip(res.trace) === strip(direct.trace), 'worker_threads: ход и trace = botSearch');
+    check(res.trace && res.trace.stopReason && Number.isFinite(res.trace.nodes), 'worker_threads: trace содержит диагностику');
+    const over = E.createMatch({ sizeKey: 'medium' }); over.applyMove(1, 7, 5); over.endNow();
+    const res2 = await new Promise(resolve => { w.once('message', resolve); w.postMessage(Object.assign({}, req, { snapshot: over.getSnapshot() })); });
+    check(res2.move === null && res2.trace.stopReason === 'game-over', 'worker_threads: нет хода после gameOver');
+  } catch (e){ check(false, 'worker_threads: ' + e.message); }
+  finally { await w.terminate(); }
+
+  if (failed){ console.error(failed + ' check(s) failed'); process.exit(1); }
+  console.log('OK: search budget/abort/trace tests passed (incl. Worker)');
+})();
