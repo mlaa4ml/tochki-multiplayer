@@ -721,7 +721,10 @@
       else beta = Math.min(beta, value);
       if (beta <= alpha) break;
     }
-    return value === null ? staticVal() : finiteScore(value, staticVal());
+    // Значение детей уже конечно; статическая оценка (с проверкой бюджета)
+    // считается только если ни одного ребёнка не было или значение не конечно.
+    if (value !== null && Number.isFinite(value)) return value;
+    return staticVal();
   }
 
   // Полный поиск с диагностикой. opts: { stonesPlacedTotal, gameOver, rules,
