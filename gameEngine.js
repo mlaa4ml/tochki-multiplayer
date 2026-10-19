@@ -688,20 +688,22 @@
   // результат недействителен и должен быть отброшен вызывающим.
   function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply){
     if (node.gameOver) return terminalValue(node, forPlayer, ply);
-    if (budgetExceeded(sc)) return 0;
+    // Узел продления: depth<=0, но поиск продолжается из-за форсированных ходов.
+    const inExt = depth <= 0;
+    if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     sc.nodes++;
     const { state, rows, cols } = node;
     const player = node.current;
-        // Статическая оценка — дорогая операция: бюджет проверяется перед ней
+    // Статическая оценка — дорогая операция: бюджет проверяется перед ней
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
-    const staticVal = () => budgetExceeded(sc) ? 0
+    const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
       : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
-      if (budgetExceeded(sc)) return 0;
+      if (budgetExceeded(sc, 'extension-before')) return 0;
       const forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
-      if (budgetExceeded(sc)) return 0;
+      if (budgetExceeded(sc, 'extension-after')) return 0;
       if (!forced) return staticVal();
     }
     const searchDepth = depth > 0 ? depth : 1;
