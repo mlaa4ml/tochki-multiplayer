@@ -671,10 +671,14 @@
   // Проверка бюджета; при исчерпании поиск помечается прерванным (abort
   // распространяется вверх через sc.aborted — значения прерванных узлов
   // не используются никем).
-  function budgetExceeded(sc){
+  // where — метка точки проверки (для trace.stopAt и тестов): 'root',
+  // 'node', 'extension-before'/'extension-after' (вокруг проверки продления),
+  // 'extension-node' (внутри узла продления), 'static-eval'.
+  function budgetExceeded(sc, where){
     if (sc.aborted) return true;
     if (sc.nodeLimit > 0 && sc.nodes >= sc.nodeLimit){ sc.aborted = true; sc.stopReason = 'node-limit'; }
     else if (sc.clock() > sc.deadline){ sc.aborted = true; sc.stopReason = 'time'; }
+    if (sc.aborted) sc.stopAt = where || 'root';
     return sc.aborted;
   }
 
