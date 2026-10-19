@@ -329,16 +329,22 @@ function runBenchmark(opts){
               g.ms.push(...st.times);
             }
             runPairs.push(pts / 2);
+            clusters.get(ckey).push(pts / 2);
           }
           pairScores.push(...runPairs);
-          runsOut.push({ run, seed: (opts.seed + run * 7919) >>> 0, pairs: runPairs.length, score: mean(runPairs) });
+          runsOut.push({ run, seed: runSeed, pairs: runPairs.length, score: mean(runPairs) });
         }
-        const ci = bootstrapPairs(pairScores, opts.bootstrap, opts.seed);
+        // Интервал — кластерный bootstrap по исходным дебютам (прогоны одного
+        // дебюта коррелированы и ресэмплируются вместе).
+        const ci = bootstrapClusters([...clusters.values()], opts.bootstrap, opts.seed);
         const isBaseline = opp.id === 'baseline';
-        if (isBaseline) allBaselinePairs.push(...pairScores);
+        // allBaselinePairs: [ключ исходного дебюта, значения] — сводный интервал
+        // объединяет сложности/прогоны одного дебюта в один кластер.
+        if (isBaseline) for (const [k, v] of clusters) allBaselinePairs.push([k, v]);
         report.configs.push({ sizeKey, difficulty, opponent: opp.id, pairs: pairScores.length, games: g.games,
+          clusters: clusters.size, uniquePositions: uniquePositions.size,
           W: g.W, D: g.D, L: g.L, truncationRate: g.games ? g.truncated / g.games : null,
-          scoreDiffMean: mean(g.diff), score: ci.mean, ci95: { lo: ci.lo, hi: ci.hi, method: 'bootstrap over opening pairs' },
+          scoreDiffMean: mean(g.diff), score: ci.mean, ci95: { lo: ci.lo, hi: ci.hi, method: 'cluster bootstrap over source openings (runs of one opening resampled together)' },
           nodesPerMove: mean(g.nodes), completedDepth: mean(g.depth),
           moveMs: { p50: quantile(g.ms, 0.5), p95: quantile(g.ms, 0.95) },
           tactics: isBaseline ? evalTactics(tactics, opts.candidate.weights, { difficulty, nodeLimit: opts.nodeLimit }) : undefined,
