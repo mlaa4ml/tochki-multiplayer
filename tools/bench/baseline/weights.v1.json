@@ -1,0 +1,10 @@
+{
+  "format": "tochki-bench-baseline",
+  "version": 1,
+  "note": "Замороженный baseline (копия BOT_WEIGHTS движка на момент A07, issue #12). Не изменять: новая версия baseline = новый файл. Пул соперников — фиксированные вариации для проверки устойчивости, не кандидаты.",
+  "weights": { "potential": 6, "cohesion": 1.2, "stones": 0.15, "liberty": 5 },
+  "pool": [
+    { "id": "no-liberty", "weights": { "potential": 6, "cohesion": 1.2, "stones": 0.15, "liberty": 0 } },
+    { "id": "territory-heavy", "weights": { "potential": 10, "cohesion": 0.6, "stones": 0.1, "liberty": 5 } }
+  ]
+}
