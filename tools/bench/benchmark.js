@@ -347,7 +347,24 @@ function runBenchmark(opts){
           scoreDiffMean: mean(g.diff), score: ci.mean, ci95: { lo: ci.lo, hi: ci.hi, method: 'cluster bootstrap over source openings (runs of one opening resampled together)' },
           nodesPerMove: mean(g.nodes), completedDepth: mean(g.depth),
           moveMs: { p50: quantile(g.ms, 0.5), p95: quantile(g.ms, 0.95) },
-          tactics: isBaseline ? evalTactics(tactics, opts.candidate.weights, { difficulty, nodeLimit: opts.nodeLimit }) : undefined,
+                    tactics: isBaseline ? evalTactics(tactics, opts.candidate.weights, { difficulty, nodeLimit: opts.nodeLimit }) : undefined,
+          // Стратегический корпус (tools/bench/strategic.js, strategic.v1.json):
+          // defend-threat / endgame-fill, пропуски по видам. Только против baseline.
+          strategic: isBaseline ? (function(){
+            const S = require('./strategic.js');
+            const st = opts.strategic !== undefined ? opts.strategic : S.loadDefault();
+            if (!st) return null;
+            S.validateStrategic(st, false);
+            const list = (st.positions || {})[sizeKey] || [];
+            const cfgS = { difficulty, nodeLimit: opts.nodeLimit };
+            const r = evalTactics(list, opts.candidate.weights, cfgS);
+            const byKind = {};
+            for (const kind of S.KINDS){
+              const sub = list.filter(p => p.kind === kind);
+              byKind[kind] = { total: sub.length, misses: sub.filter(p => r.missed.includes(p.id)).length };
+            }
+            return Object.assign({ version: st.version, seed: st.seed }, r, { byKind });
+          })() : undefined,
           runs: runsOut });
       }
     }
