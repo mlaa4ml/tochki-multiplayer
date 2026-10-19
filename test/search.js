@@ -121,6 +121,44 @@ const fallback = searchOn(m, diff, { nodeLimit: 1 }).move;
   }
 }
 
+// 5b. Прерывание во время продления (quiescence): плотный свип управляемых
+// часов по КАЖДОМУ тику на глубине 2. Обязательно должны встретиться обрывы
+// вокруг проверки продления и внутри узла продления; в каждом случае ход —
+// ход последней завершённой итерации, оценки конечны.
+{
+  const d2 = Object.assign({}, diff, { maxDepth: 2 });
+  const ref = searchOn(m, d2, { clock: stepClock(), timeLimit: 1e9 });
+  check(ref.trace.completedDepth === 2, 'продление: эталон d=2 завершён');
+  const totalTicks = Math.ceil(ref.trace.elapsedMs) + 2;
+  const seen = {};
+  for (let tl = 0; tl <= totalTicks; tl++){
+    const r = searchOn(m, d2, { timeLimit: tl, clock: stepClock() });
+    if (r.trace.stopAt) seen[r.trace.stopAt] = (seen[r.trace.stopAt] || 0) + 1;
+    check(allFinite(r.trace), 'продление tl=' + tl + ': конечные оценки');
+    check(r.move && isLegalForSnap(m, r.move), 'продление tl=' + tl + ': легальный ход');
+    const d = r.trace.completedDepth;
+    const expected = r.trace.fallback === 'first-legal' ? null : (d === 0 ? fallback : ref.move);
+    if (expected && r.trace.fallback !== 'first-candidate')
+      check(r.move.x === expected.x && r.move.y === expected.y, 'продление tl=' + tl + ': ход завершённой итерации');
+    if (r.trace.stopAt && r.trace.stopAt.startsWith('extension'))
+      check(d === 0, 'продление tl=' + tl + ': неполная итерация с обрывом в продлении не принята');
+  }
+  console.log('точки обрыва (d=2):', J(seen));
+  check(seen['extension-before'] > 0, 'продление: был обрыв перед проверкой продления');
+  check(seen['extension-after'] > 0, 'продление: был обрыв сразу после проверки продления');
+  check(seen['extension-node'] > 0, 'продление: был обрыв внутри узла продления');
+  // Лимит узлов тоже обрывает поиск внутри продления (после sc.nodes++ узла depth<=0).
+  let extByNodes = 0;
+  for (let nl = 1; nl <= ref.trace.nodes; nl++){
+    const r = searchOn(m, d2, { nodeLimit: nl });
+    if (r.trace.stopAt && r.trace.stopAt.startsWith('extension')){
+      extByNodes++;
+      check(r.trace.stopReason === 'node-limit', 'продление nl=' + nl + ': причина node-limit');
+    }
+  }
+  check(extByNodes > 0, 'продление: лимит узлов обрывал поиск в продлении');
+}
+
 // 6. Детерминизм: одинаковые вход и лимит узлов — одинаковый ход и диагностика.
 {
   const strip = t => { const c = Object.assign({}, t); delete c.elapsedMs; return J(c); };
