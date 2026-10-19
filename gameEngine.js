@@ -988,12 +988,22 @@
       return { ok:true, current, scores: {...scores}, stonesPlacedTotal };
     }
 
-    function botMove(difficultyKey, weights){
+    // Поиск с диагностикой: { move, trace }. searchOpts — { nodeLimit,
+    // timeLimit, emergencyTimeLimit, clock } (см. searchMove).
+    function botSearch(difficultyKey, weights, searchOpts){
       const diff = DIFFICULTY[difficultyKey] || DIFFICULTY.normal;
       // Полные правила матча: пороги очков/заполнения, доп. ход, дебютная
       // зона по stonesPlacedTotal, конец партии.
-      return chooseMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS,
-        { stonesPlacedTotal, gameOver, rules: matchRules });
+      return searchMove(state, rows, cols, current, diff, weights || BOT_WEIGHTS,
+        Object.assign({}, searchOpts || {}, { stonesPlacedTotal, gameOver, rules: matchRules }));
+    }
+
+    // Совместимый интерфейс: только ход {x,y} или null. Необязательный
+    // searchOpts.onTrace(trace) получает диагностику без смены возврата.
+    function botMove(difficultyKey, weights, searchOpts){
+      const r = botSearch(difficultyKey, weights, searchOpts);
+      if (searchOpts && typeof searchOpts.onTrace === 'function') searchOpts.onTrace(r.trace);
+      return r.move;
     }
 
     // Полный снимок состояния — то, что уходит клиенту по WebSocket.
