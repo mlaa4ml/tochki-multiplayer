@@ -688,7 +688,10 @@
     sc.nodes++;
     const { state, rows, cols } = node;
     const player = node.current;
-    const staticVal = () => finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+        // Статическая оценка — дорогая операция: бюджет проверяется перед ней
+    // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
+    const staticVal = () => budgetExceeded(sc) ? 0
+      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
