@@ -9,7 +9,10 @@
     "start": "node server.js",
     "test:rules": "node test/rules.js",
     "test:offline": "node test/offline-session.js",
-    "test": "node test/replay.js && node test/replay-db.js && node test/rules.js && node test/transition.js && node test/search.js && node test/offline-session.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
+    "test:bench": "node test/bench.js",
+    "bench": "node tools/bench/benchmark.js",
+    "bench:full": "node tools/bench/benchmark.js --full --split test --runs 3 --nodes 200 --openings 8",
+    "test": "node test/bench.js && node test/replay.js && node test/replay-db.js && node test/rules.js && node test/transition.js && node test/search.js && node test/offline-session.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js"
   },
   "engines": {
     "node": "24.x"
