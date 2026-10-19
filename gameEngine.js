@@ -760,13 +760,28 @@
     if (root.gameOver) return finish(null, 'game-over');
     const extInit = diff.quiescenceExt ?? 2;
 
+    // Бюджет проверяется и до дорогой генерации корневых кандидатов: при
+    // исчерпании — дешёвый легальный резервный ход (первый по y, затем x).
+    if (budgetExceeded(sc)){
+      trace.fallback = 'first-legal';
+      const f = firstLegalMove(root);
+      return finish(f, f ? sc.stopReason : 'no-legal-moves');
+    }
+
     const ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
     if (!ordered.length){
+      trace.fallback = 'first-legal';
       const f = firstLegalMove(root);
       return finish(f, f ? 'no-candidates' : 'no-legal-moves');
     }
 
+    // Перебор немедленных побед тоже под бюджетом: при исчерпании —
+    // первый кандидат по детерминированному порядку.
     for (const c of ordered){
+      if (budgetExceeded(sc)){
+        trace.fallback = 'first-candidate';
+        return finish(ordered[0], sc.stopReason);
+      }
       const t = applyTransition(root, mover, c.x, c.y);
       if (t.ok && t.node.gameOver && t.node.winner === mover) return finish(c, 'immediate-win');
     }
