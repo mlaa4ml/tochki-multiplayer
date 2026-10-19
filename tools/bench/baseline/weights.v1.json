@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "id": "baseline-v1",
+  "source": "main a2b35be gameEngine.js BOT_WEIGHTS",
+  "weights": { "potential": 6, "cohesion": 1.2, "stones": 0.15, "liberty": 5 },
+  "pool": [
+    { "id": "no-liberty-v1", "weights": { "potential": 6, "cohesion": 1.2, "stones": 0.15, "liberty": 0 } },
+    { "id": "territory-heavy-v1", "weights": { "potential": 9, "cohesion": 1.2, "stones": 0.15, "liberty": 5 } }
+  ]
+}
