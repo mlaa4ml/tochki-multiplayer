@@ -142,6 +142,12 @@
 - `match.botSearch(diff, weights, opts)` и `botMove(..., {onTrace})`
   отдают диагностику. Это же можно вызвать в Worker и вернуть trace в
   ответе.
+- Worker: `botWorker.js` — один файл для Web Worker (`importScripts('gameEngine.js')`)
+  и Node `worker_threads`. Запрос `{type:'search', requestId, gameId, revision,
+  snapshot, difficulty, weights, searchOpts}`, ответ `{type:'result', requestId,
+  gameId, revision, move, trace}` или `{type:'error', ...}`. Синхронный
+  `handleBotRequest(Engine, msg)` доступен для тестов/CLI. Отмена —
+  `worker.terminate()`. Ход проверяет владелец партии через `applyMove`.
 - CLI: `node tools/train-bot.js --node-limit N [--emergency-ms M] --trace`
   печатает trace каждого хода в stderr.
 
