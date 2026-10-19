@@ -647,41 +647,8 @@
   // Игрок узла — всегда фактический node.current: после захвата с
   // доп. ходом поиск продолжает за того же игрока, а не за соперника.
   // Терминальный узел не порождает продолжений и оценивается терминально.
-  function alphaBeta(node, depth, alpha, beta, diff, deadline, forPlayer, weights, extensionsLeft, ply){
-    if (node.gameOver) return terminalValue(node, forPlayer, ply);
-    const { state, rows, cols } = node;
-    const player = node.current;
-    const forcedExtension = depth <= 0 && extensionsLeft > 0 &&
-      (hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player));
-    if ((depth <= 0 && !forcedExtension) || now() > deadline){
-      return evaluateStatic(state, rows, cols, forPlayer, weights);
-    }
-    const searchDepth = depth > 0 ? depth : 1;
-    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
-    if (!candidates.length) return evaluateStatic(state, rows, cols, forPlayer, weights);
-
-    const maximizing = player === forPlayer;
-    let value = maximizing ? -Infinity : Infinity;
-    const nextDepth = depth > 0 ? depth - 1 : 0;
-    const nextExt = depth > 0 ? extensionsLeft : extensionsLeft - 1;
-
-    for (const c of candidates){
-      if (now() > deadline) break;
-      const t = applyTransition(node, player, c.x, c.y);
-      if (!t.ok) continue;
-      const childVal = alphaBeta(t.node, nextDepth, alpha, beta, diff, deadline, forPlayer, weights, nextExt, ply + 1);
-      if (maximizing){
-        if (childVal > value) value = childVal;
-        alpha = Math.max(alpha, value);
-      } else {
-        if (childVal < value) value = childVal;
-        beta = Math.min(beta, value);
-      }
-      if (beta <= alpha) break;
-    }
-    if (value === Infinity || value === -Infinity) return evaluateStatic(state, rows, cols, forPlayer, weights);
-    return value;
-  }
+  // (Прежний alphaBeta с ±Infinity и без распространения abort заменён
+  // alphaBetaSearch ниже — см. A04, issue #9.)
 
   // ctx (необязательный) — полные правила позиции: { stonesPlacedTotal,
   // gameOver, rules } (подходит прямо getSnapshot() матча). Без ctx —
