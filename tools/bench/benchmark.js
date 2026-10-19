@@ -153,8 +153,79 @@ function quantile(arr, q){
 }
 function mean(a){ return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; }
 
-// Bootstrap по ПАРАМ (одна пара = один дебют, сыгранный с обоими цветами).
+// Кластерный bootstrap (A07, issue #12). Кластер — все пары, выросшие из
+// ОДНОГО исходного дебюта корпуса (все прогоны и сложности). Они не
+// независимы, поэтому ресэмплируются целиком: ширина интервала определяется
+// числом исходных дебютов, а не числом сыгранных партий.
+function bootstrapClusters(clusters, resamples, seed){
+  clusters = clusters.filter(c => c && c.length);
+  const all = [].concat(...clusters);
+  if (!clusters.length) return { lo: null, hi: null, mean: null, n: 0, clusters: 0 };
+  const rng = makeRng(seed ^ 0x9e3779b9);
+  const means = [];
+  for (let b = 0; b < resamples; b++){
+    let s = 0, n = 0;
+    for (let i = 0; i < clusters.length; i++){
+      const c = clusters[Math.floor(rng() * clusters.length)];
+      for (const v of c) s += v;
+      n += c.length;
+    }
+    means.push(s / n);
+  }
+  return { mean: mean(all), lo: quantile(means, 0.025), hi: quantile(means, 0.975), resamples, n: all.length, clusters: clusters.length };
+}
+
+// Bootstrap по независимым парам (каждая пара — отдельный кластер).
 function bootstrapPairs(pairScores, resamples, seed){
+  return bootstrapClusters(pairScores.map(v => [v]), resamples, seed);
+}
+
+function hashStr(s){
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+// Продолжение префикса `plies` случайными легальными ходами (не заканчивая партию).
+function extendPrefix(rules, prefix, plies, rng){
+  const match = replayPrefix(rules, prefix);
+  if (!match) return null;
+  const out = prefix.slice();
+  for (let i = 0; i < plies; i++){
+    const snap = match.getSnapshot();
+    if (snap.gameOver) return null;
+    const cells = [];
+    for (let y = 0; y < snap.rows; y++) for (let x = 0; x < snap.cols; x++) if (!snap.stone[y][x]) cells.push({ x, y });
+    for (let k = cells.length - 1; k > 0; k--){ const j = Math.floor(rng() * (k + 1)); [cells[k], cells[j]] = [cells[j], cells[k]]; }
+    let done = false;
+    for (const c of cells){
+      const res = match.applyMove(snap.current, c.x, c.y);
+      if (res.ok){
+        if (res.gameOver) return null;
+        out.push({ x: c.x, y: c.y, seat: snap.current }); done = true; break;
+      }
+    }
+    if (!done) return null;
+  }
+  return out;
+}
+
+// Позиция прогона: run 0 — исходный дебют; run > 0 — дебют, продолженный
+// `plies` случайными легальными ходами (seed прогона + id дебюта). Без этого
+// при детерминированном лимите узлов все прогоны повторяли бы те же партии.
+// Обе партии пары (смена цветов) играются из одной и той же позиции.
+function derivePosition(o, run, runSeed, plies){
+  if (run === 0 || !(plies > 0)) return o;
+  const rng = makeRng((runSeed ^ hashStr(o.id)) >>> 0);
+  for (let p = plies; p >= 1; p--) for (let a = 0; a < 8; a++){
+    const ext = extendPrefix(o.rules, o.prefix, p, rng);
+    if (ext) return Object.assign({}, o, { id: o.id + '#r' + run, baseId: o.id, prefix: ext });
+  }
+  return null;
+}
+
+// Старый наивный вариант (каждая пара независима) — оставлен для сравнения.
+function bootstrapPairsNaive(pairScores, resamples, seed){
   if (!pairScores.length) return { lo: null, hi: null, mean: null };
   const rng = makeRng(seed ^ 0x9e3779b9);
   const means = [];
