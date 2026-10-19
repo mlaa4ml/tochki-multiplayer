@@ -66,18 +66,6 @@ function humanMove(s){
   throw new Error('нет легального хода человека');
 }
 
-function checkExtraTurns(s, extra){
-  const log = s.status().moveCount;
-  assert.ok(log >= 0);
-  const replay = s.getReplay();
-  let prev = null;
-  for (const ev of replay.events){
-    if (ev.type === 'undo'){ prev = null; continue; }
-    if (ev.type !== 'move') continue;
-    prev = ev;
-  }
-  return prev;
-}
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
