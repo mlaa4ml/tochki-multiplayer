@@ -295,18 +295,29 @@ function runBenchmark(opts){
     for (const difficulty of opts.difficulties){
       for (const opp of opts.pool){
         const runsOut = [];
+        const runPlies = opts.runPlies == null ? 2 : opts.runPlies;
+        report.params.runPlies = runPlies;
+        const clusters = new Map(); const uniquePositions = new Set();
         const pairScores = []; const g = { W: 0, D: 0, L: 0, truncated: 0, diff: [], nodes: [], depth: [], ms: [], games: 0 };
         for (let run = 0; run < opts.runs; run++){
-          // Независимые прогоны: свой порядок дебютов по seed+run.
-          const rng = makeRng((opts.seed + run * 7919) >>> 0);
+          // Независимые прогоны: свой seed, свой порядок дебютов и СВОИ позиции
+          // (см. derivePosition) — иначе при лимите узлов партии повторялись бы.
+          const runSeed = (opts.seed + run * 7919) >>> 0;
+          const rng = makeRng(runSeed);
           const order = openings.slice();
           for (let k = order.length - 1; k > 0; k--){ const j = Math.floor(rng() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
           const cfg = { difficulty, nodeLimit: opts.nodeLimit, maxMoves: opts.maxMoves, maxMs: opts.maxMs, run };
           const runPairs = [];
           for (const o of order){
+            const pos = derivePosition(o, run, runSeed, runPlies);
+            if (!pos){ (report.skipped = report.skipped || []).push({ sizeKey, difficulty, opponent: opp.id, opening: o.id, run, reason: 'cannot derive run position' }); continue; }
+            const posKey = JSON.stringify(pos.prefix);
             let games;
-            try { games = playPair(o, opts.candidate, opp, cfg, opts.jsonl); }
-            catch (e){ report.errors.push({ sizeKey, difficulty, opponent: opp.id, opening: o.id, run, error: e.name + ': ' + e.message }); continue; }
+            try { games = playPair(pos, opts.candidate, opp, cfg, opts.jsonl); }
+            catch (e){ report.errors.push({ sizeKey, difficulty, opponent: opp.id, opening: pos.id, run, error: e.name + ': ' + e.message }); continue; }
+            uniquePositions.add(posKey);
+            const ckey = sizeKey + ':' + o.id;
+            if (!clusters.has(ckey)) clusters.set(ckey, []);
             let pts = 0;
             for (const { candSeat, result } of games){
               const p = points(result.winner, candSeat); pts += p;
