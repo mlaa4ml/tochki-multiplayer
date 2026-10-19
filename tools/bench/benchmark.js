@@ -70,9 +70,9 @@ function summarize(pairs, seed) {
     interval95: bootstrap(pairs, seed)
   };
 }
-function auditPositions(corpus, weights, difficulties, nodeLimit) {
+function auditPositions(corpus, weights, difficulties, nodeLimit, split = 'test') {
   const results = [];
-  for (const position of corpus.positions.filter(p => p.split === 'test')) for (const difficulty of difficulties) {
+  for (const position of corpus.positions.filter(p => p.split === split)) for (const difficulty of difficulties) {
     try {
       const match = R.prefixMatch(position.options, position.prefix);
       const s = match.getSnapshot();
