@@ -637,6 +637,122 @@
     return cand;
   }
 
+    // A08: topology is only a cheap *necessary* condition, never the verdict.
+  // A new wall can disconnect an interior region only with >=2 wall neighbours.
+  // Terminal fill moves bypass this filter; all verdicts use the shared rules.
+  function tacticalProbeCells(node, fullScan){
+    const out = [];
+    const { rows, cols, state } = node;
+    const fillNext = countFilledCells(state, rows, cols) + 1 >=
+      (node.rules.fillRuleActive
+        ? Math.ceil(rows * cols * node.rules.targetFillPercent / 100) : rows * cols);
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      if (!isTransitionLegal(node, x, y)) continue;
+      let walls = 0;
+      for (const [dx,dy] of DIRS4){
+        const nx=x+dx, ny=y+dy;
+        if (nx>=0 && ny>=0 && nx<cols && ny<rows && isWall(state,nx,ny,node.current)) walls++;
+      }
+      if (fullScan || fillNext || walls >= 2) out.push({x,y});
+    }
+    return out;
+  }
+
+  function immediateTactics(node, sc, fullScan){
+    const out = [];
+    const player = node.current;
+    for (const c of tacticalProbeCells(node, fullScan)){
+      if (sc && budgetExceeded(sc, 'candidate-generation')) break;
+      const t = applyTransition(node, player, c.x, c.y);
+      if (!t.ok) continue;
+      const win = t.node.gameOver && t.node.winner === player;
+      if (win || countCaptured(t.result.gained) > 0) out.push({...c, kind:win ? 'win' : 'capture'});
+    }
+    return out;
+  }
+
+  function tacticalCandidates(node, diff, sc){
+    const mine = immediateTactics(node, sc, diff.tacticalFullScan);
+    if (sc && sc.aborted) return mine;
+    const opponent = cloneSearchNode(node);
+    opponent.current = 3-node.current;
+    const threats = immediateTactics(opponent, sc, diff.tacticalFullScan);
+    if (!threats.length || (sc && sc.aborted)) return mine;
+    const keys = new Set(mine.map(c => c.y*node.cols+c.x));
+    // Keep every complete evasion, including remote counter-captures and
+    // extra turns. Local liberties cannot certify defence under these rules.
+    for (let y=0; y<node.rows; y++) for (let x=0; x<node.cols; x++){
+      if (sc && budgetExceeded(sc, 'candidate-generation')) return mine;
+      if (keys.has(y*node.cols+x) || !isTransitionLegal(node,x,y)) continue;
+      const t = applyTransition(node,node.current,x,y);
+      if (t.node.gameOver){
+        if (t.node.winner !== 3-node.current) mine.push({x,y,kind:'block'});
+      } else if (t.node.current === node.current ||
+                 !immediateTactics(t.node,sc,diff.tacticalFullScan).length){
+        mine.push({x,y,kind:'block'});
+      }
+    }
+    return mine;
+  }
+
+  function strategicCandidates(node){
+    const cells = new Map();
+    const add = (x,y) => {
+      if (isTransitionLegal(node,x,y)) cells.set(y*node.cols+x,{x,y});
+    };
+    // Gaps and first steps on escape routes of both sides.
+    for (const p of [1,2]) for (const g of computeGroupLiberties(node.state,node.rows,node.cols,p)){
+      if (g.liberties <= 3) for (const k of g.libCells){
+        const x=k%node.cols, y=Math.floor(k/node.cols);
+        add(x,y);
+        const edges = [[x,0],[x,node.rows-1],[0,y],[node.cols-1,y]];
+        edges.sort((a,b) => Math.abs(a[0]-x)+Math.abs(a[1]-y)-Math.abs(b[0]-x)-Math.abs(b[1]-y));
+        const [ex,ey] = edges[0];
+        add(x+Math.sign(ex-x),y+Math.sign(ey-y));
+      }
+    }
+    // One legal representative per spatial tile, including empty far flanks.
+    for (let top=0; top<node.rows; top+=3) for (let left=0; left<node.cols; left+=3){
+      let best=null, dist=Infinity;
+      for (let y=top; y<Math.min(top+3,node.rows); y++)
+        for (let x=left; x<Math.min(left+3,node.cols); x++){
+          const d=Math.abs(x-left-1)+Math.abs(y-top-1);
+          if (isTransitionLegal(node,x,y) && d<dist){ best={x,y}; dist=d; }
+        }
+      if (best) add(best.x,best.y);
+    }
+    return [...cells.values()];
+  }
+
+  function searchCandidates(node, diff, cap, sc, tactics){
+    const started = now();
+    const mandatory = diff.tactical === false ? [] :
+      (tactics || tacticalCandidates(node,diff,sc));
+    const ranked = legalCandidates(node,diff);
+    const chosen = new Map();
+    const add = c => chosen.set(c.y*node.cols+c.x,c);
+    const rank = {win:3,capture:2,block:1};
+    mandatory.sort((a,b) => rank[b.kind]-rank[a.kind] || a.y-b.y || a.x-b.x);
+    mandatory.forEach(add);
+    // No tactical cap: beam is a soft limit. Budget abort, not silent
+    // truncation, handles positions with more mandatory moves than the beam.
+    if (diff.strategic !== false){
+      const strategic = strategicCandidates(node);
+      // Reserve spatial diversity before filling the remaining heuristic beam.
+      for (const c of strategic.slice(0, Math.max(1,Math.floor(cap/3)))) add(c);
+    }
+    for (const c of ranked){
+      if (chosen.size >= Math.max(cap,mandatory.length)) break;
+      if (!chosen.has(c.y*node.cols+c.x)) add(c);
+    }
+    if (sc){
+      sc.generationMs = (sc.generationMs || 0) + now()-started;
+      sc.tacticalCount = (sc.tacticalCount || 0) + mandatory.length;
+      sc.tacticalOverflow = (sc.tacticalOverflow || 0) + Math.max(0,mandatory.length-cap);
+    }
+    return [...chosen.values()];
+  }
+
   function firstLegalMove(node){
     for (let y=0; y<node.rows; y++)
       for (let x=0; x<node.cols; x++)
