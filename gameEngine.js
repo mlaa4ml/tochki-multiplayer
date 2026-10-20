@@ -867,7 +867,7 @@
     }
     const searchDepth = depth > 0 ? depth : 1;
     const bf = branchFactorForDepth(diff, searchDepth);
-    const useTac = tacOn && (inExt || ply <= tacPly || forcedTac);
+    const useTac = tacOn && (ply <= tacPly || forcedTac);
     const candidates = useTac ? searchCandidates(node, diff, bf, sc, forcedTac)
       : legalCandidates(node, diff).slice(0, bf);
     if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
