@@ -1,0 +1,68 @@
+{
+  "nodeLimit": 300,
+  "difficulty": "normal",
+  "positions": 6,
+  "variants": {
+    "base": {
+      "missRate": 0,
+      "misses": 0,
+      "missed": [],
+      "msP50": 53.61,
+      "msP95": 119.78,
+      "nodesP50": 171,
+      "nodesP95": 300,
+      "genMsP50": 0.09,
+      "genMsP95": 2.14
+    },
+    "tactical": {
+      "missRate": 0.167,
+      "misses": 1,
+      "missed": [
+        "small-tactic-3"
+      ],
+      "msP50": 165.92,
+      "msP95": 431.26,
+      "nodesP50": 169,
+      "nodesP95": 300,
+      "genMsP50": 5.35,
+      "genMsP95": 7.99
+    },
+    "strategic": {
+      "missRate": 0,
+      "misses": 0,
+      "missed": [],
+      "msP50": 30.1,
+      "msP95": 55.46,
+      "nodesP50": 171,
+      "nodesP95": 300,
+      "genMsP50": 0.16,
+      "genMsP95": 0.49
+    },
+    "both": {
+      "missRate": 0.167,
+      "misses": 1,
+      "missed": [
+        "small-tactic-3"
+      ],
+      "msP50": 148.45,
+      "msP95": 295.67,
+      "nodesP50": 169,
+      "nodesP95": 300,
+      "genMsP50": 2.44,
+      "genMsP95": 4.66
+    },
+    "both+extScan": {
+      "missRate": 0.167,
+      "misses": 1,
+      "missed": [
+        "small-tactic-3"
+      ],
+      "msP50": 293.61,
+      "msP95": 299.87,
+      "nodesP50": 169,
+      "nodesP95": 300,
+      "genMsP50": 3.65,
+      "genMsP95": 4.53
+    }
+  }
+}
