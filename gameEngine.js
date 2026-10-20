@@ -850,7 +850,7 @@
       // A08: продление по полному тактическому набору (захват/победа/угроза
       // соперника по полным правилам), а не по 10 локально ранжированным ходам.
       // diff.tactical === false — прежний hasForcingCapture (ablation).
-      forcedTac = diff.tactical === false ? null : tacticalCandidates(node, diff);
+      forcedTac = useTac ? tacticalCandidates(node, diff) : null;
       const forced = (forcedTac ? forcedTac.length > 0 : hasForcingCapture(state, rows, cols, player, diff))
         || hasUrgentAtari(state, rows, cols, player);
       if (budgetExceeded(sc, 'extension-after')) return 0;
