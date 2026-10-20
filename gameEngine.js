@@ -846,12 +846,17 @@
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
       if (budgetExceeded(sc, 'extension-before')) return 0;
-      const forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+      // A08: продление по полному тактическому набору (захват/победа/угроза
+      // соперника по полным правилам), а не по 10 локально ранжированным ходам.
+      // diff.tactical === false — прежний hasForcingCapture (ablation).
+      forcedTac = diff.tactical === false ? null : tacticalCandidates(node, diff);
+      const forced = (forcedTac ? forcedTac.length > 0 : hasForcingCapture(state, rows, cols, player, diff))
+        || hasUrgentAtari(state, rows, cols, player);
       if (budgetExceeded(sc, 'extension-after')) return 0;
       if (!forced) return staticVal();
     }
     const searchDepth = depth > 0 ? depth : 1;
-    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
+    const candidates = searchCandidates(node, diff, branchFactorForDepth(diff, searchDepth), sc, forcedTac);
     if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     if (!candidates.length) return staticVal();
 
