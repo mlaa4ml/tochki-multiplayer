@@ -628,8 +628,17 @@
   function legalCandidates(node, diff){
     const { state, rows, cols } = node;
     const player = node.current;
-    const cand = generateCandidates(state, rows, cols, diff.radius)
-      .filter(c => isTransitionLegal(node, c.x, c.y));
+    let cand = generateCandidates(state, rows, cols, diff.radius);
+    // A08: стратегические кандидаты (разрывы контуров/выходы, дальние зоны);
+    // diff.strategic === false — отключить (ablation).
+    if (diff.strategic !== false && node.stonesPlacedTotal >= 2){
+      const seen = new Set(cand.map(c => c.y*cols + c.x));
+      for (const s of strategicCandidates(node)){
+        const k = s.y*cols + s.x;
+        if (!seen.has(k)){ seen.add(k); cand.push({ x: s.x, y: s.y }); }
+      }
+    }
+    cand = cand.filter(c => isTransitionLegal(node, c.x, c.y));
     const urgent = computeUrgentCells(state, rows, cols, player);
     cand.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, player, urgent); });
     // Детерминированный порядок: quickScore по убыванию, равенства — по y, затем по x.
