@@ -932,7 +932,13 @@
       return finish(f, f ? sc.stopReason : 'no-legal-moves');
     }
 
-    const ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
+        // A08: обязательные тактические ходы сохраняются до обрезки; стоимость
+    // генерации — в trace (genMs по реальным часам, не трогая управляемые).
+    const genStart = now();
+    const ordered = searchCandidates(root, diff, diff.candidateCap, sc);
+    trace.genMs = now() - genStart;
+    trace.tactical = ordered.filter(c => c.tactical).length;
+    trace.tacticalOverflow = sc.tacticalOverflow || 0;
     if (!ordered.length){
       trace.fallback = 'first-legal';
       const f = firstLegalMove(root);
