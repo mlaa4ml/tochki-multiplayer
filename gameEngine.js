@@ -936,7 +936,9 @@
     // генерации — в trace (genMs по реальным часам, не трогая управляемые).
     const genStart = now();
     const ordered = searchCandidates(root, diff, diff.candidateCap, sc);
-    trace.genMs = now() - genStart;
+        // genMs — по реальным часам и потому недетерминирован: делаем поле
+    // неперечислимым, чтобы не ломать сравнение trace (детерминизм, worker).
+    Object.defineProperty(trace, 'genMs', { value: now() - genStart, enumerable: false, writable: true, configurable: true });
     trace.tactical = ordered.filter(c => c.tactical).length;
     trace.tacticalOverflow = sc.tacticalOverflow || 0;
     if (!ordered.length){
