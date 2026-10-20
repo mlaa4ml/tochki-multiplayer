@@ -818,7 +818,9 @@
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
       if (budgetExceeded(sc, 'extension-before')) return 0;
-      const forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+            const forced = diff.tactical === false
+        ? hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player)
+        : tacticalCandidates(node, diff, sc).length > 0;
       if (budgetExceeded(sc, 'extension-after')) return 0;
       if (!forced) return staticVal();
     }
