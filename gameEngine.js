@@ -646,10 +646,101 @@
   //   'block'   — клетка, которой соперник (если бы ходил сейчас) пленил бы
   //               точки или выиграл: занять её — прямая защита от потери.
   // Возвращает массив {x,y,kinds} в детерминированном порядке (y, затем x).
-  function tacticalCandidates(node){
-    const { rows, cols } = node;
+  // Отсечение клеток без соседей (8-окрестность без точек/территории) корректно:
+  // такая точка — внутреннее препятствие одной и той же области, она не может
+  // замкнуть контур (ни для ходящего, ни для соперника). Исключение — партия
+  // кончается следующим ходом по заполнению: тогда «выигрывает» любой ход, и
+  // перебираются все клетки. diff.tacticalFullScan=true — всегда полный перебор
+  // (используется тестом сравнения с полным перебором).
+  function nearOccupied(state, rows, cols, x, y){
+    for (let dy=-1; dy<=1; dy++){
+      for (let dx=-1; dx<=1; dx++){
+        if (!dx && !dy) continue;
+        const nx=x+dx, ny=y+dy;
+        if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+        if (state.stone[ny][nx] !== 0 || state.territory[ny][nx] !== 0) return true;
+      }
+    }
+    return false;
+  }
+  function fillEndsNext(node){
+    const r = node.rules;
+    const total = node.rows*node.cols;
+    const target = r.fillRuleActive ? Math.ceil(total*r.targetFillPercent/100) : total;
+    return countFilledCells(node.state, node.rows, node.cols) + 1 >= target;
+  }
+
+  const TACTICAL_RANK = { win: 0, capture: 1, block: 2 };
+  function tacticalRank(c){
+    let r = 9;
+    for (const k of c.kinds) if (TACTICAL_RANK[k] < r) r = TACTICAL_RANK[k];
+    return r;
+  }
+
+  // A08: стратегические кандидаты вне радиуса соседства —
+  //  * разрывы контуров и пути выхода: свободы групп обеих сторон с <=3 свободами;
+  //  * разные области поля: центр каждой из 3×3 зон доски, в которой ещё нет
+  //    ни одной точки/территории (чтобы поиск видел ходы на дальних флангах).
+  // Возвращает только легальные ходы, порядок детерминирован (y, затем x).
+  function strategicCandidates(node){
+    const { state, rows, cols } = node;
     const out = new Map();
     if (node.gameOver) return [];
+    const add = (x, y) => { if (isTransitionLegal(node, x, y)) out.set(y*cols+x, { x, y }); };
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 3) continue;
+        for (const k of g.libCells) add(k % cols, Math.floor(k / cols));
+      }
+    }
+    for (let zy=0; zy<3; zy++){
+      for (let zx=0; zx<3; zx++){
+        const x0 = Math.floor(zx*cols/3), x1 = Math.floor((zx+1)*cols/3) - 1;
+        const y0 = Math.floor(zy*rows/3), y1 = Math.floor((zy+1)*rows/3) - 1;
+        let empty = true;
+        for (let y=y0; y<=y1 && empty; y++)
+          for (let x=x0; x<=x1 && empty; x++)
+            if (state.stone[y][x] !== 0 || state.territory[y][x] !== 0) empty = false;
+        if (empty && x1 >= x0 && y1 >= y0) add(Math.floor((x0+x1)/2), Math.floor((y0+y1)/2));
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
+  // A08: итоговый набор кандидатов узла с обрезкой до cap.
+  // Обязательные тактические ходы (win > capture > block, затем quickScore)
+  // идут первыми и НЕ вытесняются эвристикой. Если их больше cap, сохраняется
+  // до tacticalCap (по умолчанию 2×cap) обязательных ходов, обычные ходы при
+  // этом не добавляются; переполнение учитывается в sc.tacticalOverflow.
+  // Стоимость генерации считается в sc.tacticalScans (поиск проверяет бюджет
+  // сразу после генерации). diff.tactical === false — прежнее поведение (ablation).
+  function searchCandidates(node, diff, cap, sc, tac){
+    const base = legalCandidates(node, diff);
+    if (diff.tactical === false) return base.slice(0, cap);
+    if (!tac) tac = tacticalCandidates(node, diff);
+    if (sc) sc.tacticalScans = (sc.tacticalScans || 0) + 1;
+    if (!tac.length) return base.slice(0, cap);
+    const { state, rows, cols } = node;
+    const byKey = new Map(base.map(c => [c.y*cols + c.x, c]));
+    const forced = tac.map(t => {
+      const b = byKey.get(t.y*cols + t.x);
+      return { x: t.x, y: t.y, kinds: t.kinds.slice(), tactical: true,
+        q: b ? b.q : quickScore(state, rows, cols, t.x, t.y, node.current, null) };
+    });
+    forced.sort((a,b) => (tacticalRank(a) - tacticalRank(b)) || (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
+    const tcap = Math.max(cap, Number.isInteger(diff.tacticalCap) && diff.tacticalCap > 0 ? diff.tacticalCap : cap*2);
+    if (forced.length > tcap && sc) sc.tacticalOverflow = (sc.tacticalOverflow || 0) + 1;
+    const kept = forced.slice(0, tcap);
+    const keys = new Set(kept.map(c => c.y*cols + c.x));
+    const rest = base.filter(c => !keys.has(c.y*cols + c.x)).slice(0, Math.max(0, cap - kept.length));
+    return kept.concat(rest);
+  }
+
+  function tacticalCandidates(node, diff){
+    const { rows, cols, state } = node;
+    const out = new Map();
+    if (node.gameOver) return [];
+    const fullScan = (diff && diff.tacticalFullScan === true) || fillEndsNext(node);
     const player = node.current;
     const opp = player === 1 ? 2 : 1;
     const add = (x, y, kind) => {
@@ -662,6 +753,7 @@
     oppNode.current = opp;
     for (let y=0; y<rows; y++){
       for (let x=0; x<cols; x++){
+        if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
         if (isTransitionLegal(node, x, y)){
           const t = applyTransition(node, player, x, y);
           if (t.ok){
