@@ -637,6 +637,49 @@
     return cand;
   }
 
+    // A08 (issue #13): обязательные тактические кандидаты по ПОЛНЫМ правилам —
+  // находятся полным перебором легальных ходов узла ДО эвристической обрезки
+  // (generateCandidates/quickScore/candidateCap/branchFactor), поэтому не
+  // зависят от радиуса соседства и локальных liberties.
+  //   'win'     — ход сразу завершает партию победой ходящего (порог очков/заполнения);
+  //   'capture' — ход реально пленит точки соперника (runCaptures);
+  //   'block'   — клетка, которой соперник (если бы ходил сейчас) пленил бы
+  //               точки или выиграл: занять её — прямая защита от потери.
+  // Возвращает массив {x,y,kinds} в детерминированном порядке (y, затем x).
+  function tacticalCandidates(node){
+    const { rows, cols } = node;
+    const out = new Map();
+    if (node.gameOver) return [];
+    const player = node.current;
+    const opp = player === 1 ? 2 : 1;
+    const add = (x, y, kind) => {
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (!e.kinds.includes(kind)) e.kinds.push(kind); }
+      else out.set(k, { x, y, kinds: [kind] });
+    };
+    const oppNode = cloneSearchNode(node);
+    oppNode.current = opp;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (isTransitionLegal(node, x, y)){
+          const t = applyTransition(node, player, x, y);
+          if (t.ok){
+            if (t.node.gameOver && t.node.winner === player) add(x, y, 'win');
+            if (countCaptured(t.result.gained) > 0) add(x, y, 'capture');
+          }
+        }
+        if (isTransitionLegal(oppNode, x, y) && isTransitionLegal(node, x, y)){
+          const t = applyTransition(oppNode, opp, x, y);
+          if (t.ok && ((t.node.gameOver && t.node.winner === opp) || countCaptured(t.result.gained) > 0)){
+            add(x, y, 'block');
+          }
+        }
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
   function firstLegalMove(node){
     for (let y=0; y<node.rows; y++)
       for (let x=0; x<node.cols; x++)
