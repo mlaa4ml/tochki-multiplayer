@@ -147,5 +147,30 @@ function rng(seed){ let s = seed >>> 0; return () => { s = (s * 1664525 + 101390
   }
 }
 
+// 7. Регрессия A08: тактический корпус бенчмарка (capture-in-1) — при
+// nodeLimit=300 бот с A08 (tactical+strategic) находит все эталонные
+// захваты, в т.ч. small-tactic-3 (раньше полный тактический скан в узлах
+// продления съедал бюджет, итерация обрывалась и выбирался (5,2) вместо (6,2)).
+{
+  const fs = require('fs');
+  const path = require('path');
+  const Runner = require('../tools/bench/runner.js');
+  const corpus = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'tools', 'bench', 'corpus', 'openings.v1.json'), 'utf8'));
+  const tactics = [].concat(...Object.values(corpus.tactics || {}));
+  check(tactics.some(t => t.id === 'small-tactic-3'), 'в корпусе есть small-tactic-3');
+  for (const t of tactics){
+    const m = E.createMatch(t.rules);
+    Runner.applyPrefix(m, t.prefix, () => {});
+    const snap = m.getSnapshot();
+    const node = E.createSearchNode(snap);
+    const tac = E.tacticalCandidates(node, diff);
+    check(t.expected.every(e => has(tac, e.x, e.y)), t.id + ': эталонный ход в тактическом наборе');
+    const p = Runner.makeSearchPlayer(E, { difficulty: diff, nodeLimit: 300, weights: E.BOT_WEIGHTS });
+    const r = p(snap);
+    check(r.move && t.expected.some(e => e.x === r.move.x && e.y === r.move.y),
+      t.id + ': бот выбрал эталонный ход (ход ' + J(r.move) + ', эталон ' + J(t.expected) + ')');
+  }
+}
+
 if (failed){ console.error(failed + ' check(s) failed'); process.exit(1); }
 console.log('candidates: OK');
