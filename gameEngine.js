@@ -842,6 +842,7 @@
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
     const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
       : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+    let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
