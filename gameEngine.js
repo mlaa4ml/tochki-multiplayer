@@ -825,7 +825,7 @@
       if (!forced) return staticVal();
     }
     const searchDepth = depth > 0 ? depth : 1;
-    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
+    const candidates = searchCandidates(node, diff, branchFactorForDepth(diff, searchDepth), sc);
     if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     if (!candidates.length) return staticVal();
 
