@@ -843,21 +843,33 @@
     const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
       : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
     let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
+    // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
+    // внутренних узлах он выполняется только до ply <= diff.tacticalPly
+    // (по умолчанию 0 — корень считается в searchMove) и в узлах продления.
+    // diff.tacticalExtScan === true — полный скан как условие продления в
+    // каждом листе (дорого; по умолчанию условие — прежняя дешёвая проверка,
+    // а набор ходов продления берётся из полного тактического скана).
+    const tacOn = diff.tactical !== false;
+    const tacPly = Number.isInteger(diff.tacticalPly) ? diff.tacticalPly : 0;
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
       if (budgetExceeded(sc, 'extension-before')) return 0;
-      // A08: продление по полному тактическому набору (захват/победа/угроза
-      // соперника по полным правилам), а не по 10 локально ранжированным ходам.
-      // diff.tactical === false — прежний hasForcingCapture (ablation).
-      forcedTac = useTac ? tacticalCandidates(node, diff) : null;
-      const forced = (forcedTac ? forcedTac.length > 0 : hasForcingCapture(state, rows, cols, player, diff))
-        || hasUrgentAtari(state, rows, cols, player);
+      let forced;
+      if (tacOn && diff.tacticalExtScan === true){
+        forcedTac = tacticalCandidates(node, diff);
+        forced = forcedTac.length > 0 || hasUrgentAtari(state, rows, cols, player);
+      } else {
+        forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+      }
       if (budgetExceeded(sc, 'extension-after')) return 0;
       if (!forced) return staticVal();
     }
     const searchDepth = depth > 0 ? depth : 1;
-    const candidates = searchCandidates(node, diff, branchFactorForDepth(diff, searchDepth), sc, forcedTac);
+    const bf = branchFactorForDepth(diff, searchDepth);
+    const useTac = tacOn && (inExt || ply <= tacPly || forcedTac);
+    const candidates = useTac ? searchCandidates(node, diff, bf, sc, forcedTac)
+      : legalCandidates(node, diff).slice(0, bf);
     if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     if (!candidates.length) return staticVal();
 
