@@ -909,7 +909,14 @@
     const finish = (move, reason) => {
       trace.move = move ? { x: move.x, y: move.y } : null;
       trace.nodes = sc.nodes;
-            trace.stopReason = reason;
+      // Timing diagnostics are opt-in so the default node-limited trace
+      // remains deterministic (A04, including Worker equivalence).
+      if (opts.generationDiagnostics) trace.generation = {
+        elapsedMs: sc.generationMs || 0,
+        mandatory: sc.tacticalCount || 0,
+        overflow: sc.tacticalOverflow || 0
+      };
+      trace.stopReason = reason;
       // Точка проверки бюджета, на которой произошёл обрыв (или null).
       trace.stopAt = sc.aborted ? (sc.stopAt || 'root') : null;
       trace.elapsedMs = sc.clock() - sc.start;
