@@ -753,6 +753,149 @@
     return [...chosen.values()];
   }
 
+    // A08: full-rule tactical scan BEFORE any beam cut. A cancelled scan is
+  // never consumed by search. Mandatory moves may overflow the normal beam.
+  // Flags are deliberately independent for one-change-at-a-time ablations.
+  function selectSearchCandidates(node, diff, cap, sc){
+    const started = now();
+    const stats = { transitions: 0, mandatory: 0, strategic: 0, complete: false };
+    const stop = () => sc && budgetExceeded(sc, 'candidate-generation');
+    const step = (n, x, y) => {
+      if (stop()) return null;
+      stats.transitions++;
+      return applyTransition(n, n.current, x, y);
+    };
+    const legal = n => {
+      const out = [];
+      for (let y=0; y<n.rows; y++) for (let x=0; x<n.cols; x++)
+        if (isTransitionLegal(n, x, y)) out.push({x,y});
+      return out;
+    };
+    const key = c => c.y * node.cols + c.x;
+    const all = legal(node);
+    const mandatory = new Set(), strategic = new Set();
+    const mover = node.current, opponent = 3 - mover;
+    // Loss means a newly captured pre-existing live stone, or terminal defeat.
+    // This does not confuse suicide/territory changes with a real capture.
+    const hurts = (before, after, victim) => {
+      if (after.gameOver && after.winner === 3-victim) return true;
+      for (let y=0; y<node.rows; y++) for (let x=0; x<node.cols; x++)
+        if (before.state.stone[y][x] === victim && !before.state.dead[y][x]
+            && after.state.dead[y][x] === 3-victim) return true;
+      return false;
+    };
+    const threats = n => {
+      for (const c of legal(n)){
+        const t = step(n, c.x, c.y);
+        if (!t) return null;
+        if (t.ok && hurts(node, t.node, mover)) return true;
+      }
+      return false;
+    };
+    let cancelled = false;
+    if (diff.tacticalCandidates !== false){
+      const hypothetical = {...node, current: opponent};
+      const threatened = threats(hypothetical);
+      if (threatened === null) cancelled = true;
+      for (const c of all){
+        if (cancelled) break;
+        const t = step(node, c.x, c.y);
+        if (!t){ cancelled = true; break; }
+        const child = t.node;
+        if (hurts(node, child, opponent)
+            || (child.gameOver && child.winner === mover)) mandatory.add(key(c));
+        if (threatened){
+          // A capture granting another turn is not an opponent reply.
+          if (child.gameOver){
+            if (child.winner !== opponent) mandatory.add(key(c));
+          } else if (child.current === mover){
+            mandatory.add(key(c));
+          } else {
+            const danger = threats(child);
+            if (danger === null){ cancelled = true; break; }
+            if (!danger && !hurts(node, child, mover)) mandatory.add(key(c));
+          }
+        }
+      }
+    }
+    if (!cancelled && diff.strategicCandidates !== false){
+      // One representative per spatial sector, including the remote flank.
+      // Representatives are reserved, not merely given a quickScore bonus.
+      const sectors = new Map();
+      const urgent = computeUrgentCells(node.state, node.rows, node.cols, mover);
+      for (const c of all){
+        const id = Math.min(2, Math.floor(c.y*3/node.rows))*3
+          + Math.min(2, Math.floor(c.x*3/node.cols));
+        const q = quickScore(node.state, node.rows, node.cols, c.x, c.y, mover, urgent);
+        const prev = sectors.get(id);
+        if (!prev || q > prev.q) sectors.set(id, {...c, q});
+        // A one-cell break between contour walls of either colour.
+        for (const p of [1,2]){
+          const wall = (x,y) => x>=0 && y>=0 && x<node.cols && y<node.rows
+            && isWall(node.state, x, y, p);
+          if ((wall(c.x-1,c.y) && wall(c.x+1,c.y))
+              || (wall(c.x,c.y-1) && wall(c.x,c.y+1))) strategic.add(key(c));
+        }
+      }
+      for (const c of sectors.values()) strategic.add(key(c));
+      // Shortest exit routes in the complement of opposing walls. Reserve
+      // the first and middle empty cell of each group's route to the edge.
+      const legalKeys = new Set(all.map(key));
+      for (const p of [1,2]){
+        const distance = new Map(), next = new Map(), queue = [];
+        for (let y=0; y<node.rows; y++) for (let x=0; x<node.cols; x++){
+          if (x && y && x!==node.cols-1 && y!==node.rows-1) continue;
+          if (isWall(node.state,x,y,3-p)) continue;
+          const k=y*node.cols+x;
+          distance.set(k,0); queue.push(k);
+        }
+        for (let i=0; i<queue.length; i++){
+          const k=queue[i], x=k%node.cols, y=Math.floor(k/node.cols);
+          for (const [dx,dy] of DIRS4){
+            const nx=x+dx, ny=y+dy, nk=ny*node.cols+nx;
+            if (nx<0||ny<0||nx>=node.cols||ny>=node.rows
+                || distance.has(nk)||isWall(node.state,nx,ny,3-p)) continue;
+            distance.set(nk,distance.get(k)+1); next.set(nk,k); queue.push(nk);
+          }
+        }
+        for (const group of computeGroupLiberties(node.state,node.rows,node.cols,p)){
+          let start = null;
+          for (const [x,y] of group.cells){
+            const k=y*node.cols+x;
+            if (distance.has(k) && (start===null || distance.get(k)<distance.get(start))) start=k;
+          }
+          const path = [];
+          for (let k=start; k!==null && k!==undefined; k=next.get(k))
+            if (legalKeys.has(k)) path.push(k);
+          if (path.length){
+            strategic.add(path[0]); strategic.add(path[Math.floor(path.length/2)]);
+          }
+        }
+      }
+    }
+    const local = legalCandidates(node, diff), localKeys = new Set(local.map(key));
+    const urgent = computeUrgentCells(node.state,node.rows,node.cols,mover);
+    const ranked = all.filter(c => localKeys.has(key(c)) || mandatory.has(key(c)) || strategic.has(key(c)));
+    for (const c of ranked) c.q=quickScore(node.state,node.rows,node.cols,c.x,c.y,mover,urgent);
+    ranked.sort((a,b) => (b.q-a.q)||(a.y-b.y)||(a.x-b.x));
+    const reserved = ranked.filter(c => mandatory.has(key(c)) || strategic.has(key(c)));
+    const reservedKeys = new Set(reserved.map(key));
+    const result = reserved.concat(ranked.filter(c => !reservedKeys.has(key(c)))
+      .slice(0, Math.max(0,cap-reserved.length)));
+    // Preserve deterministic heuristic order within each priority class.
+    result.sort((a,b) => Number(mandatory.has(key(b)))-Number(mandatory.has(key(a)))
+      || (b.q-a.q)||(a.y-b.y)||(a.x-b.x));
+    stats.mandatory=mandatory.size; stats.strategic=strategic.size;
+    stats.complete=!cancelled && !stop();
+    if (sc){
+      sc.generationTransitions=(sc.generationTransitions||0)+stats.transitions;
+      sc.generationMs=(sc.generationMs||0)+(now()-started);
+    }
+    return { candidates: stats.complete ? result : [], stats,
+      mandatory: all.filter(c => mandatory.has(key(c))),
+      forcing: mandatory.size>0 };
+  }
+
   function firstLegalMove(node){
     for (let y=0; y<node.rows; y++)
       for (let x=0; x<node.cols; x++)
