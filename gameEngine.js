@@ -649,7 +649,10 @@
     for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
       if (!isTransitionLegal(node, x, y)) continue;
       let walls = 0;
-      for (const [dx,dy] of DIRS4){
+      // Flood fill is four-connected: walls on diagonals can close a
+      // contour too (e.g. the last point of a diamond). Count all eight.
+      for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++){
+        if (!dx && !dy) continue;
         const nx=x+dx, ny=y+dy;
         if (nx>=0 && ny>=0 && nx<cols && ny<rows && isWall(state,nx,ny,node.current)) walls++;
       }
