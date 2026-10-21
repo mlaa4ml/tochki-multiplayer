@@ -700,25 +700,52 @@
     const add = (x,y) => {
       if (isTransitionLegal(node,x,y)) cells.set(y*node.cols+x,{x,y});
     };
-    // Gaps and first steps on escape routes of both sides.
-    for (const p of [1,2]) for (const g of computeGroupLiberties(node.state,node.rows,node.cols,p)){
-      if (g.liberties <= 3) for (const k of g.libCells){
-        const x=k%node.cols, y=Math.floor(k/node.cols);
-        add(x,y);
-        const edges = [[x,0],[x,node.rows-1],[0,y],[node.cols-1,y]];
-        edges.sort((a,b) => Math.abs(a[0]-x)+Math.abs(a[1]-y)-Math.abs(b[0]-x)-Math.abs(b[1]-y));
-        const [ex,ey] = edges[0];
-        add(x+Math.sign(ex-x),y+Math.sign(ey-y));
+    // Contour gaps, independently of local group liberties.
+    const {rows,cols,state} = node;
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      for (const p of [1,2]){
+        const wall = (a,b) => a>=0 && b>=0 && a<cols && b<rows && isWall(state,a,b,p);
+        if ((wall(x-1,y) && wall(x+1,y)) || (wall(x,y-1) && wall(x,y+1))) add(x,y);
       }
     }
-    // One legal representative per spatial tile, including empty far flanks.
-    for (let top=0; top<node.rows; top+=3) for (let left=0; left<node.cols; left+=3){
-      let best=null, dist=Infinity;
-      for (let y=top; y<Math.min(top+3,node.rows); y++)
-        for (let x=left; x<Math.min(left+3,node.cols); x++){
-          const d=Math.abs(x-left-1)+Math.abs(y-top-1);
-          if (isTransitionLegal(node,x,y) && d<dist){ best={x,y}; dist=d; }
+    // Actual shortest routes to the edge through the complement of enemy
+    // walls, not straight-line guesses that may run into an enclosing wall.
+    for (const p of [1,2]){
+      const distance = new Map(), next = new Map(), queue = [];
+      for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+        if ((x && y && x!==cols-1 && y!==rows-1) || isWall(state,x,y,3-p)) continue;
+        const k=y*cols+x; distance.set(k,0); queue.push(k);
+      }
+      for (let i=0; i<queue.length; i++){
+        const k=queue[i], x=k%cols, y=Math.floor(k/cols);
+        for (const [dx,dy] of DIRS4){
+          const nx=x+dx, ny=y+dy, nk=ny*cols+nx;
+          if (nx<0||ny<0||nx>=cols||ny>=rows||distance.has(nk)||isWall(state,nx,ny,3-p)) continue;
+          distance.set(nk,distance.get(k)+1); next.set(nk,k); queue.push(nk);
         }
+      }
+      for (const g of computeGroupLiberties(state,rows,cols,p)){
+        let start;
+        for (const [x,y] of g.cells){
+          const k=y*cols+x;
+          if (distance.has(k) && (start===undefined || distance.get(k)<distance.get(start))) start=k;
+        }
+        const path=[];
+        for (let k=start; k!==undefined; k=next.get(k))
+          if (isTransitionLegal(node,k%cols,Math.floor(k/cols))) path.push(k);
+        for (const k of [path[0],path[Math.floor(path.length/2)]])
+          if (k!==undefined) add(k%cols,Math.floor(k/cols));
+      }
+    }
+    // Nine sectors; reserve every representative, including the far flank.
+    for (let sy=0; sy<3; sy++) for (let sx=0; sx<3; sx++){
+      let best=null, dist=Infinity;
+      const left=Math.floor(sx*cols/3), right=Math.floor((sx+1)*cols/3);
+      const top=Math.floor(sy*rows/3), bottom=Math.floor((sy+1)*rows/3);
+      for (let y=top; y<bottom; y++) for (let x=left; x<right; x++){
+        const d=Math.abs(x-(left+right-1)/2)+Math.abs(y-(top+bottom-1)/2);
+        if (isTransitionLegal(node,x,y) && d<dist){ best={x,y}; dist=d; }
+      }
       if (best) add(best.x,best.y);
     }
     return [...cells.values()];
