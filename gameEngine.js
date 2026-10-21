@@ -901,7 +901,11 @@
       return finish(f, f ? sc.stopReason : 'no-legal-moves');
     }
 
-    const ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
+        const ordered = searchCandidates(root, diff, diff.candidateCap, sc);
+    if (budgetExceeded(sc, 'candidate-generation')){
+      trace.fallback = 'first-legal';
+      return finish(firstLegalMove(root), sc.stopReason);
+    }
     if (!ordered.length){
       trace.fallback = 'first-legal';
       const f = firstLegalMove(root);
