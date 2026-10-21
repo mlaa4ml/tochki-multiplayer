@@ -766,7 +766,7 @@
     if (diff.strategic !== false){
       const strategic = strategicCandidates(node);
       // Reserve spatial diversity before filling the remaining heuristic beam.
-      for (const c of strategic.slice(0, Math.max(1,Math.floor(cap/3)))) add(c);
+      for (const c of strategic) if (!chosen.has(c.y*node.cols+c.x)) add(c);
     }
     for (const c of ranked){
       if (chosen.size >= Math.max(cap,mandatory.length)) break;
