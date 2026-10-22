@@ -846,6 +846,7 @@
     // также считаются защитой. diff.tacticalDefend === false — выключить.
     if (threats.length && !(diff && diff.tacticalDefend === false)){
       for (let y=0; y<rows; y++){
+        if (over()) return [];
         for (let x=0; x<cols; x++){
           if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
           if (!isTransitionLegal(node, x, y)) continue;
