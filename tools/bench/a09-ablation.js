@@ -71,13 +71,17 @@ function stateOf(s){
   const st = s.state || s.board || s;
   return st && st.stone ? st : null;
 }
-for (const name of ['base', 'edge5']){
+// ctx (current/scores/rules) передаётся, чтобы captureRace/endgameScore реально
+// вычислялись — как в поиске (alphaBetaSearch передаёт узел).
+for (const name of Object.keys(VARIANTS)){
   const w = VARIANTS[name]; const us = [];
   for (const s of snaps){
     const st = stateOf(s); if (!st) continue;
     const rows = st.stone.length, cols = st.stone[0].length;
+    const ctx = { current: s.current, scores: s.scores, rules: s.rules };
+    for (let i = 0; i < 20; i++) Engine.evaluateStatic(st, rows, cols, 2, w, ctx); // прогрев
     const t0 = process.hrtime.bigint();
-    for (let i = 0; i < 50; i++) Engine.evaluateStatic(st, rows, cols, 2, w);
+    for (let i = 0; i < 50; i++) Engine.evaluateStatic(st, rows, cols, 2, w, ctx);
     us.push(Number(process.hrtime.bigint() - t0) / 1e3 / 50);
   }
   report.evalCost[name] = { samples: us.length, usP50: q(us, 0.5), usP95: q(us, 0.95) };
