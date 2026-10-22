@@ -58,12 +58,32 @@ A10 — независимая сетевая ветка работ, не усл
 A02 содержит общий формат реплеев для сервера, CLI и будущего offline UI;
 не создавать три несовместимых формата.
 
-## Следующая очередь: issues пока НЕ созданы
+## Следующая очередь: зарегистрирована (#24–#34)
 
-Лимит первой очереди не должен терять оставшиеся предложения.
-Ниже — заготовки самостоятельных задач для последующего создания.
-Перед созданием сверить открытые issues, перенести зависимости в ссылки
-и согласовать спорные требования с автором.
+Задачи второй очереди созданы по
+[#23](https://github.com/mlaa4ml/tochki-multiplayer/issues/23). Перед
+созданием открытые issues сверены, повторов не найдено. Зависимости в
+каждой задаче перенесены в ссылки на #6–#15 и #24–#34. Спорные требования
+нужно согласовать с автором в комментариях к соответствующей задаче:
+для B02 — вариант PWA или file://, для B07 — политика сохранения или
+завершения комнат, для B10 — объём истории.
+
+| ID | Приоритет | Issue |
+| --- | --- | --- |
+| B01 | P2 | [#24](https://github.com/mlaa4ml/tochki-multiplayer/issues/24) — статическая сборка offline-приложения |
+| B02 | P2 | [#25](https://github.com/mlaa4ml/tochki-multiplayer/issues/25) — PWA и/или автономный file:// артефакт |
+| B03 | P2 | [#26](https://github.com/mlaa4ml/tochki-multiplayer/issues/26) — offline replay UI, хранение и диагностика |
+| B04 | P2 | [#27](https://github.com/mlaa4ml/tochki-multiplayer/issues/27) — профилирование и ускорение поиска |
+| B05 | P2 | [#28](https://github.com/mlaa4ml/tochki-multiplayer/issues/28) — достоверный подбор и публикация весов |
+| B06 | P2 | [#29](https://github.com/mlaa4ml/tochki-multiplayer/issues/29) — эксперимент MCTS или policy/value |
+| B07 | P2 | [#30](https://github.com/mlaa4ml/tochki-multiplayer/issues/30) — незавершённые партии и рестарт |
+| B08 | P2 | [#31](https://github.com/mlaa4ml/tochki-multiplayer/issues/31) — миграции, backup и восстановление SQLite |
+| B09 | P2 | [#32](https://github.com/mlaa4ml/tochki-multiplayer/issues/32) — аудит публичного HTTP/WS и аккаунтов |
+| B10 | P2 | [#33](https://github.com/mlaa4ml/tochki-multiplayer/issues/33) — границы сетевых модулей и история/статистика |
+| B11 | P2 | [#34](https://github.com/mlaa4ml/tochki-multiplayer/issues/34) — README и релизные проверки |
+
+Ниже сохранены исходные формулировки задач. Актуальный объём и критерии
+приёмки ведутся в самих issues.
 
 ### B01 — P2: статическая сборка offline-приложения
 После A06. Автоматически включать канонический gameEngine, UI и Worker,
