@@ -884,7 +884,9 @@
 
   // Возвращает конечную оценку. Если после вызова sc.aborted === true —
   // результат недействителен и должен быть отброшен вызывающим.
-  function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply){
+    // hint (A08, необязательный): { move, cells } — последний ход родителя и его
+  // обязательные клетки, для инкрементального тактического скана.
+  function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply, hint){
     if (node.gameOver) return terminalValue(node, forPlayer, ply);
     // Узел продления: depth<=0, но поиск продолжается из-за форсированных ходов.
     const inExt = depth <= 0;
