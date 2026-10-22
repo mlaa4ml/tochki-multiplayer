@@ -490,8 +490,21 @@
     const oppGroups = computeGroupLiberties(state, rows, cols, opponent);
     const libertyDiff = libertyRisk(oppGroups) - libertyRisk(ownGroups);
 
-    return capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential + cohesionDiff*weights.cohesion
+    const legacy = capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential + cohesionDiff*weights.cohesion
       + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0);
+    if (!(weights.edgeEscape || weights.closeCost || weights.captureRace || weights.phase || weights.endgameScore)) return legacy;
+    // Board-only callers may use regional/phase terms; turn/rules-dependent
+    // terms require an explicit full node rather than invented match rules.
+    const ctx = node || {state,rows,cols};
+    const f = enclosureFeatures(ctx, node ? weights : {...weights,closeCost:0,captureRace:0,endgameScore:0});
+    const sign = forPlayer===1 ? 1 : -1;
+    // At a near end, suppress shape entirely, using actual prisoner scores.
+    // Terminal nodes are handled earlier by alphaBetaSearch, never here.
+    if (weights.endgameScore && f.endgameScore)
+      return (node.scores[forPlayer]-node.scores[opponent])*CAPTURED_WEIGHT;
+    return legacy + sign*(f.edgeEscape*(weights.edgeEscape||0)
+      + f.closeCost*(weights.closeCost||0) + f.captureRace*(weights.captureRace||0)
+      + f.phase*(weights.phase||0));
   }
 
   function branchFactorForDepth(diff, depth){
