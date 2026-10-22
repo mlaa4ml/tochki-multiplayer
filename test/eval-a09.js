@@ -57,6 +57,45 @@ function run(){
     assert.equal(E.evaluateStatic(node.state,7,7,1,w,node),
       E.evaluateStatic(node.state,7,7,1,{...w,edgeEscape:0,closeCost:0,captureRace:0,phase:0,endgameScore:0},node));
   });
+    test('narrow border passage exceeds a wide exit; density is irrelevant',()=>{
+    const s=E.createEmptyState(7,7);
+    for(let y=0;y<7;y++)for(let x=0;x<7;x++)s.stone[y][x]=1;
+    s.stone[0][3]=0;s.stone[1][3]=0;s.stone[2][3]=2;
+    const narrow=E.edgePressure(s,7,7,1);
+    assert.equal(narrow,0.5);
+    s.stone[2][2]=0; // local empty density, no additional border contact
+    assert.equal(E.edgePressure(s,7,7,1),narrow);
+    s.stone[1][2]=0;s.stone[0][2]=0;
+    assert(E.edgePressure(s,7,7,1)<narrow);
+  });
+  test('independent fronts add region values',()=>{
+    const s=E.createEmptyState(7,7);
+    for(let y=0;y<7;y++)for(let x=0;x<7;x++)s.stone[y][x]=1;
+    for(const x of [2,4]){
+      s.stone[0][x]=0;s.stone[1][x]=0;s.stone[2][x]=2;
+    }
+    assert.equal(E.edgePressure(s,7,7,1),1);
+    assert.equal(E.enclosureRegions(s,7,7,1).filter(r=>r.enemies).length,2);
+  });
+  test('capture race depends on turn, not liberty counts',()=>{
+    const s=E.createEmptyState(7,13);
+    for(const [offset,player] of [[0,1],[6,2]]){
+      for(let y=1;y<=5;y++)for(let x=1;x<=5;x++)
+        if(x===1||x===5||y===1||y===5)s.stone[y][x+offset]=player;
+      s.stone[1][3+offset]=0;s.stone[3][3+offset]=3-player;
+    }
+    const node=E.createSearchNode({...s,rows:7,cols:13,current:1});
+    assert.equal(E.enclosureFeatures(node,{closeCost:1}).closeCost,0);
+    assert.equal(E.enclosureFeatures(node,{captureRace:1}).captureRace,1);
+    node.current=2;
+    assert.equal(E.enclosureFeatures(node,{captureRace:1}).captureRace,-1);
+  });
+  test('fill threshold also suppresses shape',()=>{
+    const node=ring();
+    const occupied=node.stonesPlacedTotal;
+    node.rules=E.normalizeRules({targetFillPercent:Math.ceil((occupied+1)*100/49)});
+    assert.equal(E.enclosureFeatures(node,{endgameScore:1}).endgameScore,1);
+  });
   console.log(`A09: ${n} fixtures passed`);
 }
 if(require.main===module)run();
