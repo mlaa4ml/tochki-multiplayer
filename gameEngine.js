@@ -432,7 +432,61 @@
     return pressure;
   }
 
-  function evaluateStatic(state, rows, cols, forPlayer, weights){
+    // A09 шаг 2 (#14): стоимость закрытия/выхода, измеренная РЕАЛЬНЫМИ правилами.
+  // Для областей с живыми точками соперника, связанных с краем узким выходом
+  // (<= 2 клеток края), пробуем поставить точку player на каждую пустую клетку
+  // края области и запускаем runCaptures. Возвращает максимум пленённых точек
+  // одним ходом (0 — за 1 ход закрыть нельзя, т.е. «стоимость» > 1 хода).
+  // Для соперника то же значение — его угроза, т.е. «стоимость выхода» для нас.
+  // Ограничение: внутренние коридоры (не на краю) не проверяются.
+  function closeInOneThreat(state, rows, cols, player){
+    const { stone, dead, territory } = state;
+    const opponent = player === 1 ? 2 : 1;
+    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    const tried = new Set();
+    let best = 0;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (visited[y][x]) continue;
+        visited[y][x] = true;
+        if (isWall(state, x, y, player)) continue;
+        const stack = [[x,y]];
+        let liveOpp = 0, borderCells = 0;
+        const borderEmpty = [];
+        while (stack.length){
+          const [cx,cy] = stack.pop();
+          if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1){
+            borderCells++;
+            if (stone[cy][cx] === 0 && dead[cy][cx] === 0 && territory[cy][cx] === 0) borderEmpty.push(cy*cols+cx);
+          }
+          if (stone[cy][cx] === opponent && dead[cy][cx] === 0) liveOpp++;
+          for (const [dx,dy] of DIRS4){
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+            if (visited[ny][nx]) continue;
+            visited[ny][nx] = true;
+            if (isWall(state, nx, ny, player)) continue;
+            stack.push([nx,ny]);
+          }
+        }
+        if (liveOpp === 0 || borderCells === 0 || borderCells > 2) continue;
+        for (const k of borderEmpty){
+          if (tried.has(k)) continue;
+          tried.add(k);
+          const s = cloneState(state);
+          s.stone[Math.floor(k/cols)][k%cols] = player;
+          const n = countCaptured(runCaptures(s, player, rows, cols));
+          if (n > best) best = n;
+        }
+      }
+    }
+    return best;
+  }
+
+  // ctx (необязательный, A09) — узел поиска: current (чей ход) и rules
+  // (targetScore/targetFillPercent). Нужен только признакам captureRace и
+  // endgameScore; без ctx они не действуют.
+  function evaluateStatic(state, rows, cols, forPlayer, weights, ctx){
     const { stone, dead, territory } = state;
     const opponent = forPlayer === 1 ? 2 : 1;
     const captured = {1:0, 2:0};
