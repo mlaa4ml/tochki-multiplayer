@@ -781,6 +781,60 @@
     return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
   }
 
+    // A08: обязательная тактика во ВНУТРЕННИХ узлах и продлениях. Полный скан
+  // слишком дорог для каждого узла, поэтому проверяются (тем же полным
+  // переходом applyTransition, по полным правилам) только клетки, где набор
+  // мог измениться или уже был непуст:
+  //   * обязательные клетки родителя (hint.cells — захват/защита родителя
+  //     здесь остаются захватом/защитой, пока ход их не отменил);
+  //   * окрестность радиуса 2 последнего хода (hint.move);
+  //   * свободы групп обеих сторон с <=2 свободами.
+  // Без hint (дети корня) и когда партия кончается следующим ходом по
+  // заполнению — полный скан tacticalCandidates. diff.tacticalInternal === false
+  // — прежнее поведение (ablation).
+  function tacticalCandidatesLocal(node, diff, hint){
+    const { rows, cols, state } = node;
+    if (node.gameOver) return [];
+    if (!hint || fillEndsNext(node)) return tacticalCandidates(node, diff);
+    const cells = new Set();
+    const addCell = (x, y) => { if (x>=0 && y>=0 && x<cols && y<rows) cells.add(y*cols + x); };
+    if (hint.move){
+      for (let dy=-2; dy<=2; dy++) for (let dx=-2; dx<=2; dx++) addCell(hint.move.x+dx, hint.move.y+dy);
+    }
+    if (hint.cells) for (const c of hint.cells) addCell(c.x, c.y);
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 2) continue;
+        for (const k of g.libCells) cells.add(k);
+      }
+    }
+    const player = node.current;
+    const opp = player === 1 ? 2 : 1;
+    const out = new Map();
+    const add = (x, y, kind) => {
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (!e.kinds.includes(kind)) e.kinds.push(kind); }
+      else out.set(k, { x, y, kinds: [kind] });
+    };
+    const oppNode = cloneSearchNode(node);
+    oppNode.current = opp;
+    for (const k of cells){
+      const x = k % cols, y = Math.floor(k / cols);
+      if (!isTransitionLegal(node, x, y)) continue;
+      const t = applyTransition(node, player, x, y);
+      if (t.ok){
+        if (t.node.gameOver && t.node.winner === player) add(x, y, 'win');
+        if (countCaptured(t.result.gained) > 0) add(x, y, 'capture');
+      }
+      if (isTransitionLegal(oppNode, x, y)){
+        const o = applyTransition(oppNode, opp, x, y);
+        if (o.ok && ((o.node.gameOver && o.node.winner === opp) || countCaptured(o.result.gained) > 0)) add(x, y, 'block');
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
   function firstLegalMove(node){
     for (let y=0; y<node.rows; y++)
       for (let x=0; x<node.cols; x++)
