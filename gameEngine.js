@@ -385,6 +385,50 @@
     return urgent;
   }
 
+    // ---------- A09 (#14): связь области с краем относительно стен ----------
+  //
+  // В отличие от computeGroupLiberties (аналогия с го: «мало соседних пустот»
+  // ≠ гарантированный захват), здесь используется тот же критерий, что и в
+  // runCaptures: область из клеток, НЕ являющихся стеной атакующего player,
+  // захватывается только если она не касается края и содержит живую точку
+  // соперника. Признак = Σ по областям с живыми точками соперника, ещё
+  // связанным с краем: liveOpp / (1 + borderCells), где borderCells — число
+  // клеток области на краю («ширина выхода»). Узкий выход к краю => высокая
+  // ценность закрытия для player; широкий выход => почти ноль. Пустые
+  // области без соперника вклада не дают (они очков не приносят).
+  // Признак выключен по умолчанию (weights.edgeEscape отсутствует => 0 и
+  // даже не вычисляется), включается только для ablation/A07-сравнения.
+  function computeEdgeEscape(state, rows, cols, player){
+    const { stone, dead } = state;
+    const opponent = player === 1 ? 2 : 1;
+    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    let pressure = 0;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (visited[y][x]) continue;
+        visited[y][x] = true;
+        if (isWall(state, x, y, player)) continue;
+        const stack = [[x,y]];
+        let liveOpp = 0, borderCells = 0;
+        while (stack.length){
+          const [cx,cy] = stack.pop();
+          if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) borderCells++;
+          if (stone[cy][cx] === opponent && dead[cy][cx] === 0) liveOpp++;
+          for (const [dx,dy] of DIRS4){
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+            if (visited[ny][nx]) continue;
+            visited[ny][nx] = true;
+            if (isWall(state, nx, ny, player)) continue;
+            stack.push([nx,ny]);
+          }
+        }
+        if (liveOpp > 0 && borderCells > 0) pressure += liveOpp / (1 + borderCells);
+      }
+    }
+    return pressure;
+  }
+
   function evaluateStatic(state, rows, cols, forPlayer, weights){
     const { stone, dead, territory } = state;
     const opponent = forPlayer === 1 ? 2 : 1;
