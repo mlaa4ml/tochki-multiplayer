@@ -695,7 +695,13 @@
     const { state, rows, cols } = node;
     const out = new Map();
     if (node.gameOver) return [];
-    const add = (x, y) => { if (isTransitionLegal(node, x, y)) out.set(y*cols+x, { x, y }); };
+        const add = (x, y, zone) => {
+      if (!isTransitionLegal(node, x, y)) return;
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (zone) e.zone = true; }
+      else out.set(k, zone ? { x, y, zone: true } : { x, y });
+    };
     for (const p of [1, 2]){
       for (const g of computeGroupLiberties(state, rows, cols, p)){
         if (g.liberties > 3) continue;
