@@ -142,6 +142,61 @@ function rng(seed){ let s = seed >>> 0; return () => { s = (s * 1664525 + 101390
       if (isCap) check(has(ref, x, y, 'capture'), 'seed=' + seed + ': эталон пропустил захват ' + x + ',' + y);
       if (isWin) check(has(ref, x, y, 'win'), 'seed=' + seed + ': эталон пропустил победу ' + x + ',' + y);
     }
+    // НЕЗАВИСИМЫЙ эталон защит (не через tacticalCandidates): полный перебор
+    // ВСЕХ легальных ходов ходящего и для каждого — ВСЕХ ответов соперника
+    // прямыми applyTransition. Лучший немедленный выигрыш соперника:
+    // Infinity — победа, иначе число пленённых точек. Защита — ход, после
+    // которого этот выигрыш строго меньше, чем без хода (или собственная
+    // победа / доп. ход после захвата — соперник сейчас не ходит).
+    {
+      const me = node.current, op = me === 1 ? 2 : 1;
+      const gainOf = t => (t.node.gameOver && t.node.winner === op) ? Infinity
+        : t.result.gained.filter(q => q.kind === 'captured').length;
+      const oppBestAll = n => {
+        const o = Object.assign({}, n, { current: op });
+        let m = 0;
+        for (let yy = 0; yy < rows; yy++) for (let xx = 0; xx < cols; xx++){
+          const t = E.applyTransition(o, op, xx, yy);
+          if (t.ok){ const g = gainOf(t); if (g > m) m = g; }
+        }
+        return m;
+      };
+      const before = oppBestAll(node);
+      const bruteDef = new Set();
+      if (before > 0){
+        // Клетки угроз соперника: занять их, если легально, — 'block'.
+        const o = Object.assign({}, node, { current: op });
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++){
+          const t = E.applyTransition(o, op, x, y);
+          if (t.ok && gainOf(t) > 0 && E.isTransitionLegal(node, x, y)){
+            bruteBlocks++;
+            check(has(ref, x, y, 'block'), 'seed=' + seed + ': эталон пропустил block ' + x + ',' + y);
+          }
+        }
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++){
+          const t = E.applyTransition(node, me, x, y);
+          if (!t.ok) continue;
+          let isDef;
+          if (t.node.gameOver) isDef = t.node.winner === me;
+          else if (t.node.current === me) isDef = true;
+          else isDef = oppBestAll(t.node) < before;
+          if (isDef) bruteDef.add(y * cols + x);
+        }
+      }
+      bruteDefTotal += bruteDef.size;
+      for (const k of bruteDef){
+        const x = k % cols, y = Math.floor(k / cols);
+        if (!has(ref, x, y, 'defend')) bruteDefMissedEngine++;
+        check(has(fast, x, y, 'defend'), 'seed=' + seed + ': защита ' + x + ',' + y + ' (полный перебор ответов) найдена движком');
+        check(has(E.searchCandidates(node, diff, diff.candidateCap), x, y), 'seed=' + seed + ': защита ' + x + ',' + y + ' сохранена до поиска');
+        if (!has(E.searchCandidates(node, Object.assign({}, diff, { tactical: false }), diff.candidateCap), x, y)) bruteDefMissedOld++;
+      }
+      // Обратное направление: каждая 'defend' движка — реальная защита по полному перебору.
+      for (const m of ref) if (m.kinds.includes('defend') && !bruteDef.has(m.y * cols + m.x)){
+        bruteDefFalse++;
+        console.error('seed=' + seed + ': defend ' + key(m) + ' не подтверждён полным перебором');
+      }
+    }
     t0 = Date.now();
     const oldSet = E.searchCandidates(node, Object.assign({}, diff, { tactical: false }), diff.candidateCap);
     tOld += Date.now() - t0;
