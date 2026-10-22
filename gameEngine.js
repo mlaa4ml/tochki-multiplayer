@@ -972,7 +972,10 @@
     const bf = branchFactorForDepth(diff, searchDepth);
     // A08: во внутренних узлах обязательная тактика по умолчанию тоже
     // сохраняется до обрезки branchFactor (инкрементальный скан от родителя).
-    if (tacOn && tacInternal && !forcedTac && ply > tacPly){
+        // Полный набор во ВСЕХ внутренних узлах раздувает beam и расходует бюджет
+    // узлов, поэтому по умолчанию он включается только в продлениях;
+    // diff.tacticalInternalNodes === true — во всех внутренних узлах (ablation).
+    if (tacOn && tacInternal && diff.tacticalInternalNodes === true && !forcedTac && ply > tacPly){
       if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
       forcedTac = tacticalCandidatesLocal(node, diff, hint);
     }
