@@ -408,7 +408,15 @@ function parseArgs(argv){
     else if (a === '--out') o.out = v();
     else if (a === '--jsonl') o.jsonl = v();
     else if (a === '--candidate') o.candidate = v();
-    else if (a === '--gen-corpus') o.genCorpus = v();
+        else if (a === '--gen-corpus') o.genCorpus = v();
+    // A08 (issue #13): флаги поиска кандидата/соперника поверх DIFFICULTY, JSON.
+    // Пример: --cand-flags '{}' --opp-flags '{"tactical":false,"strategic":false}'
+    else if (a === '--cand-flags') o.candOverride = JSON.parse(v());
+    else if (a === '--opp-flags') o.oppOverride = JSON.parse(v());
+    else if (a === '--progress') o.progress = true;
+    // Короткий режим для ограниченных по времени сред: 1 прогон, 4 дебюта,
+    // nodeLimit=600, maxMoves=120. Явные флаги ПОСЛЕ --quick его переопределяют.
+    else if (a === '--quick'){ o.runs = 1; o.maxPairs = 4; o.nodeLimit = 600; o.maxMoves = 120; o.progress = true; }
     else if (a === '--full'){ o.split = 'test'; o.sizes = ['small', 'medium']; o.difficulties = ['normal', 'strong']; o.runs = 3; o.nodeLimit = 4000; }
     else throw new Error('unknown arg ' + a);
   }
