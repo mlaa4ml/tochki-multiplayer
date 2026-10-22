@@ -1,0 +1,184 @@
+{
+  "format": "tochki-a08-ablation",
+  "version": 1,
+  "commit": "57e0f1f7c27aaccf0920b397c2c205f33b4bdf0a",
+  "node": "v24.21.0",
+  "nodeLimit": 100,
+  "maxMoves": 100,
+  "samples": 2,
+  "note": "Small test-split smoke; wide CI and truncated games cannot establish improved strength.",
+  "variants": [
+    {
+      "name": "base",
+      "flags": {
+        "tactical": false,
+        "strategic": false
+      },
+      "missed": 0,
+      "required": 6,
+      "missRate": 0,
+      "generationOnlyMs": {
+        "p50": 0.031458000000043285,
+        "p95": 0.09135000000003402
+      },
+      "moveMs": {
+        "p50": 6.826721999999961,
+        "p95": 22.790099999999995
+      },
+      "nodes": {
+        "p50": 82,
+        "p95": 93
+      },
+      "generationMs": {
+        "p50": 0.8641660000002389,
+        "p95": 2.1292730000001256
+      },
+      "paired": {
+        "split": "test",
+        "size": "small",
+        "difficulty": "normal",
+        "openings": [
+          "small-test-0",
+          "small-test-1"
+        ],
+        "score": 0.5,
+        "ci95": {
+          "lo": 0.5,
+          "hi": 0.5
+        },
+        "pairs": 2,
+        "truncated": 0,
+        "errors": []
+      }
+    },
+    {
+      "name": "tactical",
+      "flags": {
+        "tactical": true,
+        "strategic": false
+      },
+      "missed": 0,
+      "required": 6,
+      "missRate": 0,
+      "generationOnlyMs": {
+        "p50": 0.08778299999994488,
+        "p95": 0.454457000000275
+      },
+      "moveMs": {
+        "p50": 4.0132589999998345,
+        "p95": 375.6381929999998
+      },
+      "nodes": {
+        "p50": 81,
+        "p95": 84
+      },
+      "generationMs": {
+        "p50": 1.900320999998712,
+        "p95": 293.1205359999981
+      },
+      "paired": {
+        "split": "test",
+        "size": "small",
+        "difficulty": "normal",
+        "openings": [
+          "small-test-0",
+          "small-test-1"
+        ],
+        "score": 0.5,
+        "ci95": {
+          "lo": 0.5,
+          "hi": 0.5
+        },
+        "pairs": 2,
+        "truncated": 0,
+        "errors": []
+      }
+    },
+    {
+      "name": "strategic",
+      "flags": {
+        "tactical": false,
+        "strategic": true
+      },
+      "missed": 0,
+      "required": 6,
+      "missRate": 0,
+      "generationOnlyMs": {
+        "p50": 0.06546200000229874,
+        "p95": 0.12066499999855296
+      },
+      "moveMs": {
+        "p50": 2.88975500000015,
+        "p95": 9.861879000000044
+      },
+      "nodes": {
+        "p50": 100,
+        "p95": 100
+      },
+      "generationMs": {
+        "p50": 0.6551899999903981,
+        "p95": 2.2084280000017316
+      },
+      "paired": {
+        "split": "test",
+        "size": "small",
+        "difficulty": "normal",
+        "openings": [
+          "small-test-0",
+          "small-test-1"
+        ],
+        "score": 0.25,
+        "ci95": {
+          "lo": 0.25,
+          "hi": 0.25
+        },
+        "pairs": 2,
+        "truncated": 0,
+        "errors": []
+      }
+    },
+    {
+      "name": "both",
+      "flags": {
+        "tactical": true,
+        "strategic": true
+      },
+      "missed": 0,
+      "required": 6,
+      "missRate": 0,
+      "generationOnlyMs": {
+        "p50": 0.10092799999983981,
+        "p95": 0.4722710000023653
+      },
+      "moveMs": {
+        "p50": 10.286008999999467,
+        "p95": 268.4468979999983
+      },
+      "nodes": {
+        "p50": 100,
+        "p95": 100
+      },
+      "generationMs": {
+        "p50": 4.160672999998496,
+        "p95": 235.2193429999934
+      },
+      "paired": {
+        "split": "test",
+        "size": "small",
+        "difficulty": "normal",
+        "openings": [
+          "small-test-0",
+          "small-test-1"
+        ],
+        "score": 0.5,
+        "ci95": {
+          "lo": 0.25,
+          "hi": 0.75
+        },
+        "pairs": 2,
+        "truncated": 0,
+        "errors": []
+      }
+    }
+  ]
+}
