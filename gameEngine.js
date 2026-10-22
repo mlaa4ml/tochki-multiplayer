@@ -815,6 +815,7 @@
     const threats = []; // клетки немедленных угроз соперника
     let oldMax = 0;     // лучший немедленный выигрыш соперника без нашего хода
     for (let y=0; y<rows; y++){
+      if (over()) return [];
       for (let x=0; x<cols; x++){
         if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
         if (isTransitionLegal(node, x, y)){
