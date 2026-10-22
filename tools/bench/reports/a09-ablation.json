@@ -13,8 +13,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 116.577,
-      "msP95": 149.588,
+      "msP50": 93.278,
+      "msP95": 180.506,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -28,8 +28,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 71.44,
-      "msP95": 142.15,
+      "msP50": 72.285,
+      "msP95": 125.309,
       "nodesP50": 181,
       "nodesP95": 300
     },
@@ -44,8 +44,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 58.726,
-      "msP95": 86.063,
+      "msP50": 65.023,
+      "msP95": 76.971,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -60,8 +60,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 58.267,
-      "msP95": 95.057,
+      "msP50": 52.868,
+      "msP95": 104.582,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -76,8 +76,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 52.943,
-      "msP95": 88.237,
+      "msP50": 51.818,
+      "msP95": 75.799,
       "nodesP50": 181,
       "nodesP95": 300
     },
@@ -92,8 +92,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 52.293,
-      "msP95": 83.46,
+      "msP50": 52.21,
+      "msP95": 85.473,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -108,8 +108,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 142.7,
-      "msP95": 206.564,
+      "msP50": 51.613,
+      "msP95": 74.757,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -124,8 +124,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 92.04,
-      "msP95": 133.236,
+      "msP50": 49.503,
+      "msP95": 66.573,
       "nodesP50": 169,
       "nodesP95": 300
     },
@@ -140,8 +140,8 @@
       "missRate": 0,
       "misses": 0,
       "missed": [],
-      "msP50": 90.761,
-      "msP95": 140.943,
+      "msP50": 51.453,
+      "msP95": 68.56,
       "nodesP50": 169,
       "nodesP95": 300
     }
@@ -149,13 +149,48 @@
   "evalCost": {
     "base": {
       "samples": 6,
-      "usP50": 284.011,
-      "usP95": 709.689
+      "usP50": 90.489,
+      "usP95": 173.753
+    },
+    "noLiberty": {
+      "samples": 6,
+      "usP50": 38.051,
+      "usP95": 88.681
+    },
+    "edge2": {
+      "samples": 6,
+      "usP50": 83.802,
+      "usP95": 118.122
     },
     "edge5": {
       "samples": 6,
-      "usP50": 366.189,
-      "usP95": 536.309
+      "usP50": 42.152,
+      "usP95": 54.201
+    },
+    "edge5-noLiberty": {
+      "samples": 6,
+      "usP50": 40.534,
+      "usP95": 57.882
+    },
+    "closeCost10": {
+      "samples": 6,
+      "usP50": 116.809,
+      "usP95": 126.641
+    },
+    "captureRace30": {
+      "samples": 6,
+      "usP50": 45.486,
+      "usP95": 62.857
+    },
+    "phase1": {
+      "samples": 6,
+      "usP50": 50.303,
+      "usP95": 95.568
+    },
+    "endgameScore1": {
+      "samples": 6,
+      "usP50": 47.907,
+      "usP95": 107.04
     }
   }
 }
