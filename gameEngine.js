@@ -784,6 +784,88 @@
   }
 
 
+    // A08: mandatory moves are classified by the shared rules transition,
+  // never by liberties. Beam is a soft cap: mandatory moves may overflow it.
+  // A timed-out classification is discarded, not treated as a complete set.
+  function candidateSet(node, diff, cap, sc){
+    const started = now();
+    const { rows, cols, state } = node, player = node.current;
+    const key = c => c.y * cols + c.x;
+    const all = [];
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++)
+      if (isTransitionLegal(node, x, y)) all.push({x,y});
+    const mandatory = new Set(), strategic = new Set();
+    const transition = (n, c) => {
+      if (sc && budgetExceeded(sc, 'generation')) return null;
+      if (sc) sc.generationTransitions = (sc.generationTransitions || 0) + 1;
+      return applyTransition(n, n.current, c.x, c.y);
+    };
+    const forcing = (n, t) => t && t.ok &&
+      ((t.node.gameOver && t.node.winner === n.current) ||
+       t.result.gained.some(g => g.kind === 'captured'));
+    let hasTactic = false;
+    if (diff.tactical !== false){
+      const opponent = {...node, current: player === 1 ? 2 : 1};
+      let threatened = false;
+      for (const c of all){
+        const own = transition(node, c);
+        if (forcing(node, own)){ mandatory.add(key(c)); hasTactic = true; }
+      }
+      // Opponent legality can differ on owned territory.
+      for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+        if (!isTransitionLegal(opponent, x, y)) continue;
+        if (forcing(opponent, transition(opponent, {x,y}))) threatened = true;
+      }
+      if (threatened) for (const c of all){
+        const t = transition(node, c);
+        if (!t || !t.ok) continue;
+        // A capture granting another turn is itself mandatory above.
+        if (t.node.gameOver){
+          if (t.node.winner !== opponent.current) mandatory.add(key(c));
+          continue;
+        }
+        if (t.node.current === player) continue;
+        let unsafe = false;
+        for (let y=0; y<rows && !unsafe; y++) for (let x=0; x<cols && !unsafe; x++){
+          if (!isTransitionLegal(t.node, x, y)) continue;
+          if (forcing(t.node, transition(t.node, {x,y}))) unsafe = true;
+          if (sc && sc.aborted) break;
+        }
+        if (!unsafe) mandatory.add(key(c));
+      }
+      hasTactic = hasTactic || threatened;
+    }
+    const local = new Set(generateCandidates(state, rows, cols, diff.radius).map(key));
+    const urgent = computeUrgentCells(state, rows, cols, player);
+    for (const c of all) c.q = quickScore(state, rows, cols, c.x, c.y, player, urgent);
+    all.sort((a,b) => b.q-a.q || a.y-b.y || a.x-b.x);
+    if (diff.strategic !== false){
+      // One representative per board sector, plus contour gaps (opposing
+      // walls on either side) and edge-route representatives. These are
+      // reserved before filling the remaining beam with local moves.
+      const sectors = new Set(), edges = new Set();
+      for (const c of all){
+        const sector = Math.min(2, Math.floor(c.y*3/rows))*3 + Math.min(2, Math.floor(c.x*3/cols));
+        if (!sectors.has(sector)){ sectors.add(sector); strategic.add(key(c)); }
+        const edge = c.y===0 ? 0 : c.x===0 ? 1 : c.y===rows-1 ? 2 : c.x===cols-1 ? 3 : -1;
+        if (edge>=0 && !edges.has(edge)){ edges.add(edge); strategic.add(key(c)); }
+        for (const p of [1,2]) for (const [dx,dy] of [[1,0],[0,1]]){
+          if (c.x-dx>=0 && c.x+dx<cols && c.y-dy>=0 && c.y+dy<rows &&
+              isWall(state,c.x-dx,c.y-dy,p) && isWall(state,c.x+dx,c.y+dy,p))
+            strategic.add(key(c));
+        }
+      }
+    }
+    const forced = all.filter(c => mandatory.has(key(c)));
+    const global = all.filter(c => !mandatory.has(key(c)) && strategic.has(key(c)));
+    const rest = all.filter(c => !mandatory.has(key(c)) && !strategic.has(key(c)) && local.has(key(c)));
+    // Strategic coverage also has a bounded reserve (at most 13 sector/edge
+    // representatives plus contour gaps); it must not disappear behind locals.
+    const moves = forced.concat(global, rest.slice(0, Math.max(0, cap-forced.length-global.length)));
+    if (sc) sc.generationMs = (sc.generationMs || 0) + now()-started;
+    return { moves, mandatory: forced, hasTactic };
+  }
+
   function firstLegalMove(node){
     for (let y=0; y<node.rows; y++)
       for (let x=0; x<node.cols; x++)
