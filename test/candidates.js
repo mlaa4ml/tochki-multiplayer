@@ -110,7 +110,8 @@ function flankStones(){
 function rng(seed){ let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 {
   let positions = 0, refMoves = 0, missedOld = 0, missedNew = 0, mismatch = 0, overflow = 0;
-  let tOld = 0, tNew = 0;
+    let tOld = 0, tNew = 0;
+  let bruteBlocks = 0, bruteDefTotal = 0, bruteDefMissedEngine = 0, bruteDefMissedOld = 0, bruteDefFalse = 0;
   for (let seed = 1; seed <= 60; seed++){
     const R = rng(seed);
     const rows = 7 + Math.floor(R() * 3), cols = 7 + Math.floor(R() * 3);
