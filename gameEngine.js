@@ -852,7 +852,10 @@
           if (!isTransitionLegal(node, x, y)) continue;
           const t = applyTransition(node, player, x, y);
           if (!t.ok) continue;
-          if (t.node.gameOver){ if (t.node.winner === player) add(x, y, 'defend'); continue; }
+                    // Немедленное завершение партии своим ходом — защита, если оно не
+          // проигрышное: победа или НИЧЬЯ (после конца партии потеря соперника
+          // = 0 < oldMax; в т.ч. ничья вместо немедленного поражения).
+          if (t.node.gameOver){ if (t.node.winner !== opp) add(x, y, 'defend'); continue; }
           if (t.node.current !== opp){ add(x, y, 'defend'); continue; }
           const check = new Set(threats);
           for (let dy=-2; dy<=2; dy++) for (let dx=-2; dx<=2; dx++){
