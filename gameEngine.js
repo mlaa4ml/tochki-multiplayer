@@ -461,8 +461,17 @@
     const oppGroups = computeGroupLiberties(state, rows, cols, opponent);
     const libertyDiff = libertyRisk(oppGroups) - libertyRisk(ownGroups);
 
+    // A09: признак выключен по умолчанию; считается только при ненулевом весе,
+    // поэтому цена вычисления по умолчанию не меняется.
+    let edgeDiff = 0;
+    if (weights.edgeEscape){
+      edgeDiff = computeEdgeEscape(state, rows, cols, forPlayer)
+        - computeEdgeEscape(state, rows, cols, opponent);
+    }
+
     return capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential + cohesionDiff*weights.cohesion
-      + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0);
+      + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0)
+      + edgeDiff*(weights.edgeEscape || 0);
   }
 
   function branchFactorForDepth(diff, depth){
