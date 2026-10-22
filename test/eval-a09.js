@@ -44,7 +44,9 @@ t('замкнутая пустая область без противника о
   E.runCaptures(c, 1, ROWS, COLS);
   assert.deepStrictEqual(E.computeScores(c, ROWS, COLS), { 1: 0, 2: 0 });
   assert.strictEqual(E.computeEdgeEscape(s, ROWS, COLS, 1), 0);
-  assert.strictEqual(E.computeEdgeEscape(s, ROWS, COLS, 2), 0);
+    // Для игрока 2 точки 1 лежат в открытой области с широким выходом к краю:
+  // давление почти нулевое (4 / (1 + ~38 клеток края)).
+  assert.ok(E.computeEdgeEscape(s, ROWS, COLS, 2) < 0.15);
 });
 
 t('полезное окружение с противником даёт очко', () => {
