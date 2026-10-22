@@ -121,4 +121,51 @@ t('по умолчанию признак выключен: оценка не м
   assert.ok(on > a, 'включённый признак поощряет давление на узкий выход');
 });
 
+// ---------- A09 шаги 2-5: по одному признаку, каждый выключен по умолчанию ----------
+const W0 = E.BOT_WEIGHTS;
+const ev = (s, w, ctx) => E.evaluateStatic(s, ROWS, COLS, 1, Object.assign({}, W0, w), ctx);
+
+t('closeCost: стоимость закрытия узкого выхода = 1 ход (проверено runCaptures)', () => {
+  const s = board(NARROW_P1, [[2, 1]]);
+  assert.ok(near(ev(s, { closeCost: 10 }) - ev(s, {}), 10), 'закрытие за 1 ход пленит 1 точку');
+  const wide = board([[1, 1], [3, 1], [2, 2]], [[2, 1]]);
+  assert.ok(near(ev(wide, { closeCost: 10 }), ev(wide, {})), 'широкий выход за 1 ход не закрыть');
+});
+
+// Два фронта: каждая сторона может пленить точку соперника одним ходом.
+const RACE_P2 = [[7, 1], [9, 1], [8, 2], [7, 0], [9, 0]];
+t('captureRace: гонку захватов выигрывает тот, чей ход', () => {
+  const s = board(NARROW_P1.concat([[8, 1]]), RACE_P2.concat([[2, 1]]));
+  const mine = ev(s, { captureRace: 50 }, { current: 1 });
+  const theirs = ev(s, { captureRace: 50 }, { current: 2 });
+  assert.ok(near(mine - theirs, 100), `${mine} vs ${theirs}`);
+  assert.ok(near(ev(s, { captureRace: 50 }), ev(s, {})), 'без ctx признак не действует');
+  // Нет гонки (угроза только у одной стороны) — признак молчит.
+  const one = board(NARROW_P1, [[2, 1]]);
+  assert.ok(near(ev(one, { captureRace: 50 }, { current: 1 }), ev(one, {}, { current: 1 })));
+});
+
+t('phase: потенциал замкнутой области обесценивается по мере заполнения доски', () => {
+  const s = board([[5, 4], [5, 6], [4, 5], [6, 5]]);
+  const full = ev(s, {}), ph = ev(s, { phase: 10 });
+  assert.ok(ph < full, `${ph} < ${full}`);
+  assert.ok(near(ev(s, { phase: 0 }), full));
+});
+
+t('endgameScore: у порога окончания оценка = итоговый счёт, форма игнорируется', () => {
+  const s = board(NARROW_P1, [[2, 1]]);
+  const ctx = { current: 1, scores: { 1: 0, 2: 0 }, rules: { scoreRuleActive: true, targetScore: 1 } };
+  assert.notStrictEqual(ev(s, {}, ctx), 0, 'без признака форма влияет');
+  assert.ok(near(ev(s, { endgameScore: 1 }, ctx), 0), 'при пороге — только счёт (0:0)');
+  const far = Object.assign({}, ctx, { rules: { scoreRuleActive: true, targetScore: 30 } });
+  assert.ok(near(ev(s, { endgameScore: 1 }, far), ev(s, {}, far)), 'далеко от порога не действует');
+  const B = board([[5, 4], [5, 6], [4, 5], [6, 5]], [[5, 5]]);
+  E.runCaptures(B, 1, ROWS, COLS);
+  assert.ok(near(ev(B, { endgameScore: 1 }, Object.assign({}, ctx, { scores: { 1: 1, 2: 0 } })), 100));
+});
+
+t('все новые признаки по умолчанию выключены', () => {
+  for (const k of ['edgeEscape', 'closeCost', 'captureRace', 'phase', 'endgameScore']) assert.ok(!W0[k], k);
+});
+
 console.log(`eval-a09: ${passed} passed`);
