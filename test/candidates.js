@@ -178,7 +178,7 @@ function rng(seed){ let s = seed >>> 0; return () => { s = (s * 1664525 + 101390
           const t = E.applyTransition(node, me, x, y);
           if (!t.ok) continue;
           let isDef;
-          if (t.node.gameOver) isDef = t.node.winner === me;
+          if (t.node.gameOver) isDef = t.node.winner !== op; // победа или ничья
           else if (t.node.current === me) isDef = true;
           else isDef = oppBestAll(t.node) < before;
           if (isDef) bruteDef.add(y * cols + x);
