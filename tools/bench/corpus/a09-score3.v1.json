@@ -1,0 +1,2274 @@
+{
+ "format": "tochki-bench-corpus",
+ "version": 1,
+ "seed": 20240612,
+ "engineVersion": "tochki-rules-1",
+ "note": "A09: подкорпус openings.v1 только с targetScore>0, чтобы endgameScore реально включался. validation и test — одни и те же дебюты (у test суффикс -t).",
+ "rulesets": [
+  {
+   "id": "fill30",
+   "targetFillPercent": 30
+  },
+  {
+   "id": "fill30-extra",
+   "targetFillPercent": 30,
+   "extraTurnOnCapture": true
+  },
+  {
+   "id": "score3-fill45",
+   "targetScore": 3,
+   "targetFillPercent": 45
+  }
+ ],
+ "openings": {
+  "small": {
+   "train": [],
+   "validation": [
+    {
+     "id": "small-train-2-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 8,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-train-5-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 1,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-validation-0-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 2,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-validation-3-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 7,
+       "seat": 1
+      },
+      {
+       "x": 2,
+       "y": 1,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-validation-6-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 10,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-1-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 2,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-4-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 10,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 0,
+       "y": 1,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-7-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 1,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 0,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-test-10-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 3,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    }
+   ],
+   "test": [
+    {
+     "id": "small-train-2-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 8,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-train-5-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 1,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-validation-0-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 2,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-validation-3-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 7,
+       "seat": 1
+      },
+      {
+       "x": 2,
+       "y": 1,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-validation-6-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 10,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-1-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 2,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-4-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 10,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 0,
+       "y": 1,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "small-test-7-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 1,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 5,
+       "seat": 2
+      },
+      {
+       "x": 0,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "small-test-10-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "small",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 5,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 4,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 3,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    }
+   ]
+  },
+  "medium": {
+   "train": [],
+   "validation": [
+    {
+     "id": "medium-train-2-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 0,
+       "y": 11,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-train-5-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 5,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 1,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 15,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-0-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 13,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-3-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 2,
+       "seat": 2
+      },
+      {
+       "x": 9,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-6-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 15,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "medium-test-1-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-4-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 1,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 12,
+       "y": 11,
+       "seat": 1
+      },
+      {
+       "x": 0,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-7-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-10-v",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 12,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 14,
+       "y": 0,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    }
+   ],
+   "test": [
+    {
+     "id": "medium-train-2-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 0,
+       "y": 11,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-train-5-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 5,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 1,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 15,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-0-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 4,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 13,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 9,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-3-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 6,
+       "y": 4,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 4,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 2,
+       "seat": 2
+      },
+      {
+       "x": 9,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "medium-validation-6-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 7,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 15,
+       "y": 10,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 11,
+       "y": 0,
+       "seat": 1
+      }
+     ]
+    },
+    {
+     "id": "medium-test-1-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 2,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-4-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 5,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 1,
+       "y": 8,
+       "seat": 2
+      },
+      {
+       "x": 12,
+       "y": 11,
+       "seat": 1
+      },
+      {
+       "x": 0,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-7-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 7,
+       "seat": 2
+      },
+      {
+       "x": 8,
+       "y": 3,
+       "seat": 1
+      },
+      {
+       "x": 7,
+       "y": 3,
+       "seat": 2
+      },
+      {
+       "x": 10,
+       "y": 2,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 4,
+       "seat": 2
+      }
+     ]
+    },
+    {
+     "id": "medium-test-10-t",
+     "ruleset": "score3-fill45",
+     "rules": {
+      "sizeKey": "medium",
+      "targetScore": 3,
+      "targetFillPercent": 45,
+      "firstPlayer": 1,
+      "extraTurnOnCapture": false,
+      "undoAllowed": false
+     },
+     "prefix": [
+      {
+       "x": 9,
+       "y": 6,
+       "seat": 1
+      },
+      {
+       "x": 8,
+       "y": 6,
+       "seat": 2
+      },
+      {
+       "x": 12,
+       "y": 8,
+       "seat": 1
+      },
+      {
+       "x": 6,
+       "y": 0,
+       "seat": 2
+      },
+      {
+       "x": 14,
+       "y": 0,
+       "seat": 1
+      },
+      {
+       "x": 11,
+       "y": 7,
+       "seat": 2
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "tactics": {
+  "small": [
+   {
+    "id": "small-tactic-0",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "small",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 7,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 8,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 0,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 2,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 0,
+      "seat": 1
+     },
+     {
+      "x": 1,
+      "y": 3,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 9,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 11,
+      "y": 0,
+      "seat": 1
+     },
+     {
+      "x": 3,
+      "y": 1,
+      "seat": 2
+     },
+     {
+      "x": 9,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 7,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 11,
+      "y": 6,
+      "seat": 1
+     },
+     {
+      "x": 7,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 8,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 5,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 2,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 7,
+      "seat": 1
+     }
+    ],
+    "expected": [
+     {
+      "x": 8,
+      "y": 6
+     }
+    ]
+   },
+   {
+    "id": "small-tactic-1",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "small",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 5,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 0,
+      "seat": 2
+     },
+     {
+      "x": 1,
+      "y": 2,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 2,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 2,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 9,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 2,
+      "y": 5,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 8,
+      "y": 9,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 1,
+      "seat": 2
+     },
+     {
+      "x": 9,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 9,
+      "seat": 2
+     }
+    ],
+    "expected": [
+     {
+      "x": 5,
+      "y": 5
+     }
+    ]
+   },
+   {
+    "id": "small-tactic-2",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "small",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 5,
+      "y": 5,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 11,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 3,
+      "y": 9,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 0,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 11,
+      "y": 0,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 10,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 7,
+      "y": 9,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 1,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 3,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 0,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 7,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 1,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 9,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 10,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 9,
+      "y": 9,
+      "seat": 1
+     }
+    ],
+    "expected": [
+     {
+      "x": 5,
+      "y": 6
+     }
+    ]
+   },
+   {
+    "id": "small-tactic-3",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "small",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 5,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 1,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 7,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 1,
+      "y": 9,
+      "seat": 2
+     },
+     {
+      "x": 7,
+      "y": 2,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 1,
+      "y": 3,
+      "seat": 2
+     },
+     {
+      "x": 10,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 0,
+      "seat": 2
+     },
+     {
+      "x": 10,
+      "y": 2,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 3,
+      "seat": 2
+     },
+     {
+      "x": 0,
+      "y": 9,
+      "seat": 1
+     },
+     {
+      "x": 9,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 1,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 9,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 1,
+      "seat": 2
+     }
+    ],
+    "expected": [
+     {
+      "x": 6,
+      "y": 2
+     }
+    ]
+   }
+  ],
+  "medium": [
+   {
+    "id": "medium-tactic-0",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "medium",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 9,
+      "y": 6,
+      "seat": 1
+     },
+     {
+      "x": 6,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 15,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 15,
+      "y": 6,
+      "seat": 1
+     },
+     {
+      "x": 13,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 2,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 5,
+      "y": 6,
+      "seat": 1
+     },
+     {
+      "x": 5,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 13,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 11,
+      "y": 4,
+      "seat": 2
+     },
+     {
+      "x": 11,
+      "y": 1,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 11,
+      "seat": 1
+     },
+     {
+      "x": 12,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 1,
+      "y": 3,
+      "seat": 1
+     },
+     {
+      "x": 13,
+      "y": 1,
+      "seat": 2
+     },
+     {
+      "x": 0,
+      "y": 1,
+      "seat": 1
+     }
+    ],
+    "expected": [
+     {
+      "x": 5,
+      "y": 5
+     }
+    ]
+   },
+   {
+    "id": "medium-tactic-1",
+    "kind": "capture-in-1",
+    "rules": {
+     "sizeKey": "medium",
+     "targetScore": 0,
+     "targetFillPercent": 30,
+     "firstPlayer": 1,
+     "extraTurnOnCapture": false,
+     "undoAllowed": false
+    },
+    "prefix": [
+     {
+      "x": 7,
+      "y": 5,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 7,
+      "seat": 2
+     },
+     {
+      "x": 12,
+      "y": 0,
+      "seat": 1
+     },
+     {
+      "x": 2,
+      "y": 2,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 0,
+      "seat": 1
+     },
+     {
+      "x": 3,
+      "y": 11,
+      "seat": 2
+     },
+     {
+      "x": 13,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 3,
+      "seat": 2
+     },
+     {
+      "x": 15,
+      "y": 10,
+      "seat": 1
+     },
+     {
+      "x": 4,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 8,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 3,
+      "y": 1,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 7,
+      "y": 6,
+      "seat": 2
+     },
+     {
+      "x": 14,
+      "y": 4,
+      "seat": 1
+     },
+     {
+      "x": 8,
+      "y": 5,
+      "seat": 2
+     },
+     {
+      "x": 6,
+      "y": 6,
+      "seat": 1
+     },
+     {
+      "x": 3,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 11,
+      "y": 8,
+      "seat": 1
+     },
+     {
+      "x": 13,
+      "y": 8,
+      "seat": 2
+     },
+     {
+      "x": 7,
+      "y": 7,
+      "seat": 1
+     },
+     {
+      "x": 10,
+      "y": 10,
+      "seat": 2
+     }
+    ],
+    "expected": [
+     {
+      "x": 8,
+      "y": 6
+     }
+    ]
+   }
+  ]
+ }
+}

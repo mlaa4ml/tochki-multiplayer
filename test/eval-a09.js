@@ -1,0 +1,171 @@
+'use strict';
+// A09 (issue #14): фикстуры признака связи области с краем (computeEdgeEscape)
+// и проверка, что liberties — лишь эвристика, а не правило захвата.
+// Запуск: node test/eval-a09.js
+const assert = require('assert');
+const E = require('../gameEngine.js');
+
+const ROWS = 10, COLS = 12;
+function board(p1 = [], p2 = []){
+  const s = E.createEmptyState(ROWS, COLS);
+  for (const [x, y] of p1) s.stone[y][x] = 1;
+  for (const [x, y] of p2) s.stone[y][x] = 2;
+  return s;
+}
+const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
+// computeScores не экспортируется движком — повторяем классический счёт:
+// очко даёт только пленённая точка противника.
+E.computeScores = E.computeScores || function (state, rows, cols){
+  const sc = { 1: 0, 2: 0 };
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++){
+    const st = state.stone[y][x], d = state.dead[y][x];
+    if (st !== 0 && d !== 0 && d !== st) sc[d] += 1;
+  }
+  return sc;
+};
+let passed = 0;
+function t(name, fn){ fn(); passed++; console.log('ok -', name); }
+
+t('край: 0 соседних пустот у точки противника, но захвата нет', () => {
+  // Точка 2 в углу (0,0), точки 1 занимают обоих соседей.
+  const s = board([[1, 0], [0, 1]], [[0, 0]]);
+  if (typeof E.computeGroupLiberties === 'function'){
+    const g = E.computeGroupLiberties(s, ROWS, COLS, 2);
+    assert.strictEqual(g[0].liberties, 0, 'по аналогии с го группа «мертва»');
+  }
+  const c = E.cloneState(s);
+  assert.deepStrictEqual(E.runCaptures(c, 1, ROWS, COLS), [], 'но правила её не захватывают: область касается края');
+  assert.strictEqual(E.computeScores(c, ROWS, COLS)[1], 0);
+});
+
+t('замкнутая пустая область без противника очков не даёт и edgeEscape=0', () => {
+  const s = board([[5, 4], [5, 6], [4, 5], [6, 5]]);
+  const c = E.cloneState(s);
+  E.runCaptures(c, 1, ROWS, COLS);
+  assert.deepStrictEqual(E.computeScores(c, ROWS, COLS), { 1: 0, 2: 0 });
+  assert.strictEqual(E.computeEdgeEscape(s, ROWS, COLS, 1), 0);
+    // Для игрока 2 точки 1 лежат в открытой области с широким выходом к краю:
+  // давление почти нулевое (4 / (1 + ~38 клеток края)).
+  assert.ok(E.computeEdgeEscape(s, ROWS, COLS, 2) < 0.15);
+});
+
+t('полезное окружение с противником даёт очко', () => {
+  const s = board([[5, 4], [5, 6], [4, 5], [6, 5]], [[5, 5]]);
+  const c = E.cloneState(s);
+  const gained = E.runCaptures(c, 1, ROWS, COLS);
+  assert.strictEqual(E.countCaptured ? E.countCaptured(gained) : gained.filter(g => g.kind === 'captured').length, 1);
+  assert.strictEqual(E.computeScores(c, ROWS, COLS)[1], 1);
+});
+
+// Узкий выход: точка 2 на (2,1), выход к краю только через (2,0).
+const NARROW_P1 = [[1, 1], [3, 1], [2, 2], [1, 0], [3, 0]];
+t('выход через узкий проход ценится выше широкого', () => {
+  const narrow = board(NARROW_P1, [[2, 1]]);
+  const wide = board([[1, 1], [3, 1], [2, 2]], [[2, 1]]);
+  const pn = E.computeEdgeEscape(narrow, ROWS, COLS, 1);
+  const pw = E.computeEdgeEscape(wide, ROWS, COLS, 1);
+  assert.ok(near(pn, 0.5), 'одна клетка края => 1/(1+1)');
+  assert.ok(pn > pw * 5, `узкий ${pn} vs широкий ${pw}`);
+  // Закрытие прохода реально захватывает по правилам.
+  const c = E.cloneState(narrow); c.stone[0][2] = 1;
+  const gained = E.runCaptures(c, 1, ROWS, COLS);
+  assert.ok(gained.some(g => g.kind === 'captured'));
+  assert.strictEqual(E.computeEdgeEscape(c, ROWS, COLS, 1), 0, 'после захвата давления нет');
+});
+
+t('бесполезная локальная плотность не меняет признак', () => {
+  const opp = [[10, 8]];
+  const a = board([], opp);
+  const b = board([[5, 4], [6, 4], [5, 5], [6, 5], [4, 4]], opp);
+  assert.ok(near(E.computeEdgeEscape(a, ROWS, COLS, 1), E.computeEdgeEscape(b, ROWS, COLS, 1)));
+});
+
+t('несколько фронтов: вклад складывается', () => {
+  const second = NARROW_P1.map(([x, y]) => [x + 6, y]);
+  const one = board(NARROW_P1, [[2, 1]]);
+  const two = board(NARROW_P1.concat(second), [[2, 1], [8, 1]]);
+  const p1 = E.computeEdgeEscape(one, ROWS, COLS, 1);
+  const p2 = E.computeEdgeEscape(two, ROWS, COLS, 1);
+  assert.ok(near(p2, 2 * p1), `${p2} != 2*${p1}`);
+});
+
+t('близкий порог окончания: реальное очко важнее давления формы', () => {
+  const w = Object.assign({}, E.BOT_WEIGHTS, { edgeEscape: 20 });
+  // Позиция A: давление у края без очка. Позиция B: одно реальное пленение.
+  const A = board(NARROW_P1, [[2, 1]]);
+  const B = board([[5, 4], [5, 6], [4, 5], [6, 5]], [[5, 5]]);
+  E.runCaptures(B, 1, ROWS, COLS);
+  assert.ok(E.evaluateStatic(B, ROWS, COLS, 1, w) > E.evaluateStatic(A, ROWS, COLS, 1, w));
+  // При targetScore=1 закрытие прохода — терминальная победа по правилам.
+  const m = E.createMatch({ sizeKey: 'small', targetScore: 1, firstPlayer: 1 });
+  assert.ok(m, 'матч создаётся');
+  // Терминальная победа по реальным правилам: окружение центральной точки
+  // при пороге 1 очко завершает партию (правила ради эвристики не менялись).
+  const seq = [[1, 5, 4], [2, 5, 5], [1, 4, 5], [2, 9, 8], [1, 6, 5], [2, 9, 7], [1, 5, 6]];
+  for (const [p, x, y] of seq){
+    const r = m.applyMove(p, x, y);
+    assert.ok(!r || r.ok !== false, `ход ${p}@${x},${y} отклонён: ${JSON.stringify(r)}`);
+  }
+  const snap = m.getSnapshot();
+  assert.strictEqual(snap.scores[1], 1, 'очко за пленение');
+  assert.ok(snap.gameOver, 'достижение порога завершает партию');
+});
+
+t('по умолчанию признак выключен: оценка не меняется', () => {
+  assert.ok(!E.BOT_WEIGHTS.edgeEscape);
+  const s = board(NARROW_P1, [[2, 1], [9, 7]]);
+  const a = E.evaluateStatic(s, ROWS, COLS, 1, E.BOT_WEIGHTS);
+  const b = E.evaluateStatic(s, ROWS, COLS, 1, Object.assign({}, E.BOT_WEIGHTS, { edgeEscape: 0 }));
+  assert.strictEqual(a, b);
+  const on = E.evaluateStatic(s, ROWS, COLS, 1, Object.assign({}, E.BOT_WEIGHTS, { edgeEscape: 3 }));
+  assert.ok(on > a, 'включённый признак поощряет давление на узкий выход');
+});
+
+// ---------- A09 шаги 2-5: по одному признаку, каждый выключен по умолчанию ----------
+const W0 = E.BOT_WEIGHTS;
+const ev = (s, w, ctx) => E.evaluateStatic(s, ROWS, COLS, 1, Object.assign({}, W0, w), ctx);
+
+t('closeCost: стоимость закрытия узкого выхода = 1 ход (проверено runCaptures)', () => {
+  const s = board(NARROW_P1, [[2, 1]]);
+  assert.ok(near(ev(s, { closeCost: 10 }) - ev(s, {}), 10), 'закрытие за 1 ход пленит 1 точку');
+  const wide = board([[1, 1], [3, 1], [2, 2]], [[2, 1]]);
+  assert.ok(near(ev(wide, { closeCost: 10 }), ev(wide, {})), 'широкий выход за 1 ход не закрыть');
+});
+
+// Два фронта: каждая сторона может пленить точку соперника одним ходом.
+const RACE_P2 = [[7, 1], [9, 1], [8, 2], [7, 0], [9, 0]];
+t('captureRace: гонку захватов выигрывает тот, чей ход', () => {
+  const s = board(NARROW_P1.concat([[8, 1]]), RACE_P2.concat([[2, 1]]));
+  const mine = ev(s, { captureRace: 50 }, { current: 1 });
+  const theirs = ev(s, { captureRace: 50 }, { current: 2 });
+  assert.ok(near(mine - theirs, 100), `${mine} vs ${theirs}`);
+  assert.ok(near(ev(s, { captureRace: 50 }), ev(s, {})), 'без ctx признак не действует');
+  // Нет гонки (угроза только у одной стороны) — признак молчит.
+  const one = board(NARROW_P1, [[2, 1]]);
+  assert.ok(near(ev(one, { captureRace: 50 }, { current: 1 }), ev(one, {}, { current: 1 })));
+});
+
+t('phase: потенциал замкнутой области обесценивается по мере заполнения доски', () => {
+  const s = board([[5, 4], [5, 6], [4, 5], [6, 5]]);
+  const full = ev(s, {}), ph = ev(s, { phase: 10 });
+  assert.ok(ph < full, `${ph} < ${full}`);
+  assert.ok(near(ev(s, { phase: 0 }), full));
+});
+
+t('endgameScore: у порога окончания оценка = итоговый счёт, форма игнорируется', () => {
+  const s = board(NARROW_P1, [[2, 1]]);
+  const ctx = { current: 1, scores: { 1: 0, 2: 0 }, rules: { scoreRuleActive: true, targetScore: 1 } };
+  assert.notStrictEqual(ev(s, {}, ctx), 0, 'без признака форма влияет');
+  assert.ok(near(ev(s, { endgameScore: 1 }, ctx), 0), 'при пороге — только счёт (0:0)');
+  const far = Object.assign({}, ctx, { rules: { scoreRuleActive: true, targetScore: 30 } });
+  assert.ok(near(ev(s, { endgameScore: 1 }, far), ev(s, {}, far)), 'далеко от порога не действует');
+  const B = board([[5, 4], [5, 6], [4, 5], [6, 5]], [[5, 5]]);
+  E.runCaptures(B, 1, ROWS, COLS);
+  assert.ok(near(ev(B, { endgameScore: 1 }, Object.assign({}, ctx, { scores: { 1: 1, 2: 0 } })), 100));
+});
+
+t('все новые признаки по умолчанию выключены', () => {
+  for (const k of ['edgeEscape', 'closeCost', 'captureRace', 'phase', 'endgameScore']) assert.ok(!W0[k], k);
+});
+
+console.log(`eval-a09: ${passed} passed`);

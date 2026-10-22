@@ -304,11 +304,14 @@
   // ровно в момент захвата. Он ничего не говорит о том, что группа живых
   // камней постепенно ЛИШАЕТСЯ путей наружу за несколько ходов до захвата —
   // а именно это нужно боту, чтобы вовремя защищаться и вовремя окружать
-  // самому. Здесь используется тот же принцип, что «свободы» (liberties) в
-  // го: для связной группы живых камней игрока считаются соседние клетки,
-  // через которые группа ещё может «дышать» (пустые, не занятые соперником).
-  // Если свобод становится мало (1-2), группа в шаге от захвата — даже если
-  // формально до этого момента runCaptures её ещё не тронул.
+  // самому. Здесь используется АНАЛОГИЯ со «свободами» (liberties) в го:
+  // для связной группы живых камней игрока считаются соседние пустые клетки.
+  // ВАЖНО (A09, #14): это лишь проверяемая эвристика, а не правило захвата.
+  // runCaptures захватывает область, если путь к краю перекрыт стенами
+  // захватчика, — число соседних пустот этого не определяет. Группа с 1-2
+  // «свободами» у края часто вообще не может быть захвачена, а группа с
+  // многими «свободами» может быть уже обречена. Признак, согласованный с
+  // реальным критерием захвата, — computeEdgeEscape ниже (по умолчанию выкл.).
   function computeGroupLiberties(state, rows, cols, player){
     const { stone, dead, territory } = state;
     const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
@@ -385,7 +388,105 @@
     return urgent;
   }
 
-  function evaluateStatic(state, rows, cols, forPlayer, weights){
+    // ---------- A09 (#14): связь области с краем относительно стен ----------
+  //
+  // В отличие от computeGroupLiberties (аналогия с го: «мало соседних пустот»
+  // ≠ гарантированный захват), здесь используется тот же критерий, что и в
+  // runCaptures: область из клеток, НЕ являющихся стеной атакующего player,
+  // захватывается только если она не касается края и содержит живую точку
+  // соперника. Признак = Σ по областям с живыми точками соперника, ещё
+  // связанным с краем: liveOpp / (1 + borderCells), где borderCells — число
+  // клеток области на краю («ширина выхода»). Узкий выход к краю => высокая
+  // ценность закрытия для player; широкий выход => почти ноль. Пустые
+  // области без соперника вклада не дают (они очков не приносят).
+  // Признак выключен по умолчанию (weights.edgeEscape отсутствует => 0 и
+  // даже не вычисляется), включается только для ablation/A07-сравнения.
+  function computeEdgeEscape(state, rows, cols, player){
+    const { stone, dead } = state;
+    const opponent = player === 1 ? 2 : 1;
+    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    let pressure = 0;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (visited[y][x]) continue;
+        visited[y][x] = true;
+        if (isWall(state, x, y, player)) continue;
+        const stack = [[x,y]];
+        let liveOpp = 0, borderCells = 0;
+        while (stack.length){
+          const [cx,cy] = stack.pop();
+          if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) borderCells++;
+          if (stone[cy][cx] === opponent && dead[cy][cx] === 0) liveOpp++;
+          for (const [dx,dy] of DIRS4){
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+            if (visited[ny][nx]) continue;
+            visited[ny][nx] = true;
+            if (isWall(state, nx, ny, player)) continue;
+            stack.push([nx,ny]);
+          }
+        }
+        if (liveOpp > 0 && borderCells > 0) pressure += liveOpp / (1 + borderCells);
+      }
+    }
+    return pressure;
+  }
+
+    // A09 шаг 2 (#14): стоимость закрытия/выхода, измеренная РЕАЛЬНЫМИ правилами.
+  // Для областей с живыми точками соперника, связанных с краем узким выходом
+  // (<= 2 клеток края), пробуем поставить точку player на каждую пустую клетку
+  // края области и запускаем runCaptures. Возвращает максимум пленённых точек
+  // одним ходом (0 — за 1 ход закрыть нельзя, т.е. «стоимость» > 1 хода).
+  // Для соперника то же значение — его угроза, т.е. «стоимость выхода» для нас.
+  // Ограничение: внутренние коридоры (не на краю) не проверяются.
+  function closeInOneThreat(state, rows, cols, player){
+    const { stone, dead, territory } = state;
+    const opponent = player === 1 ? 2 : 1;
+    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    const tried = new Set();
+    let best = 0;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (visited[y][x]) continue;
+        visited[y][x] = true;
+        if (isWall(state, x, y, player)) continue;
+        const stack = [[x,y]];
+        let liveOpp = 0, borderCells = 0;
+        const borderEmpty = [];
+        while (stack.length){
+          const [cx,cy] = stack.pop();
+          if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1){
+            borderCells++;
+            if (stone[cy][cx] === 0 && dead[cy][cx] === 0 && territory[cy][cx] === 0) borderEmpty.push(cy*cols+cx);
+          }
+          if (stone[cy][cx] === opponent && dead[cy][cx] === 0) liveOpp++;
+          for (const [dx,dy] of DIRS4){
+            const nx=cx+dx, ny=cy+dy;
+            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+            if (visited[ny][nx]) continue;
+            visited[ny][nx] = true;
+            if (isWall(state, nx, ny, player)) continue;
+            stack.push([nx,ny]);
+          }
+        }
+        if (liveOpp === 0 || borderCells === 0 || borderCells > 2) continue;
+        for (const k of borderEmpty){
+          if (tried.has(k)) continue;
+          tried.add(k);
+          const s = cloneState(state);
+          s.stone[Math.floor(k/cols)][k%cols] = player;
+          const n = countCaptured(runCaptures(s, player, rows, cols));
+          if (n > best) best = n;
+        }
+      }
+    }
+    return best;
+  }
+
+  // ctx (необязательный, A09) — узел поиска: current (чей ход) и rules
+  // (targetScore/targetFillPercent). Нужен только признакам captureRace и
+  // endgameScore; без ctx они не действуют.
+  function evaluateStatic(state, rows, cols, forPlayer, weights, ctx){
     const { stone, dead, territory } = state;
     const opponent = forPlayer === 1 ? 2 : 1;
     const captured = {1:0, 2:0};
@@ -417,8 +518,51 @@
     const oppGroups = computeGroupLiberties(state, rows, cols, opponent);
     const libertyDiff = libertyRisk(oppGroups) - libertyRisk(ownGroups);
 
-    return capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential + cohesionDiff*weights.cohesion
-      + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0);
+    // A09: признак выключен по умолчанию; считается только при ненулевом весе,
+    // поэтому цена вычисления по умолчанию не меняется.
+    let edgeDiff = 0;
+    if (weights.edgeEscape){
+      edgeDiff = computeEdgeEscape(state, rows, cols, forPlayer)
+        - computeEdgeEscape(state, rows, cols, opponent);
+    }
+
+    // A09 шаг 2: closeCost — разница угроз «закрыть за 1 ход» (стоимость
+    // закрытия для нас минус стоимость выхода/угроза соперника).
+    // A09 шаг 3: captureRace — если ОБЕ стороны могут пленить за ход, гонку
+    // выигрывает тот, чей ход (ctx.current). Тактика — вне демпфирования формы.
+    let closeDiff = 0, raceVal = 0;
+    if (weights.closeCost || (weights.captureRace && ctx)){
+      const myT = closeInOneThreat(state, rows, cols, forPlayer);
+      const opT = closeInOneThreat(state, rows, cols, opponent);
+      if (weights.closeCost) closeDiff = myT - opT;
+      if (weights.captureRace && ctx && myT > 0 && opT > 0){
+        raceVal = ctx.current === forPlayer ? myT : -opT;
+      }
+    }
+    // A09 шаг 4: phase — потенциал территории обесценивается по мере
+    // заполнения доски (поздно строить, важнее реальные пленения).
+    let potScale = 1;
+    if (weights.phase){
+      let filled = 0;
+      for (let y=0; y<rows; y++) for (let x=0; x<cols; x++) if (stone[y][x] !== 0) filled++;
+      potScale = Math.max(0, 1 - weights.phase * filled / (rows*cols));
+    }
+
+    let v = capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential*potScale + cohesionDiff*weights.cohesion
+      + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0)
+      + edgeDiff*(weights.edgeEscape || 0) + closeDiff*(weights.closeCost || 0);
+
+    // A09 шаг 5: endgameScore — у порога окончания по очкам (до цели <= 2)
+    // все признаки формы демпфируются, остаётся итоговый счёт (CAPTURED_WEIGHT).
+    if (weights.endgameScore && ctx && ctx.rules && ctx.rules.scoreRuleActive){
+      const sc = ctx.scores || computeScores(state, rows, cols);
+      const left = ctx.rules.targetScore - Math.max(sc[1], sc[2]);
+      if (left <= 2){
+        const keep = Math.max(0, 1 - weights.endgameScore);
+        v = capturedDiff*CAPTURED_WEIGHT + (v - capturedDiff*CAPTURED_WEIGHT) * keep;
+      }
+    }
+    return v + raceVal*(weights.captureRace || 0);
   }
 
   function branchFactorForDepth(diff, depth){
@@ -1053,7 +1197,7 @@
     // Статическая оценка — дорогая операция: бюджет проверяется перед ней
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
     const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
-      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
     let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
     // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
     // внутренних узлах он выполняется только до ply <= diff.tacticalPly
@@ -1518,7 +1662,7 @@
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
     OPENING_ZONE_SIDE, getOpeningZone, inZone,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
-    generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
+    generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, computeEdgeEscape, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
