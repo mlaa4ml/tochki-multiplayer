@@ -59,7 +59,7 @@ function flankStones(){
   const oppBest = n => { let m = 0; const o = Object.assign({}, n, { current: 1 });
     for (let y = 0; y < n.rows; y++) for (let x = 0; x < n.cols; x++){
       const t = E.applyTransition(o, 1, x, y);
-      if (t.ok){ const g = t.node.gameOver && t.node.winner === 1 ? Infinity : E.countCaptured(t.result.gained); if (g > m) m = g; }
+      if (t.ok){ const g = t.node.gameOver && t.node.winner === 1 ? Infinity : t.result.gained.filter(q => q.kind === 'captured').length; if (g > m) m = g; }
     } return m; };
   const before = oppBest(node);
   for (const d of tac.filter(t => t.kinds.includes('defend'))){
