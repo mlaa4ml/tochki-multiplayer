@@ -50,6 +50,22 @@ function flankStones(){
   check(has(tac, 12, 8, 'block'), 'защита (12,8) найдена: ' + J(tac));
   const c = E.searchCandidates(node, diff, 1);
   check(has(c, 12, 8), 'единственная защита сохранена при cap=1: ' + J(c.map(key)));
+  // Защита проверена полным переходом: после (12,8) у 1 нет немедленного захвата.
+  check(has(tac, 12, 8, 'defend'), 'защита (12,8) проверена как defend: ' + J(tac));
+  // Ход вдали от угрозы защитой не считается.
+  check(!has(tac, 3, 3, 'defend'), '(3,3) не помечен defend: ' + J(tac));
+  // Проверка по определению: после каждого defend-хода лучший немедленный
+  // захват соперника (по полному перебору) меньше, чем без хода.
+  const oppBest = n => { let m = 0; const o = Object.assign({}, n, { current: 1 });
+    for (let y = 0; y < n.rows; y++) for (let x = 0; x < n.cols; x++){
+      const t = E.applyTransition(o, 1, x, y);
+      if (t.ok){ const g = t.node.gameOver && t.node.winner === 1 ? Infinity : E.countCaptured(t.result.gained); if (g > m) m = g; }
+    } return m; };
+  const before = oppBest(node);
+  for (const d of tac.filter(t => t.kinds.includes('defend'))){
+    const t = E.applyTransition(node, 2, d.x, d.y);
+    check(t.ok && oppBest(t.node) < before, 'defend (' + d.x + ',' + d.y + ') реально снижает потерю');
+  }
 }
 
 // 3. Пороговая победа: targetScore=1, захват сразу выигрывает.
