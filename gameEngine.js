@@ -951,7 +951,8 @@
       if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
       const t = applyTransition(node, player, c.x, c.y);
       if (!t.ok) continue;
-      const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1);
+            const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1,
+        { move: { x: c.x, y: c.y }, cells: forcedTac || null });
       if (sc.aborted) return 0;
       if (value === null || (maximizing ? childVal > value : childVal < value)) value = childVal;
       if (maximizing) alpha = Math.max(alpha, value);
