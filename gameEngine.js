@@ -792,10 +792,15 @@
     return kept.concat(rest);
   }
 
-  function tacticalCandidates(node, diff){
+  // sc (необязательный) — бюджет поиска A04: генерация проверяет его на
+  // каждой строке доски в обоих проходах; при исчерпании возвращает [] и
+  // оставляет sc.aborted = true (stopAt = 'tactical-gen'), узел отбрасывается.
+  function tacticalCandidates(node, diff, sc){
     const { rows, cols, state } = node;
     const out = new Map();
     if (node.gameOver) return [];
+    const over = () => !!(sc && sc.clock && budgetExceeded(sc, 'tactical-gen'));
+    if (over()) return [];
     const fullScan = (diff && diff.tacticalFullScan === true) || fillEndsNext(node);
     const player = node.current;
     const opp = player === 1 ? 2 : 1;
