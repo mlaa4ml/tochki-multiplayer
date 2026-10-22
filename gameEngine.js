@@ -632,10 +632,15 @@
     // A08: стратегические кандидаты (разрывы контуров/выходы, дальние зоны);
     // diff.strategic === false — отключить (ablation).
     if (diff.strategic !== false && node.stonesPlacedTotal >= 2){
-      const seen = new Set(cand.map(c => c.y*cols + c.x));
+      // Стратегические ходы помечаются (strategic/zone), чтобы
+      // reserveStrategic гарантированно сохранил их при обрезке beam.
+      const byK = new Map(cand.map(c => [c.y*cols + c.x, c]));
       for (const s of strategicCandidates(node)){
         const k = s.y*cols + s.x;
-        if (!seen.has(k)){ seen.add(k); cand.push({ x: s.x, y: s.y }); }
+        let c = byK.get(k);
+        if (!c){ c = { x: s.x, y: s.y }; byK.set(k, c); cand.push(c); }
+        c.strategic = true;
+        if (s.zone) c.zone = true;
       }
     }
     cand = cand.filter(c => isTransitionLegal(node, c.x, c.y));
