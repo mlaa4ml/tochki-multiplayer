@@ -94,6 +94,22 @@ function flankStones(){
   check(has(c, 2, 9), 'второй захват сохранён при cap=1: ' + J(c.map(key)));
 }
 
+// 4a. Защита НИЧЬЕЙ от немедленного поражения. Порог заполнения 20% на 5×5
+// (цель 5 клеток, занято 4): любой ход завершает партию. Соперник (1) ходом
+// (2,3) пленил бы точку 2 и выиграл по очкам; ход 2 в другую клетку сразу
+// кончает партию вничью — это защита и она обязана сохраниться до поиска.
+{
+  const node = makeNode(5, 5, [[1,2,1],[3,2,1],[2,1,1],[2,2,2]], 2, { targetFillPercent: 20 });
+  const tac = E.tacticalCandidates(node, diff);
+  const o = E.applyTransition(Object.assign({}, node, { current: 1 }), 1, 2, 3);
+  check(o.ok && o.node.gameOver && o.node.winner === 1, 'соперник выигрывал бы ходом (2,3): ' + J(o.ok && o.node.winner));
+  const t = E.applyTransition(node, 2, 0, 0);
+  check(t.ok && t.node.gameOver && t.node.winner !== 1 && t.node.winner !== 2, 'ход (0,0) кончает партию вничью: ' + J(t.ok && t.node.winner));
+  check(has(tac, 0, 0, 'defend'), 'ничья (0,0) помечена defend: ' + J(tac));
+  const c = E.searchCandidates(node, diff, 1);
+  check(has(c, 0, 0), 'защита ничьей сохранена при cap=1: ' + J(c.map(key)));
+}
+
 // 4b. Стратегические кандидаты: путь выхода к краю. Точка 2 в (8,6) зажата
 // с трёх сторон, единственная свобода (8,7); кратчайший путь к краю — вниз
 // до y=11. Первые две клетки пути (8,7) и (8,8) — стратегические кандидаты.
