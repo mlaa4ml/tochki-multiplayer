@@ -311,7 +311,8 @@ function runBenchmark(opts){
           const rng = makeRng(runSeed);
           const order = openings.slice();
           for (let k = order.length - 1; k > 0; k--){ const j = Math.floor(rng() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
-          const cfg = { difficulty, nodeLimit: opts.nodeLimit, maxMoves: opts.maxMoves, maxMs: opts.maxMs, run };
+                    const cfg = { difficulty, nodeLimit: opts.nodeLimit, maxMoves: opts.maxMoves, maxMs: opts.maxMs, run,
+            candOverride: opts.candOverride || null, oppOverride: opts.oppOverride || null };
           const runPairs = [];
           for (const o of order){
             const pos = derivePosition(o, run, runSeed, runPlies);
