@@ -839,12 +839,12 @@
     const cells = new Set();
     const addCell = (x, y) => { if (x>=0 && y>=0 && x<cols && y<rows) cells.add(y*cols + x); };
     if (hint.move){
-      for (let dy=-2; dy<=2; dy++) for (let dx=-2; dx<=2; dx++) addCell(hint.move.x+dx, hint.move.y+dy);
+      for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++) addCell(hint.move.x+dx, hint.move.y+dy);
     }
     if (hint.cells) for (const c of hint.cells) addCell(c.x, c.y);
     for (const p of [1, 2]){
       for (const g of computeGroupLiberties(state, rows, cols, p)){
-        if (g.liberties > 2) continue;
+        if (g.liberties > 1) continue;
         for (const k of g.libCells) cells.add(k);
       }
     }
