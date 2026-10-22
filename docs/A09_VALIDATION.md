@@ -123,3 +123,111 @@
 - Для вывода нужен целевой корпус (узкие выходы, гонки, `targetScore > 0`) и полный прогон.
 - Подбор веса `edgeEscape` и оптимизация поиска отложены: это B04 и B05.
 - Для полного вывода нужен прогон большего объёма: `--runs 3`, sizes small,medium, difficulties normal,strong. Он не укладывается в лимит времени среды агента.
+
+
+## Дополнительно: A07 для endgameScore на корпусе с порогом по очкам
+
+В основном корпусе A07 для пройденных дебютов `targetScore=0`, поэтому `endgameScore` не включался. Сделан подкорпус `tools/bench/corpus/a09-score3.v1.json` — только дебюты openings.v1 с `targetScore=3` (9 на поле). Прогон: `node tools/bench/benchmark.js --corpus tools/bench/corpus/a09-score3.v1.json --candidate tools/bench/candidates/a09-endgameScore.json --quick --split validation --sizes small --difficulties normal --max-pairs 4 --out tools/bench/reports/a09-bench-endgameScore-score3.json`.
+
+Сводка отчёта:
+
+```json
+{
+ "format": "tochki-bench-report",
+ "benchVersion": 1,
+ "runnerVersion": 1,
+ "createdAt": "2026-10-22T09:58:30.956Z",
+ "code": {
+  "commit": "fd2cc95408b2ac27dc63376a5b7f082377bfcb26",
+  "engineVersion": "tochki-rules-1",
+  "botVersion": "tochki-ab-1",
+  "weightsVersion": "tochki-weights-1"
+ },
+ "corpus": {
+  "version": 1,
+  "seed": 20240612,
+  "split": "validation"
+ },
+ "params": {
+  "sizes": [
+   "small"
+  ],
+  "difficulties": [
+   "normal"
+  ],
+  "nodeLimit": 600,
+  "runs": 1,
+  "seed": 12345,
+  "maxMoves": 120,
+  "maxMs": 0,
+  "bootstrap": 2000,
+  "maxPairs": 4,
+  "candOverride": null,
+  "oppOverride": null,
+  "difficultyParams": {
+   "normal": {
+    "radius": 2,
+    "candidateCap": 10,
+    "timeLimit": 220,
+    "maxDepth": 3,
+    "branchWide": 5,
+    "branchMid": 4,
+    "branchNarrow": 3,
+    "quiescenceExt": 2
+   }
+  },
+  "runPlies": 2
+ },
+ "candidate": {
+  "id": "a09-endgameScore.json",
+  "weights": {
+   "potential": 6,
+   "cohesion": 1.2,
+   "stones": 0.15,
+   "liberty": 5,
+   "endgameScore": 1
+  }
+ },
+ "pool": [
+  {
+   "id": "baseline",
+   "weights": {
+    "potential": 6,
+    "cohesion": 1.2,
+    "stones": 0.15,
+    "liberty": 5
+   }
+  },
+  {
+   "id": "no-liberty",
+   "weights": {
+    "potential": 6,
+    "cohesion": 1.2,
+    "stones": 0.15,
+    "liberty": 0
+   }
+  },
+  {
+   "id": "territory-heavy",
+   "weights": {
+    "potential": 10,
+    "cohesion": 0.6,
+    "stones": 0.1,
+    "liberty": 5
+   }
+  }
+ ],
+ "acceptance": {
+  "rule": "lower bound of 95% pair-bootstrap CI of candidate score vs baseline > 0.5, and zero correctness errors (invalid moves / replay mismatch)",
+  "correctnessErrors": 0,
+  "accepted": false,
+  "note": "Только отчёт: benchmark не публикует и не сохраняет веса."
+ },
+ "configs": [
+  {
+   "sizeKey": "small",
+   "difficulty": "normal",
+   "opp
+```
+
+Выборка маленькая (4 пары, 1 прогон), поэтому признак остаётся выключенным по умолчанию; для решения нужен полный прогон на этом подкорпусе (`--runs 3`, small+medium, normal+strong).
