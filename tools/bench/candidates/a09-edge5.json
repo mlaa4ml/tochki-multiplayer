@@ -1,0 +1,4 @@
+{
+  "note": "A09 (#14): BOT_WEIGHTS по умолчанию + edgeEscape=5. Только для ablation/A07, не включено по умолчанию.",
+  "weights": { "potential": 6, "cohesion": 1.2, "stones": 0.15, "liberty": 5, "edgeEscape": 5 }
+}
