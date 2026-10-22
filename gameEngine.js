@@ -1571,7 +1571,7 @@
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
     OPENING_ZONE_SIDE, getOpeningZone, inZone,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
-    generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
+    generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, computeEdgeEscape, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
