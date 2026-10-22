@@ -207,11 +207,16 @@ function rng(seed){ let s = seed >>> 0; return () => { s = (s * 1664525 + 101390
       if (!has(oldSet, m.x, m.y)) missedOld++;
       if (!has(newSet, m.x, m.y)) missedNew++;
     }
-    if (ref.length <= diff.candidateCap * 2){
-      for (const m of ref) check(has(newSet, m.x, m.y), 'seed=' + seed + ': обязательный ход ' + key(m) + ' сохранён');
-    } else overflow++;
+    // Обязательные ходы НЕ обрезаются никогда (даже при переполнении beam).
+    if (ref.length > diff.candidateCap) overflow++;
+    for (const m of ref) check(has(newSet, m.x, m.y), 'seed=' + seed + ': обязательный ход ' + key(m) + ' сохранён');
   }
   check(mismatch === 0, 'отсечение по соседству совпадает с полным перебором (' + mismatch + ' расхождений)');
+  check(bruteDefFalse === 0, 'все defend движка подтверждены полным перебором ответов (' + bruteDefFalse + ' ложных)');
+  check(bruteDefTotal > 0, 'в корпусе есть защиты по полному перебору: ' + bruteDefTotal);
+  console.log('защиты (полный перебор ходов × ответов соперника): клеток угроз ' + bruteBlocks +
+    ', защит ' + bruteDefTotal + ', пропущено движком ' + bruteDefMissedEngine +
+    ', вне beam до A08 ' + bruteDefMissedOld + ', ложных defend ' + bruteDefFalse);
   check(positions >= 30, 'достаточно позиций: ' + positions);
   const pct = n => (refMoves ? (100 * n / refMoves).toFixed(1) : '0') + '%';
   console.log('корпус: позиций', positions, 'обязательных ходов', refMoves,
