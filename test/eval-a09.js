@@ -13,6 +13,16 @@ function board(p1 = [], p2 = []){
   return s;
 }
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
+// computeScores не экспортируется движком — повторяем классический счёт:
+// очко даёт только пленённая точка противника.
+E.computeScores = E.computeScores || function (state, rows, cols){
+  const sc = { 1: 0, 2: 0 };
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++){
+    const st = state.stone[y][x], d = state.dead[y][x];
+    if (st !== 0 && d !== 0 && d !== st) sc[d] += 1;
+  }
+  return sc;
+};
 let passed = 0;
 function t(name, fn){ fn(); passed++; console.log('ok -', name); }
 
