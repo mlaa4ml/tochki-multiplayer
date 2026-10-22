@@ -766,8 +766,11 @@
   function searchCandidates(node, diff, cap, sc, tac){
     const base = legalCandidates(node, diff);
     if (diff.tactical === false) return base.slice(0, cap);
-    if (!tac) tac = tacticalCandidates(node, diff);
+    if (!tac) tac = tacticalCandidates(node, diff, sc);
     if (sc) sc.tacticalScans = (sc.tacticalScans || 0) + 1;
+    // Бюджет исчерпан во время генерации: набор неполон, вызывающий
+    // поиск отбросит узел (sc.aborted) — возвращаем прежний beam.
+    if (sc && sc.aborted) return base.slice(0, cap);
     if (!tac.length) return base.slice(0, cap);
     const { state, rows, cols } = node;
     const byKey = new Map(base.map(c => [c.y*cols + c.x, c]));
