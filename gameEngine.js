@@ -756,7 +756,7 @@
         for (let y=y0; y<=y1 && empty; y++)
           for (let x=x0; x<=x1 && empty; x++)
             if (state.stone[y][x] !== 0 || state.territory[y][x] !== 0) empty = false;
-        if (empty && x1 >= x0 && y1 >= y0) add(Math.floor((x0+x1)/2), Math.floor((y0+y1)/2));
+        if (empty && x1 >= x0 && y1 >= y0) add(Math.floor((x0+x1)/2), Math.floor((y0+y1)/2), true);
       }
     }
     return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
