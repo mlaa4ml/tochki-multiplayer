@@ -28,7 +28,12 @@ const VARIANTS = {
   noLiberty: Object.assign({}, B, { liberty: 0 }),
   edge2: Object.assign({}, B, { edgeEscape: 2 }),
   edge5: Object.assign({}, B, { edgeEscape: 5 }),
-  'edge5-noLiberty': Object.assign({}, B, { liberty: 0, edgeEscape: 5 })
+    'edge5-noLiberty': Object.assign({}, B, { liberty: 0, edgeEscape: 5 }),
+  // A09 шаги 2-5: каждый признак отдельно (по одному поверх base).
+  closeCost10: Object.assign({}, B, { closeCost: 10 }),
+  captureRace30: Object.assign({}, B, { captureRace: 30 }),
+  phase1: Object.assign({}, B, { phase: 1 }),
+  endgameScore1: Object.assign({}, B, { endgameScore: 1 })
 };
 
 function q(arr, p){
