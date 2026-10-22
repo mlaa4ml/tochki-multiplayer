@@ -795,12 +795,15 @@
     const k = c => c.x + ',' + c.y;
     const inSel = new Set(sel.map(k));
     const have = sel.filter(c => c.strategic).length;
+    const haveZ = sel.filter(c => c.zone).length;
     const zones = base.filter(c => c.zone && !inSel.has(k(c)));
     const others = base.filter(c => c.strategic && !c.zone && !inSel.has(k(c)));
     const picks = [];
+    // Квота зон считается отдельно: локальные выходы, уже попавшие в beam,
+    // не должны вытеснять представителей дальних областей.
     const zcap = Math.ceil(R/2);
     let zi = 0;
-    while (zi < zones.length && picks.length < zcap && have + picks.length < R) picks.push(zones[zi++]);
+    while (zi < zones.length && haveZ + zi < zcap) picks.push(zones[zi++]);
     for (const o of others){ if (have + picks.length >= R) break; picks.push(o); }
     while (zi < zones.length && have + picks.length < R) picks.push(zones[zi++]);
     if (!picks.length) return sel;
