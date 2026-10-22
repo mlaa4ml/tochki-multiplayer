@@ -526,9 +526,43 @@
         - computeEdgeEscape(state, rows, cols, opponent);
     }
 
-    return capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential + cohesionDiff*weights.cohesion
+    // A09 шаг 2: closeCost — разница угроз «закрыть за 1 ход» (стоимость
+    // закрытия для нас минус стоимость выхода/угроза соперника).
+    // A09 шаг 3: captureRace — если ОБЕ стороны могут пленить за ход, гонку
+    // выигрывает тот, чей ход (ctx.current). Тактика — вне демпфирования формы.
+    let closeDiff = 0, raceVal = 0;
+    if (weights.closeCost || (weights.captureRace && ctx)){
+      const myT = closeInOneThreat(state, rows, cols, forPlayer);
+      const opT = closeInOneThreat(state, rows, cols, opponent);
+      if (weights.closeCost) closeDiff = myT - opT;
+      if (weights.captureRace && ctx && myT > 0 && opT > 0){
+        raceVal = ctx.current === forPlayer ? myT : -opT;
+      }
+    }
+    // A09 шаг 4: phase — потенциал территории обесценивается по мере
+    // заполнения доски (поздно строить, важнее реальные пленения).
+    let potScale = 1;
+    if (weights.phase){
+      let filled = 0;
+      for (let y=0; y<rows; y++) for (let x=0; x<cols; x++) if (stone[y][x] !== 0) filled++;
+      potScale = Math.max(0, 1 - weights.phase * filled / (rows*cols));
+    }
+
+    let v = capturedDiff*CAPTURED_WEIGHT + potentialDiff*weights.potential*potScale + cohesionDiff*weights.cohesion
       + stoneDiff*weights.stones + libertyDiff*(weights.liberty || 0)
-      + edgeDiff*(weights.edgeEscape || 0);
+      + edgeDiff*(weights.edgeEscape || 0) + closeDiff*(weights.closeCost || 0);
+
+    // A09 шаг 5: endgameScore — у порога окончания по очкам (до цели <= 2)
+    // все признаки формы демпфируются, остаётся итоговый счёт (CAPTURED_WEIGHT).
+    if (weights.endgameScore && ctx && ctx.rules && ctx.rules.scoreRuleActive){
+      const sc = ctx.scores || computeScores(state, rows, cols);
+      const left = ctx.rules.targetScore - Math.max(sc[1], sc[2]);
+      if (left <= 2){
+        const keep = Math.max(0, 1 - weights.endgameScore);
+        v = capturedDiff*CAPTURED_WEIGHT + (v - capturedDiff*CAPTURED_WEIGHT) * keep;
+      }
+    }
+    return v + raceVal*(weights.captureRace || 0);
   }
 
   function branchFactorForDepth(diff, depth){
