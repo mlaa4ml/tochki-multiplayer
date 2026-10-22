@@ -376,7 +376,89 @@
     return urgent;
   }
 
-  function evaluateStatic(state, rows, cols, forPlayer, weights){
+    // A09: components of the complement of the capturer's walls, exactly as
+  // in runCaptures. Value counts enemy prisoners AND recoverable own stones,
+  // never empty area. Border contacts are a pressure proxy, not a move count.
+  function enclosureRegions(state, rows, cols, player){
+    const seen = new Set(), regions = [], opponent = 3-player;
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      const key = y*cols+x;
+      if (seen.has(key) || isWall(state,x,y,player)) continue;
+      const stack = [[x,y]], cells = [], border = [];
+      let enemies = 0, recoverable = 0;
+      seen.add(key);
+      while (stack.length){
+        const [cx,cy] = stack.pop();
+        cells.push({x:cx,y:cy});
+        if (!cx || !cy || cx===cols-1 || cy===rows-1) border.push({x:cx,y:cy});
+        if (state.stone[cy][cx]===opponent && !state.dead[cy][cx]) enemies++;
+        if (state.stone[cy][cx]===player && state.dead[cy][cx]===opponent) recoverable++;
+        for (const [dx,dy] of DIRS4){
+          const nx=cx+dx, ny=cy+dy, k=ny*cols+nx;
+          if (nx<0 || ny<0 || nx>=cols || ny>=rows || seen.has(k) || isWall(state,nx,ny,player)) continue;
+          seen.add(k); stack.push([nx,ny]);
+        }
+      }
+      regions.push({cells,border,enemies,recoverable,value:enemies+recoverable});
+    }
+    return regions;
+  }
+
+  function edgePressure(state, rows, cols, player){
+    return enclosureRegions(state,rows,cols,player).reduce((sum,r) =>
+      sum + (r.enemies && r.border.length ? r.value/(1+r.border.length) : 0), 0);
+  }
+
+  // Exact bounded closure cost: best score swing achievable in ONE legal
+  // transition. No assumption that filling a liberty or border cell captures.
+  // All legal cells are considered, including interior corridor bottlenecks.
+  // Turn is hypothetical for threats, but opening/suicide/extra-turn/end rules
+  // are retained. Costs beyond one ply are deliberately not estimated.
+  function closureThreat(node, player){
+    const turn = {...node,current:player};
+    const before = node.scores[player]-node.scores[3-player];
+    let gain = 0;
+    const moves = [];
+    for (let y=0; y<node.rows; y++) for (let x=0; x<node.cols; x++){
+      if (!isTransitionLegal(turn,x,y)) continue;
+      const t = applyTransition(turn,player,x,y);
+      const delta = t.node.scores[player]-t.node.scores[3-player]-before;
+      if (delta>0) moves.push({x,y,gain:delta});
+      gain = Math.max(gain,delta);
+    }
+    return {gain,moves};
+  }
+
+  // Independent, gated experiments. Missing/zero weights preserve the legacy
+  // evaluation and avoid ALL regional/transition work. Not tuned defaults.
+  function enclosureFeatures(node, weights){
+    const {state,rows,cols} = node;
+    const out = {edgeEscape:0,closeCost:0,captureRace:0,phase:0,endgameScore:0};
+    if (weights.edgeEscape) out.edgeEscape = edgePressure(state,rows,cols,1)-edgePressure(state,rows,cols,2);
+    if (weights.closeCost || weights.captureRace){
+      const a = closureThreat(node,1), b = closureThreat(node,2);
+      out.closeCost = a.gain-b.gain;
+      // Race proxy only when BOTH fronts can score now. Extra turns are
+      // resolved by the search transition; this is not a solved race.
+      if (a.gain && b.gain) out.captureRace = node.current===1 ? a.gain : -b.gain;
+    }
+    if (weights.phase){
+      const p = computeTerritoryPotential(state,rows,cols);
+      const filled = countFilledCells(state,rows,cols)/(rows*cols);
+      // Remove progressively the old reward for empty enclosed space.
+      out.phase = -(p[1]-p[2])*filled;
+    }
+    if (weights.endgameScore){
+      const r = node.rules;
+      const nearScore = r.scoreRuleActive && r.targetScore-Math.max(node.scores[1],node.scores[2])<=2;
+      const endCells = r.fillRuleActive ? Math.ceil(rows*cols*r.targetFillPercent/100) : rows*cols;
+      const nearFill = endCells-countFilledCells(state,rows,cols)<=2;
+      out.endgameScore = nearScore || nearFill ? 1 : 0;
+    }
+    return out;
+  }
+
+  function evaluateStatic(state, rows, cols, forPlayer, weights, node){
     const { stone, dead, territory } = state;
     const opponent = forPlayer === 1 ? 2 : 1;
     const captured = {1:0, 2:0};
