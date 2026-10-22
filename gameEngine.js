@@ -702,6 +702,46 @@
         for (const k of g.libCells) add(k % cols, Math.floor(k / cols));
       }
     }
+    // Пути выхода к краю: для групп обеих сторон с <=6 свободами — кратчайший
+    // путь по пустым клеткам от свобод группы до края доски (multi-source BFS).
+    // Кандидаты — первые две клетки пути: свой выход из окружения либо
+    // перекрытие выхода соперника. Группы, уже не имеющие пути к краю, пропускаются.
+    // Обрабатываются не более 6 групп с наименьшим числом свобод (бюджет генерации).
+    const free = (x, y) => state.stone[y][x] === 0 && state.territory[y][x] === 0;
+    const onEdge = (x, y) => x === 0 || y === 0 || x === cols-1 || y === rows-1;
+    let escGroups = [];
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 0 && g.liberties <= 6) escGroups.push(g);
+      }
+    }
+    escGroups.sort((a, b) => a.liberties - b.liberties);
+    escGroups = escGroups.slice(0, 6);
+    for (const g of escGroups){
+      const prev = new Int32Array(rows*cols).fill(-2);
+      const q = [];
+      for (const k of g.libCells){
+        const x = k % cols, y = Math.floor(k / cols);
+        if (free(x, y) && prev[k] === -2){ prev[k] = -1; q.push(k); }
+      }
+      let hit = -1;
+      for (let i=0; i<q.length; i++){
+        const k = q[i], x = k % cols, y = Math.floor(k / cols);
+        if (onEdge(x, y)){ hit = k; break; }
+        for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const nx = x+dx, ny = y+dy;
+          if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+          const nk = ny*cols + nx;
+          if (prev[nk] !== -2 || !free(nx, ny)) continue;
+          prev[nk] = k; q.push(nk);
+        }
+      }
+      if (hit < 0) continue;
+      const path = [];
+      for (let k = hit; k !== -1; k = prev[k]) path.push(k);
+      path.reverse();
+      for (const k of path.slice(0, 2)) add(k % cols, Math.floor(k / cols));
+    }
     for (let zy=0; zy<3; zy++){
       for (let zx=0; zx<3; zx++){
         const x0 = Math.floor(zx*cols/3), x1 = Math.floor((zx+1)*cols/3) - 1;
