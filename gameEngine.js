@@ -810,15 +810,61 @@
             if (countCaptured(t.result.gained) > 0) add(x, y, 'capture');
           }
         }
-        if (isTransitionLegal(oppNode, x, y) && isTransitionLegal(node, x, y)){
-          const t = applyTransition(oppNode, opp, x, y);
-          if (t.ok && ((t.node.gameOver && t.node.winner === opp) || countCaptured(t.result.gained) > 0)){
-            add(x, y, 'block');
+        if (isTransitionLegal(oppNode, x, y)){
+          const g = oppThreatGain(oppNode, opp, x, y);
+          if (g > 0){
+            threats.push(y*cols + x);
+            if (g > oldMax) oldMax = g;
+            if (isTransitionLegal(node, x, y)) add(x, y, 'block');
           }
         }
       }
     }
+    // A08: 'defend' — ПРОВЕРЕННАЯ защита по полным правилам. Для каждого
+    // легального хода делается переход, затем для соперника заново считается
+    // лучший немедленный выигрыш (победа = Infinity, иначе число пленённых
+    // точек) на клетках прежних угроз и в окрестности радиуса 2 нашего хода
+    // (только там наш ход может создать новую угрозу). Ход помечается
+    // 'defend', если немедленная потеря после него строго меньше, чем без него
+    // (включая ходы не на клетке угрозы: захват атакующих точек, перекрытие).
+    // Захват с доп. ходом (соперник сейчас не ходит) и собственная победа
+    // также считаются защитой. diff.tacticalDefend === false — выключить.
+    if (threats.length && !(diff && diff.tacticalDefend === false)){
+      for (let y=0; y<rows; y++){
+        for (let x=0; x<cols; x++){
+          if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
+          if (!isTransitionLegal(node, x, y)) continue;
+          const t = applyTransition(node, player, x, y);
+          if (!t.ok) continue;
+          if (t.node.gameOver){ if (t.node.winner === player) add(x, y, 'defend'); continue; }
+          if (t.node.current !== opp){ add(x, y, 'defend'); continue; }
+          const check = new Set(threats);
+          for (let dy=-2; dy<=2; dy++) for (let dx=-2; dx<=2; dx++){
+            const nx = x+dx, ny = y+dy;
+            if (nx>=0 && ny>=0 && nx<cols && ny<rows) check.add(ny*cols + nx);
+          }
+          let newMax = 0;
+          for (const k of check){
+            const cx = k % cols, cy = Math.floor(k / cols);
+            if (!isTransitionLegal(t.node, cx, cy)) continue;
+            const g = oppThreatGain(t.node, opp, cx, cy);
+            if (g > newMax) newMax = g;
+            if (newMax >= oldMax) break;
+          }
+          if (newMax < oldMax) add(x, y, 'defend');
+        }
+      }
+    }
     return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
+  // Немедленный выигрыш соперника ходом (x,y) из узла, где он ходит:
+  // Infinity — победа, иначе число пленённых точек (0 — угрозы нет).
+  function oppThreatGain(oppNode, opp, x, y){
+    const t = applyTransition(oppNode, opp, x, y);
+    if (!t.ok) return 0;
+    if (t.node.gameOver && t.node.winner === opp) return Infinity;
+    return countCaptured(t.result.gained);
   }
 
     // A08: обязательная тактика во ВНУТРЕННИХ узлах и продлениях. Полный скан
