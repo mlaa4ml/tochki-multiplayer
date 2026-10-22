@@ -776,6 +776,43 @@
   // сразу после генерации). diff.tactical === false — прежнее поведение (ablation).
   function searchCandidates(node, diff, cap, sc, tac){
     const base = legalCandidates(node, diff);
+    return reserveStrategic(searchCandidatesCore(node, diff, cap, sc, tac, base), base, cap, diff);
+  }
+
+  // A08: ГАРАНТИЯ сохранения стратегических кандидатов до поиска. Без неё
+  // локальный quickScore вытесняет из beam дальние области и выходы к краю.
+  // Резервируется R = diff.strategicReserve мест (по умолчанию max(2, ceil(cap/3))):
+  // сначала до ceil(R/2) представителей пустых зон доски (дальние фланги),
+  // затем разрывы контуров и пути выхода к краю по quickScore, затем
+  // оставшиеся зоны. Место освобождается вытеснением ОБЫЧНЫХ ходов с конца.
+  // Обязательная тактика не вытесняется никогда: если весь beam занят ею,
+  // beam расширяется. diff.strategic === false или strategicReserve = 0 — выкл.
+  function reserveStrategic(sel, base, cap, diff){
+    if (diff.strategic === false) return sel;
+    const R = Number.isInteger(diff.strategicReserve) && diff.strategicReserve >= 0
+      ? diff.strategicReserve : Math.max(2, Math.ceil(cap/3));
+    if (!R) return sel;
+    const k = c => c.x + ',' + c.y;
+    const inSel = new Set(sel.map(k));
+    const have = sel.filter(c => c.strategic).length;
+    const zones = base.filter(c => c.zone && !inSel.has(k(c)));
+    const others = base.filter(c => c.strategic && !c.zone && !inSel.has(k(c)));
+    const picks = [];
+    const zcap = Math.ceil(R/2);
+    let zi = 0;
+    while (zi < zones.length && picks.length < zcap && have + picks.length < R) picks.push(zones[zi++]);
+    for (const o of others){ if (have + picks.length >= R) break; picks.push(o); }
+    while (zi < zones.length && have + picks.length < R) picks.push(zones[zi++]);
+    if (!picks.length) return sel;
+    const out = sel.slice();
+    let over = out.length + picks.length - cap;
+    for (let i = out.length - 1; i >= 0 && over > 0; i--){
+      if (!out[i].tactical && !out[i].strategic){ out.splice(i, 1); over--; }
+    }
+    return out.concat(picks);
+  }
+
+  function searchCandidatesCore(node, diff, cap, sc, tac, base){
     if (diff.tactical === false) return base.slice(0, cap);
     if (!tac) tac = tacticalCandidates(node, diff, sc);
     if (sc) sc.tacticalScans = (sc.tacticalScans || 0) + 1;
