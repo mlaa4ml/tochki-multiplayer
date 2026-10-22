@@ -679,7 +679,7 @@
     return countFilledCells(node.state, node.rows, node.cols) + 1 >= target;
   }
 
-  const TACTICAL_RANK = { win: 0, capture: 1, block: 2 };
+  const TACTICAL_RANK = { win: 0, capture: 1, defend: 2, block: 3 };
   function tacticalRank(c){
     let r = 9;
     for (const k of c.kinds) if (TACTICAL_RANK[k] < r) r = TACTICAL_RANK[k];
