@@ -913,6 +913,12 @@
       if (tacOn && diff.tacticalExtScan === true){
         forcedTac = tacticalCandidates(node, diff);
         forced = forcedTac.length > 0 || hasUrgentAtari(state, rows, cols, player);
+      } else if (tacOn && tacInternal){
+        // A08: продление решается по обязательной тактике полных правил
+        // (инкрементальный скан), а не только по локальным liberties.
+        forcedTac = tacticalCandidatesLocal(node, diff, hint);
+        forced = forcedTac.length > 0 || hasForcingCapture(state, rows, cols, player, diff)
+          || hasUrgentAtari(state, rows, cols, player);
       } else {
         forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
       }
@@ -921,6 +927,12 @@
     }
     const searchDepth = depth > 0 ? depth : 1;
     const bf = branchFactorForDepth(diff, searchDepth);
+    // A08: во внутренних узлах обязательная тактика по умолчанию тоже
+    // сохраняется до обрезки branchFactor (инкрементальный скан от родителя).
+    if (tacOn && tacInternal && !forcedTac && ply > tacPly){
+      if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
+      forcedTac = tacticalCandidatesLocal(node, diff, hint);
+    }
     const useTac = tacOn && (ply <= tacPly || forcedTac);
     const candidates = useTac ? searchCandidates(node, diff, bf, sc, forcedTac)
       : legalCandidates(node, diff).slice(0, bf);
