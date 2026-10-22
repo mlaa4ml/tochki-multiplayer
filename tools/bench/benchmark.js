@@ -243,8 +243,13 @@ function points(winner, seat){ return winner === 0 ? 0.5 : (winner === seat ? 1 
 function playPair(opening, cand, opp, cfg, jsonlOut){
   const games = [];
   for (const candSeat of [1, 2]){
-    const pCand = Runner.makeSearchPlayer(Engine, { difficulty: cfg.difficulty, nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: cand.weights });
-    const pOpp = Runner.makeSearchPlayer(Engine, { difficulty: cfg.difficulty, nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: opp.weights });
+    // A08 (issue #13): candOverride/oppOverride — флаги поиска поверх
+    // DIFFICULTY[cfg.difficulty] (например, {tactical:false,strategic:false}).
+    // Позволяет сравнить ДВА ВАРИАНТА КОДА в одном прогоне на одной ветке,
+    // а не только веса (при равных весах и одном коде счёт всегда ровно 0.5).
+    const diffFor = (over) => over ? Object.assign({}, Engine.DIFFICULTY[cfg.difficulty], over) : cfg.difficulty;
+    const pCand = Runner.makeSearchPlayer(Engine, { difficulty: diffFor(cfg.candOverride), nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: cand.weights });
+    const pOpp = Runner.makeSearchPlayer(Engine, { difficulty: diffFor(cfg.oppOverride), nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: opp.weights });
     const players = candSeat === 1 ? { 1: pCand, 2: pOpp } : { 1: pOpp, 2: pCand };
     const { result, lines } = Runner.playGame(Engine, { rules: opening.rules, prefix: opening.prefix, players,
       maxMoves: cfg.maxMoves, maxMs: cfg.maxMs,
@@ -282,7 +287,8 @@ function runBenchmark(opts){
     createdAt: new Date().toISOString(), code: { commit: codeVersion(), engineVersion: Engine.ENGINE_VERSION, botVersion: Engine.BOT_VERSION, weightsVersion: Engine.WEIGHTS_VERSION },
     corpus: { version: opts.corpus.version, seed: opts.corpus.seed, split: opts.split },
     params: { sizes: opts.sizes, difficulties: opts.difficulties, nodeLimit: opts.nodeLimit, runs: opts.runs, seed: opts.seed,
-      maxMoves: opts.maxMoves, maxMs: opts.maxMs, bootstrap: opts.bootstrap, maxPairs: opts.maxPairs || null,
+            maxMoves: opts.maxMoves, maxMs: opts.maxMs, bootstrap: opts.bootstrap, maxPairs: opts.maxPairs || null,
+      candOverride: opts.candOverride || null, oppOverride: opts.oppOverride || null,
       difficultyParams: Object.fromEntries(opts.difficulties.map(d => [d, Engine.DIFFICULTY[d]])) },
     candidate: opts.candidate, pool: opts.pool,
     acceptance: { rule: 'lower bound of 95% pair-bootstrap CI of candidate score vs baseline > 0.5, and zero correctness errors (invalid moves / replay mismatch)' },
@@ -306,7 +312,8 @@ function runBenchmark(opts){
           const rng = makeRng(runSeed);
           const order = openings.slice();
           for (let k = order.length - 1; k > 0; k--){ const j = Math.floor(rng() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
-          const cfg = { difficulty, nodeLimit: opts.nodeLimit, maxMoves: opts.maxMoves, maxMs: opts.maxMs, run };
+                    const cfg = { difficulty, nodeLimit: opts.nodeLimit, maxMoves: opts.maxMoves, maxMs: opts.maxMs, run,
+            candOverride: opts.candOverride || null, oppOverride: opts.oppOverride || null };
           const runPairs = [];
           for (const o of order){
             const pos = derivePosition(o, run, runSeed, runPlies);
@@ -330,6 +337,8 @@ function runBenchmark(opts){
             }
             runPairs.push(pts / 2);
             clusters.get(ckey).push(pts / 2);
+            // A08: прогресс после каждой пары — оборванный прогон не теряет всё.
+            if (opts.progress) console.error(`pair ${sizeKey}/${difficulty}/${opp.id} run=${run} ${pos.id}: ${pts / 2} (W/D/L ${g.W}/${g.D}/${g.L})`);
           }
           pairScores.push(...runPairs);
           runsOut.push({ run, seed: runSeed, pairs: runPairs.length, score: mean(runPairs) });
@@ -402,7 +411,15 @@ function parseArgs(argv){
     else if (a === '--out') o.out = v();
     else if (a === '--jsonl') o.jsonl = v();
     else if (a === '--candidate') o.candidate = v();
-    else if (a === '--gen-corpus') o.genCorpus = v();
+        else if (a === '--gen-corpus') o.genCorpus = v();
+    // A08 (issue #13): флаги поиска кандидата/соперника поверх DIFFICULTY, JSON.
+    // Пример: --cand-flags '{}' --opp-flags '{"tactical":false,"strategic":false}'
+    else if (a === '--cand-flags') o.candOverride = JSON.parse(v());
+    else if (a === '--opp-flags') o.oppOverride = JSON.parse(v());
+    else if (a === '--progress') o.progress = true;
+    // Короткий режим для ограниченных по времени сред: 1 прогон, 4 дебюта,
+    // nodeLimit=600, maxMoves=120. Явные флаги ПОСЛЕ --quick его переопределяют.
+    else if (a === '--quick'){ o.runs = 1; o.maxPairs = 4; o.nodeLimit = 600; o.maxMoves = 120; o.progress = true; }
     else if (a === '--full'){ o.split = 'test'; o.sizes = ['small', 'medium']; o.difficulties = ['normal', 'strong']; o.runs = 3; o.nodeLimit = 4000; }
     else throw new Error('unknown arg ' + a);
   }
@@ -426,7 +443,8 @@ function main(){
   const jsonl = a.jsonl ? [] : null;
   const report = runBenchmark({ corpus: loadJson(a.corpus), split: a.split, sizes: a.sizes, difficulties: a.difficulties,
     nodeLimit: a.nodeLimit, runs: a.runs, seed: a.seed, maxMoves: a.maxMoves, maxMs: a.maxMs, bootstrap: a.bootstrap,
-    maxPairs: a.maxPairs, candidate, pool, jsonl });
+        maxPairs: a.maxPairs, candidate, pool, jsonl,
+    candOverride: a.candOverride || null, oppOverride: a.oppOverride || null, progress: a.progress === true });
   const text = JSON.stringify(report, null, 2) + '\n';
   if (a.out){ fs.mkdirSync(path.dirname(a.out), { recursive: true }); fs.writeFileSync(a.out, text); console.log('report written:', a.out); }
   else process.stdout.write(text);

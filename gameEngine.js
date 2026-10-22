@@ -628,13 +628,367 @@
   function legalCandidates(node, diff){
     const { state, rows, cols } = node;
     const player = node.current;
-    const cand = generateCandidates(state, rows, cols, diff.radius)
-      .filter(c => isTransitionLegal(node, c.x, c.y));
+    let cand = generateCandidates(state, rows, cols, diff.radius);
+    // A08: стратегические кандидаты (разрывы контуров/выходы, дальние зоны);
+    // diff.strategic === false — отключить (ablation).
+    if (diff.strategic !== false && node.stonesPlacedTotal >= 2){
+      // Стратегические ходы помечаются (strategic/zone), чтобы
+      // reserveStrategic гарантированно сохранил их при обрезке beam.
+      const byK = new Map(cand.map(c => [c.y*cols + c.x, c]));
+      for (const s of strategicCandidates(node)){
+        const k = s.y*cols + s.x;
+        let c = byK.get(k);
+        if (!c){ c = { x: s.x, y: s.y }; byK.set(k, c); cand.push(c); }
+        c.strategic = true;
+        if (s.zone) c.zone = true;
+      }
+    }
+    cand = cand.filter(c => isTransitionLegal(node, c.x, c.y));
     const urgent = computeUrgentCells(state, rows, cols, player);
     cand.forEach(c => { c.q = quickScore(state, rows, cols, c.x, c.y, player, urgent); });
     // Детерминированный порядок: quickScore по убыванию, равенства — по y, затем по x.
     cand.sort((a,b) => (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
     return cand;
+  }
+
+    // A08 (issue #13): обязательные тактические кандидаты по ПОЛНЫМ правилам —
+  // находятся полным перебором легальных ходов узла ДО эвристической обрезки
+  // (generateCandidates/quickScore/candidateCap/branchFactor), поэтому не
+  // зависят от радиуса соседства и локальных liberties.
+  //   'win'     — ход сразу завершает партию победой ходящего (порог очков/заполнения);
+  //   'capture' — ход реально пленит точки соперника (runCaptures);
+  //   'block'   — клетка, которой соперник (если бы ходил сейчас) пленил бы
+  //               точки или выиграл: занять её — прямая защита от потери.
+  // Возвращает массив {x,y,kinds} в детерминированном порядке (y, затем x).
+  // Отсечение клеток без соседей (8-окрестность без точек/территории) корректно:
+  // такая точка — внутреннее препятствие одной и той же области, она не может
+  // замкнуть контур (ни для ходящего, ни для соперника). Исключение — партия
+  // кончается следующим ходом по заполнению: тогда «выигрывает» любой ход, и
+  // перебираются все клетки. diff.tacticalFullScan=true — всегда полный перебор
+  // (используется тестом сравнения с полным перебором).
+  function nearOccupied(state, rows, cols, x, y){
+    for (let dy=-1; dy<=1; dy++){
+      for (let dx=-1; dx<=1; dx++){
+        if (!dx && !dy) continue;
+        const nx=x+dx, ny=y+dy;
+        if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+        if (state.stone[ny][nx] !== 0 || state.territory[ny][nx] !== 0) return true;
+      }
+    }
+    return false;
+  }
+  function fillEndsNext(node){
+    const r = node.rules;
+    const total = node.rows*node.cols;
+    const target = r.fillRuleActive ? Math.ceil(total*r.targetFillPercent/100) : total;
+    return countFilledCells(node.state, node.rows, node.cols) + 1 >= target;
+  }
+
+  const TACTICAL_RANK = { win: 0, capture: 1, defend: 2, block: 3 };
+  function tacticalRank(c){
+    let r = 9;
+    for (const k of c.kinds) if (TACTICAL_RANK[k] < r) r = TACTICAL_RANK[k];
+    return r;
+  }
+
+  // A08: стратегические кандидаты вне радиуса соседства —
+  //  * разрывы контуров и пути выхода: свободы групп обеих сторон с <=3 свободами;
+  //  * разные области поля: центр каждой из 3×3 зон доски, в которой ещё нет
+  //    ни одной точки/территории (чтобы поиск видел ходы на дальних флангах).
+  // Возвращает только легальные ходы, порядок детерминирован (y, затем x).
+  function strategicCandidates(node){
+    const { state, rows, cols } = node;
+    const out = new Map();
+    if (node.gameOver) return [];
+        const add = (x, y, zone) => {
+      if (!isTransitionLegal(node, x, y)) return;
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (zone) e.zone = true; }
+      else out.set(k, zone ? { x, y, zone: true } : { x, y });
+    };
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 3) continue;
+        for (const k of g.libCells) add(k % cols, Math.floor(k / cols));
+      }
+    }
+    // Пути выхода к краю: для групп обеих сторон с <=6 свободами — кратчайший
+    // путь по пустым клеткам от свобод группы до края доски (multi-source BFS).
+    // Кандидаты — первые две клетки пути: свой выход из окружения либо
+    // перекрытие выхода соперника. Группы, уже не имеющие пути к краю, пропускаются.
+    // Обрабатываются не более 6 групп с наименьшим числом свобод (бюджет генерации).
+    const free = (x, y) => state.stone[y][x] === 0 && state.territory[y][x] === 0;
+    const onEdge = (x, y) => x === 0 || y === 0 || x === cols-1 || y === rows-1;
+    let escGroups = [];
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 0 && g.liberties <= 6) escGroups.push(g);
+      }
+    }
+    escGroups.sort((a, b) => a.liberties - b.liberties);
+    escGroups = escGroups.slice(0, 6);
+    for (const g of escGroups){
+      const prev = new Int32Array(rows*cols).fill(-2);
+      const q = [];
+      for (const k of g.libCells){
+        const x = k % cols, y = Math.floor(k / cols);
+        if (free(x, y) && prev[k] === -2){ prev[k] = -1; q.push(k); }
+      }
+      let hit = -1;
+      for (let i=0; i<q.length; i++){
+        const k = q[i], x = k % cols, y = Math.floor(k / cols);
+        if (onEdge(x, y)){ hit = k; break; }
+        for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+          const nx = x+dx, ny = y+dy;
+          if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
+          const nk = ny*cols + nx;
+          if (prev[nk] !== -2 || !free(nx, ny)) continue;
+          prev[nk] = k; q.push(nk);
+        }
+      }
+      if (hit < 0) continue;
+      const path = [];
+      for (let k = hit; k !== -1; k = prev[k]) path.push(k);
+      path.reverse();
+      for (const k of path.slice(0, 2)) add(k % cols, Math.floor(k / cols));
+    }
+    for (let zy=0; zy<3; zy++){
+      for (let zx=0; zx<3; zx++){
+        const x0 = Math.floor(zx*cols/3), x1 = Math.floor((zx+1)*cols/3) - 1;
+        const y0 = Math.floor(zy*rows/3), y1 = Math.floor((zy+1)*rows/3) - 1;
+        let empty = true;
+        for (let y=y0; y<=y1 && empty; y++)
+          for (let x=x0; x<=x1 && empty; x++)
+            if (state.stone[y][x] !== 0 || state.territory[y][x] !== 0) empty = false;
+        if (empty && x1 >= x0 && y1 >= y0) add(Math.floor((x0+x1)/2), Math.floor((y0+y1)/2), true);
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
+  // A08: итоговый набор кандидатов узла с обрезкой до cap.
+  // Обязательные тактические ходы (win > capture > block, затем quickScore)
+  // идут первыми и НЕ вытесняются эвристикой. Если их больше cap, сохраняются
+  // ВСЕ обязательные ходы (beam расширяется), обычные ходы при этом не
+  // добавляются; переполнение учитывается в sc.tacticalOverflow.
+  // Стоимость генерации считается в sc.tacticalScans (поиск проверяет бюджет
+  // сразу после генерации). diff.tactical === false — прежнее поведение (ablation).
+  function searchCandidates(node, diff, cap, sc, tac){
+    const base = legalCandidates(node, diff);
+    return reserveStrategic(searchCandidatesCore(node, diff, cap, sc, tac, base), base, cap, diff);
+  }
+
+  // A08: ГАРАНТИЯ сохранения стратегических кандидатов до поиска. Без неё
+  // локальный quickScore вытесняет из beam дальние области и выходы к краю.
+  // Резервируется R = diff.strategicReserve мест (по умолчанию max(2, ceil(cap/3))):
+  // сначала до ceil(R/2) представителей пустых зон доски (дальние фланги),
+  // затем разрывы контуров и пути выхода к краю по quickScore, затем
+  // оставшиеся зоны. Место освобождается вытеснением ОБЫЧНЫХ ходов с конца.
+  // Обязательная тактика не вытесняется никогда: если весь beam занят ею,
+  // beam расширяется. diff.strategic === false или strategicReserve = 0 — выкл.
+  function reserveStrategic(sel, base, cap, diff){
+    if (diff.strategic === false) return sel;
+    const R = Number.isInteger(diff.strategicReserve) && diff.strategicReserve >= 0
+      ? diff.strategicReserve : Math.max(2, Math.ceil(cap/3));
+    if (!R) return sel;
+    const k = c => c.x + ',' + c.y;
+    const inSel = new Set(sel.map(k));
+    const have = sel.filter(c => c.strategic).length;
+    const haveZ = sel.filter(c => c.zone).length;
+    const zones = base.filter(c => c.zone && !inSel.has(k(c)));
+    const others = base.filter(c => c.strategic && !c.zone && !inSel.has(k(c)));
+    const picks = [];
+    // Квота зон считается отдельно: локальные выходы, уже попавшие в beam,
+    // не должны вытеснять представителей дальних областей.
+    const zcap = Math.ceil(R/2);
+    let zi = 0;
+    while (zi < zones.length && haveZ + zi < zcap) picks.push(zones[zi++]);
+    for (const o of others){ if (have + picks.length >= R) break; picks.push(o); }
+    while (zi < zones.length && have + picks.length < R) picks.push(zones[zi++]);
+    if (!picks.length) return sel;
+    const out = sel.slice();
+    let over = out.length + picks.length - cap;
+    for (let i = out.length - 1; i >= 0 && over > 0; i--){
+      if (!out[i].tactical && !out[i].strategic){ out.splice(i, 1); over--; }
+    }
+    return out.concat(picks);
+  }
+
+  function searchCandidatesCore(node, diff, cap, sc, tac, base){
+    if (diff.tactical === false) return base.slice(0, cap);
+    if (!tac) tac = tacticalCandidates(node, diff, sc);
+    if (sc) sc.tacticalScans = (sc.tacticalScans || 0) + 1;
+    // Бюджет исчерпан во время генерации: набор неполон, вызывающий
+    // поиск отбросит узел (sc.aborted) — возвращаем прежний beam.
+    if (sc && sc.aborted) return base.slice(0, cap);
+    if (!tac.length) return base.slice(0, cap);
+    const { state, rows, cols } = node;
+    const byKey = new Map(base.map(c => [c.y*cols + c.x, c]));
+    const forced = tac.map(t => {
+      const b = byKey.get(t.y*cols + t.x);
+      return { x: t.x, y: t.y, kinds: t.kinds.slice(), tactical: true,
+        q: b ? b.q : quickScore(state, rows, cols, t.x, t.y, node.current, null) };
+    });
+    forced.sort((a,b) => (tacticalRank(a) - tacticalRank(b)) || (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
+    // A08: обязательные ходы НИКОГДА не обрезаются. Если их больше cap, beam
+    // расширяется до числа обязательных ходов, обычные ходы не добавляются;
+    // переполнение учитывается в sc.tacticalOverflow. Стоимость лишних детей
+    // ограничивается бюджетом A04 (проверка перед каждым ребёнком), а не
+    // отбрасыванием обязательной тактики.
+    if (forced.length > cap && sc) sc.tacticalOverflow = (sc.tacticalOverflow || 0) + 1;
+    const kept = forced;
+    const keys = new Set(kept.map(c => c.y*cols + c.x));
+    const rest = base.filter(c => !keys.has(c.y*cols + c.x)).slice(0, Math.max(0, cap - kept.length));
+    return kept.concat(rest);
+  }
+
+  // sc (необязательный) — бюджет поиска A04: генерация проверяет его на
+  // каждой строке доски в обоих проходах; при исчерпании возвращает [] и
+  // оставляет sc.aborted = true (stopAt = 'tactical-gen'), узел отбрасывается.
+  function tacticalCandidates(node, diff, sc){
+    const { rows, cols, state } = node;
+    const out = new Map();
+    if (node.gameOver) return [];
+    const over = () => !!(sc && sc.clock && budgetExceeded(sc, 'tactical-gen'));
+    if (over()) return [];
+    const fullScan = (diff && diff.tacticalFullScan === true) || fillEndsNext(node);
+    const player = node.current;
+    const opp = player === 1 ? 2 : 1;
+    const add = (x, y, kind) => {
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (!e.kinds.includes(kind)) e.kinds.push(kind); }
+      else out.set(k, { x, y, kinds: [kind] });
+    };
+    const oppNode = cloneSearchNode(node);
+    oppNode.current = opp;
+    const threats = []; // клетки немедленных угроз соперника
+    let oldMax = 0;     // лучший немедленный выигрыш соперника без нашего хода
+    for (let y=0; y<rows; y++){
+      if (over()) return [];
+      for (let x=0; x<cols; x++){
+        if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
+        if (isTransitionLegal(node, x, y)){
+          const t = applyTransition(node, player, x, y);
+          if (t.ok){
+            if (t.node.gameOver && t.node.winner === player) add(x, y, 'win');
+            if (countCaptured(t.result.gained) > 0) add(x, y, 'capture');
+          }
+        }
+        if (isTransitionLegal(oppNode, x, y)){
+          const g = oppThreatGain(oppNode, opp, x, y);
+          if (g > 0){
+            threats.push(y*cols + x);
+            if (g > oldMax) oldMax = g;
+            if (isTransitionLegal(node, x, y)) add(x, y, 'block');
+          }
+        }
+      }
+    }
+    // A08: 'defend' — ПРОВЕРЕННАЯ защита по полным правилам. Для каждого
+    // легального хода делается переход, затем для соперника заново считается
+    // лучший немедленный выигрыш (победа = Infinity, иначе число пленённых
+    // точек) на клетках прежних угроз и в окрестности радиуса 2 нашего хода
+    // (только там наш ход может создать новую угрозу). Ход помечается
+    // 'defend', если немедленная потеря после него строго меньше, чем без него
+    // (включая ходы не на клетке угрозы: захват атакующих точек, перекрытие).
+    // Захват с доп. ходом (соперник сейчас не ходит) и собственная победа
+    // также считаются защитой. diff.tacticalDefend === false — выключить.
+    if (threats.length && !(diff && diff.tacticalDefend === false)){
+      for (let y=0; y<rows; y++){
+        if (over()) return [];
+        for (let x=0; x<cols; x++){
+          if (!fullScan && !nearOccupied(state, rows, cols, x, y)) continue;
+          if (!isTransitionLegal(node, x, y)) continue;
+          const t = applyTransition(node, player, x, y);
+          if (!t.ok) continue;
+                    // Немедленное завершение партии своим ходом — защита, если оно не
+          // проигрышное: победа или НИЧЬЯ (после конца партии потеря соперника
+          // = 0 < oldMax; в т.ч. ничья вместо немедленного поражения).
+          if (t.node.gameOver){ if (t.node.winner !== opp) add(x, y, 'defend'); continue; }
+          if (t.node.current !== opp){ add(x, y, 'defend'); continue; }
+          const check = new Set(threats);
+          for (let dy=-2; dy<=2; dy++) for (let dx=-2; dx<=2; dx++){
+            const nx = x+dx, ny = y+dy;
+            if (nx>=0 && ny>=0 && nx<cols && ny<rows) check.add(ny*cols + nx);
+          }
+          let newMax = 0;
+          for (const k of check){
+            const cx = k % cols, cy = Math.floor(k / cols);
+            if (!isTransitionLegal(t.node, cx, cy)) continue;
+            const g = oppThreatGain(t.node, opp, cx, cy);
+            if (g > newMax) newMax = g;
+            if (newMax >= oldMax) break;
+          }
+          if (newMax < oldMax) add(x, y, 'defend');
+        }
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
+  }
+
+  // Немедленный выигрыш соперника ходом (x,y) из узла, где он ходит:
+  // Infinity — победа, иначе число пленённых точек (0 — угрозы нет).
+  function oppThreatGain(oppNode, opp, x, y){
+    const t = applyTransition(oppNode, opp, x, y);
+    if (!t.ok) return 0;
+    if (t.node.gameOver && t.node.winner === opp) return Infinity;
+    return countCaptured(t.result.gained);
+  }
+
+    // A08: обязательная тактика во ВНУТРЕННИХ узлах и продлениях. Полный скан
+  // слишком дорог для каждого узла, поэтому проверяются (тем же полным
+  // переходом applyTransition, по полным правилам) только клетки, где набор
+  // мог измениться или уже был непуст:
+  //   * обязательные клетки родителя (hint.cells — захват/защита родителя
+  //     здесь остаются захватом/защитой, пока ход их не отменил);
+  //   * окрестность радиуса 2 последнего хода (hint.move);
+  //   * свободы групп обеих сторон с <=2 свободами.
+  // Без hint (дети корня) и когда партия кончается следующим ходом по
+  // заполнению — полный скан tacticalCandidates. diff.tacticalInternal === false
+  // — прежнее поведение (ablation).
+  function tacticalCandidatesLocal(node, diff, hint){
+    const { rows, cols, state } = node;
+    if (node.gameOver) return [];
+    if (!hint || fillEndsNext(node)) return tacticalCandidates(node, diff);
+    const cells = new Set();
+    const addCell = (x, y) => { if (x>=0 && y>=0 && x<cols && y<rows) cells.add(y*cols + x); };
+    if (hint.move){
+      for (let dy=-1; dy<=1; dy++) for (let dx=-1; dx<=1; dx++) addCell(hint.move.x+dx, hint.move.y+dy);
+    }
+    if (hint.cells) for (const c of hint.cells) addCell(c.x, c.y);
+    for (const p of [1, 2]){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
+        if (g.liberties > 1) continue;
+        for (const k of g.libCells) cells.add(k);
+      }
+    }
+    const player = node.current;
+    const opp = player === 1 ? 2 : 1;
+    const out = new Map();
+    const add = (x, y, kind) => {
+      const k = y*cols + x;
+      const e = out.get(k);
+      if (e){ if (!e.kinds.includes(kind)) e.kinds.push(kind); }
+      else out.set(k, { x, y, kinds: [kind] });
+    };
+    const oppNode = cloneSearchNode(node);
+    oppNode.current = opp;
+    for (const k of cells){
+      const x = k % cols, y = Math.floor(k / cols);
+      if (!isTransitionLegal(node, x, y)) continue;
+      const t = applyTransition(node, player, x, y);
+      if (t.ok){
+        if (t.node.gameOver && t.node.winner === player) add(x, y, 'win');
+        if (countCaptured(t.result.gained) > 0) add(x, y, 'capture');
+      }
+      if (isTransitionLegal(oppNode, x, y)){
+        const o = applyTransition(oppNode, opp, x, y);
+        if (o.ok && ((o.node.gameOver && o.node.winner === opp) || countCaptured(o.result.gained) > 0)) add(x, y, 'block');
+      }
+    }
+    return Array.from(out.values()).sort((a,b) => (a.y - b.y) || (a.x - b.x));
   }
 
   function firstLegalMove(node){
@@ -686,7 +1040,9 @@
 
   // Возвращает конечную оценку. Если после вызова sc.aborted === true —
   // результат недействителен и должен быть отброшен вызывающим.
-  function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply){
+    // hint (A08, необязательный): { move, cells } — последний ход родителя и его
+  // обязательные клетки, для инкрементального тактического скана.
+  function alphaBetaSearch(node, depth, alpha, beta, diff, sc, forPlayer, weights, extensionsLeft, ply, hint){
     if (node.gameOver) return terminalValue(node, forPlayer, ply);
     // Узел продления: depth<=0, но поиск продолжается из-за форсированных ходов.
     const inExt = depth <= 0;
@@ -698,16 +1054,50 @@
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
     const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
       : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+    let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
+    // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
+    // внутренних узлах он выполняется только до ply <= diff.tacticalPly
+    // (по умолчанию 0 — корень считается в searchMove) и в узлах продления.
+    // diff.tacticalExtScan === true — полный скан как условие продления в
+    // каждом листе (дорого; по умолчанию условие — прежняя дешёвая проверка,
+    // а набор ходов продления берётся из полного тактического скана).
+    const tacOn = diff.tactical !== false;
+    const tacPly = Number.isInteger(diff.tacticalPly) ? diff.tacticalPly : 0;
+    const tacInternal = diff.tacticalInternal !== false;
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
       // Продление — дорогая операция: бюджет проверяется до и после неё.
       if (budgetExceeded(sc, 'extension-before')) return 0;
-      const forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+      let forced;
+      if (tacOn && diff.tacticalExtScan === true){
+        forcedTac = tacticalCandidates(node, diff);
+        forced = forcedTac.length > 0 || hasUrgentAtari(state, rows, cols, player);
+      } else if (tacOn && tacInternal){
+        // A08: продление решается по обязательной тактике полных правил
+        // (инкрементальный скан), а не только по локальным liberties.
+        forcedTac = tacticalCandidatesLocal(node, diff, hint);
+        forced = forcedTac.length > 0 || hasForcingCapture(state, rows, cols, player, diff)
+          || hasUrgentAtari(state, rows, cols, player);
+      } else {
+        forced = hasForcingCapture(state, rows, cols, player, diff) || hasUrgentAtari(state, rows, cols, player);
+      }
       if (budgetExceeded(sc, 'extension-after')) return 0;
       if (!forced) return staticVal();
     }
     const searchDepth = depth > 0 ? depth : 1;
-    const candidates = legalCandidates(node, diff).slice(0, branchFactorForDepth(diff, searchDepth));
+    const bf = branchFactorForDepth(diff, searchDepth);
+    // A08: во внутренних узлах обязательная тактика по умолчанию тоже
+    // сохраняется до обрезки branchFactor (инкрементальный скан от родителя).
+        // Полный набор во ВСЕХ внутренних узлах раздувает beam и расходует бюджет
+    // узлов, поэтому по умолчанию он включается только в продлениях;
+    // diff.tacticalInternalNodes === true — во всех внутренних узлах (ablation).
+    if (tacOn && tacInternal && diff.tacticalInternalNodes === true && !forcedTac && ply > tacPly){
+      if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
+      forcedTac = tacticalCandidatesLocal(node, diff, hint);
+    }
+    const useTac = tacOn && (ply <= tacPly || forcedTac);
+    const candidates = useTac ? searchCandidates(node, diff, bf, sc, forcedTac)
+      : legalCandidates(node, diff).slice(0, bf);
     if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
     if (!candidates.length) return staticVal();
 
@@ -720,7 +1110,8 @@
       if (budgetExceeded(sc, inExt ? 'extension-node' : 'node')) return 0;
       const t = applyTransition(node, player, c.x, c.y);
       if (!t.ok) continue;
-      const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1);
+            const childVal = alphaBetaSearch(t.node, nextDepth, alpha, beta, diff, sc, forPlayer, weights, nextExt, ply + 1,
+        { move: { x: c.x, y: c.y }, cells: forcedTac || null });
       if (sc.aborted) return 0;
       if (value === null || (maximizing ? childVal > value : childVal < value)) value = childVal;
       if (maximizing) alpha = Math.max(alpha, value);
@@ -782,7 +1173,15 @@
       return finish(f, f ? sc.stopReason : 'no-legal-moves');
     }
 
-    const ordered = legalCandidates(root, diff).slice(0, diff.candidateCap);
+        // A08: обязательные тактические ходы сохраняются до обрезки; стоимость
+    // генерации — в trace (genMs по реальным часам, не трогая управляемые).
+    const genStart = now();
+    const ordered = searchCandidates(root, diff, diff.candidateCap, sc);
+        // genMs — по реальным часам и потому недетерминирован: делаем поле
+    // неперечислимым, чтобы не ломать сравнение trace (детерминизм, worker).
+    Object.defineProperty(trace, 'genMs', { value: now() - genStart, enumerable: false, writable: true, configurable: true });
+    trace.tactical = ordered.filter(c => c.tactical).length;
+    trace.tacticalOverflow = sc.tacticalOverflow || 0;
     if (!ordered.length){
       trace.fallback = 'first-legal';
       const f = firstLegalMove(root);
@@ -1119,7 +1518,7 @@
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
     OPENING_ZONE_SIDE, getOpeningZone, inZone,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
-    generateCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
+    generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
