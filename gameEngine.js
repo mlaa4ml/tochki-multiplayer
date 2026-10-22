@@ -48,10 +48,9 @@
   const TRAIN_DIFF = { radius:3, candidateCap:16, timeLimit:700, maxDepth:4, branchWide:6, branchMid:6, branchNarrow:4, quiescenceExt:3 };
 
   const BOT_PLAYER = 2;
-  // liberty — вес нового термина «безопасность групп» (см. computeGroupLiberties
-  // / libertyRisk ниже). Без него бот видел опасность окружения только когда
-  // захват уже случился внутри горизонта поиска; с ним — на любой глубине,
-  // потому что риск считается прямо в статической оценке листа.
+  // liberty — проверяемая эвристика соседних пустот, НЕ правило захвата.
+  // Малое число liberties не гарантирует окружения (особенно на краю).
+  // Правила определяются только полными переходами и runCaptures.
   // Значения по умолчанию подобраны вручную и являются стартовой точкой для
   // tools/train-bot.js — самообучение self-play подбирает их точнее.
   const BOT_WEIGHTS = { potential: 6, cohesion: 1.2, stones: 0.15, liberty: 5 };
