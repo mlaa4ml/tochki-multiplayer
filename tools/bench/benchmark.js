@@ -336,6 +336,8 @@ function runBenchmark(opts){
             }
             runPairs.push(pts / 2);
             clusters.get(ckey).push(pts / 2);
+            // A08: прогресс после каждой пары — оборванный прогон не теряет всё.
+            if (opts.progress) console.error(`pair ${sizeKey}/${difficulty}/${opp.id} run=${run} ${pos.id}: ${pts / 2} (W/D/L ${g.W}/${g.D}/${g.L})`);
           }
           pairScores.push(...runPairs);
           runsOut.push({ run, seed: runSeed, pairs: runPairs.length, score: mean(runPairs) });
