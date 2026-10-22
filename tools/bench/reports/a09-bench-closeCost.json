@@ -1,0 +1,232 @@
+{
+  "format": "tochki-bench-report",
+  "benchVersion": 1,
+  "runnerVersion": 1,
+  "createdAt": "2026-10-22T09:46:29.549Z",
+  "code": {
+    "commit": "b024803f34d3d1eefd4bc97f27e35aab231a82ef",
+    "engineVersion": "tochki-rules-1",
+    "botVersion": "tochki-ab-1",
+    "weightsVersion": "tochki-weights-1"
+  },
+  "corpus": {
+    "version": 1,
+    "seed": 20240612,
+    "split": "validation"
+  },
+  "params": {
+    "sizes": [
+      "small"
+    ],
+    "difficulties": [
+      "normal"
+    ],
+    "nodeLimit": 300,
+    "runs": 1,
+    "seed": 12345,
+    "maxMoves": 150,
+    "maxMs": 0,
+    "bootstrap": 1000,
+    "maxPairs": 4,
+    "candOverride": null,
+    "oppOverride": null,
+    "difficultyParams": {
+      "normal": {
+        "radius": 2,
+        "candidateCap": 10,
+        "timeLimit": 220,
+        "maxDepth": 3,
+        "branchWide": 5,
+        "branchMid": 4,
+        "branchNarrow": 3,
+        "quiescenceExt": 2
+      }
+    },
+    "runPlies": 2
+  },
+  "candidate": {
+    "id": "a09-closeCost.json",
+    "weights": {
+      "potential": 6,
+      "cohesion": 1.2,
+      "stones": 0.15,
+      "liberty": 5,
+      "closeCost": 10
+    }
+  },
+  "pool": [
+    {
+      "id": "baseline",
+      "weights": {
+        "potential": 6,
+        "cohesion": 1.2,
+        "stones": 0.15,
+        "liberty": 5
+      }
+    },
+    {
+      "id": "no-liberty",
+      "weights": {
+        "potential": 6,
+        "cohesion": 1.2,
+        "stones": 0.15,
+        "liberty": 0
+      }
+    },
+    {
+      "id": "territory-heavy",
+      "weights": {
+        "potential": 10,
+        "cohesion": 0.6,
+        "stones": 0.1,
+        "liberty": 5
+      }
+    }
+  ],
+  "acceptance": {
+    "rule": "lower bound of 95% pair-bootstrap CI of candidate score vs baseline > 0.5, and zero correctness errors (invalid moves / replay mismatch)",
+    "correctnessErrors": 0,
+    "accepted": false,
+    "note": "Только отчёт: benchmark не публикует и не сохраняет веса."
+  },
+  "configs": [
+    {
+      "sizeKey": "small",
+      "difficulty": "normal",
+      "opponent": "baseline",
+      "pairs": 4,
+      "games": 8,
+      "clusters": 4,
+      "uniquePositions": 4,
+      "W": 3,
+      "D": 2,
+      "L": 3,
+      "truncationRate": 0,
+      "scoreDiffMean": 0,
+      "score": 0.5,
+      "ci95": {
+        "lo": 0.5,
+        "hi": 0.5,
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
+      },
+      "nodesPerMove": 219.90187500000002,
+      "completedDepth": 2.3178125,
+      "moveMs": {
+        "p50": 55,
+        "p95": 114
+      },
+      "tactics": {
+        "total": 4,
+        "misses": 0,
+        "missed": []
+      },
+      "strategic": {
+        "version": 1,
+        "seed": 20240613,
+        "total": 12,
+        "misses": 2,
+        "missed": [
+          "small-defend-1",
+          "small-defend-4"
+        ],
+        "byKind": {
+          "defend-threat": {
+            "total": 6,
+            "misses": 2
+          },
+          "endgame-fill": {
+            "total": 6,
+            "misses": 0
+          }
+        }
+      },
+      "runs": [
+        {
+          "run": 0,
+          "seed": 12345,
+          "pairs": 4,
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "sizeKey": "small",
+      "difficulty": "normal",
+      "opponent": "no-liberty",
+      "pairs": 4,
+      "games": 8,
+      "clusters": 4,
+      "uniquePositions": 4,
+      "W": 1,
+      "D": 4,
+      "L": 3,
+      "truncationRate": 0,
+      "scoreDiffMean": 0.25,
+      "score": 0.375,
+      "ci95": {
+        "lo": 0.25,
+        "hi": 0.5,
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
+      },
+      "nodesPerMove": 216.8157291666667,
+      "completedDepth": 2.4639583333333333,
+      "moveMs": {
+        "p50": 54,
+        "p95": 84
+      },
+      "runs": [
+        {
+          "run": 0,
+          "seed": 12345,
+          "pairs": 4,
+          "score": 0.375
+        }
+      ]
+    },
+    {
+      "sizeKey": "small",
+      "difficulty": "normal",
+      "opponent": "territory-heavy",
+      "pairs": 4,
+      "games": 8,
+      "clusters": 4,
+      "uniquePositions": 4,
+      "W": 3,
+      "D": 1,
+      "L": 4,
+      "truncationRate": 0,
+      "scoreDiffMean": -0.125,
+      "score": 0.4375,
+      "ci95": {
+        "lo": 0.3125,
+        "hi": 0.5,
+        "method": "cluster bootstrap over source openings (runs of one opening resampled together)"
+      },
+      "nodesPerMove": 219.92531250000002,
+      "completedDepth": 2.3178125,
+      "moveMs": {
+        "p50": 53,
+        "p95": 97
+      },
+      "runs": [
+        {
+          "run": 0,
+          "seed": 12345,
+          "pairs": 4,
+          "score": 0.4375
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "vsBaseline": {
+    "pairs": 4,
+    "clusters": 4,
+    "score": 0.5,
+    "ci95": {
+      "lo": 0.5,
+      "hi": 0.5,
+      "method": "cluster bootstrap over source openings"
+    }
+  }
+}
