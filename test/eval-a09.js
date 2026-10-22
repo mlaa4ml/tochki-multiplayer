@@ -97,7 +97,7 @@ t('близкий порог окончания: реальное очко ва�
   E.runCaptures(B, 1, ROWS, COLS);
   assert.ok(E.evaluateStatic(B, ROWS, COLS, 1, w) > E.evaluateStatic(A, ROWS, COLS, 1, w));
   // При targetScore=1 закрытие прохода — терминальная победа по правилам.
-  const m = E.createMatch({ sizeKey: 'small', rules: { targetScore: 1 } });
+  const m = E.createMatch({ sizeKey: 'small', targetScore: 1, firstPlayer: 1 });
   assert.ok(m, 'матч создаётся');
   // Терминальная победа по реальным правилам: окружение центральной точки
   // при пороге 1 очко завершает партию (правила ради эвристики не менялись).
