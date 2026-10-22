@@ -243,8 +243,13 @@ function points(winner, seat){ return winner === 0 ? 0.5 : (winner === seat ? 1 
 function playPair(opening, cand, opp, cfg, jsonlOut){
   const games = [];
   for (const candSeat of [1, 2]){
-    const pCand = Runner.makeSearchPlayer(Engine, { difficulty: cfg.difficulty, nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: cand.weights });
-    const pOpp = Runner.makeSearchPlayer(Engine, { difficulty: cfg.difficulty, nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: opp.weights });
+    // A08 (issue #13): candOverride/oppOverride — флаги поиска поверх
+    // DIFFICULTY[cfg.difficulty] (например, {tactical:false,strategic:false}).
+    // Позволяет сравнить ДВА ВАРИАНТА КОДА в одном прогоне на одной ветке,
+    // а не только веса (при равных весах и одном коде счёт всегда ровно 0.5).
+    const diffFor = (over) => over ? Object.assign({}, Engine.DIFFICULTY[cfg.difficulty], over) : cfg.difficulty;
+    const pCand = Runner.makeSearchPlayer(Engine, { difficulty: diffFor(cfg.candOverride), nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: cand.weights });
+    const pOpp = Runner.makeSearchPlayer(Engine, { difficulty: diffFor(cfg.oppOverride), nodeLimit: cfg.nodeLimit, emergencyMs: cfg.emergencyMs, weights: opp.weights });
     const players = candSeat === 1 ? { 1: pCand, 2: pOpp } : { 1: pOpp, 2: pCand };
     const { result, lines } = Runner.playGame(Engine, { rules: opening.rules, prefix: opening.prefix, players,
       maxMoves: cfg.maxMoves, maxMs: cfg.maxMs,
