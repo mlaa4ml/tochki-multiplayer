@@ -120,6 +120,17 @@ function flankStones(){
   check(has(s, 8, 8), 'выход к краю: вторая клетка пути (8,8): ' + J(s));
   const all = E.searchCandidates(node, Object.assign({}, diff, { tactical: false }), 500);
   check(has(all, 8, 8), 'клетка пути выхода в наборе кандидатов: ' + J(all.map(key)));
+  // Гарантия до поиска: даже при узком beam (cap=3) дальние зоны и путь
+  // выхода не вытесняются локальным quickScore.
+  check(s.some(c => c.zone), 'есть представители пустых зон: ' + J(s));
+  const narrow = E.searchCandidates(node, Object.assign({}, diff, { tactical: false }), 3);
+  check(narrow.some(c => c.zone), 'зона дальнего фланга сохранена при cap=3: ' + J(narrow));
+  check(narrow.some(c => c.strategic && !c.zone), 'выход/разрыв сохранён при cap=3: ' + J(narrow));
+  const narrowT = E.searchCandidates(node, diff, 3);
+  check(narrowT.some(c => c.zone), 'зона сохранена при cap=3 и с тактикой: ' + J(narrowT));
+  check(has(narrowT, 8, 7), 'захват (8,7) не вытеснен резервом: ' + J(narrowT));
+  const off = E.searchCandidates(node, Object.assign({}, diff, { tactical: false, strategic: false }), 3);
+  check(!off.some(c => c.zone) && off.length === 3, 'strategic:false — прежний beam: ' + J(off));
 }
 
 // 5. Сравнение с полным перебором легальных ходов на малых случайных позициях.
