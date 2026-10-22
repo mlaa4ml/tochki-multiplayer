@@ -1139,7 +1139,7 @@
     // Статическая оценка — дорогая операция: бюджет проверяется перед ней
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
     const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
-      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights), 0);
+      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
     let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
     // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
     // внутренних узлах он выполняется только до ply <= diff.tacticalPly
