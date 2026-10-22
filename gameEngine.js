@@ -780,9 +780,13 @@
         q: b ? b.q : quickScore(state, rows, cols, t.x, t.y, node.current, null) };
     });
     forced.sort((a,b) => (tacticalRank(a) - tacticalRank(b)) || (b.q - a.q) || (a.y - b.y) || (a.x - b.x));
-    const tcap = Math.max(cap, Number.isInteger(diff.tacticalCap) && diff.tacticalCap > 0 ? diff.tacticalCap : cap*2);
-    if (forced.length > tcap && sc) sc.tacticalOverflow = (sc.tacticalOverflow || 0) + 1;
-    const kept = forced.slice(0, tcap);
+    // A08: обязательные ходы НИКОГДА не обрезаются. Если их больше cap, beam
+    // расширяется до числа обязательных ходов, обычные ходы не добавляются;
+    // переполнение учитывается в sc.tacticalOverflow. Стоимость лишних детей
+    // ограничивается бюджетом A04 (проверка перед каждым ребёнком), а не
+    // отбрасыванием обязательной тактики.
+    if (forced.length > cap && sc) sc.tacticalOverflow = (sc.tacticalOverflow || 0) + 1;
+    const kept = forced;
     const keys = new Set(kept.map(c => c.y*cols + c.x));
     const rest = base.filter(c => !keys.has(c.y*cols + c.x)).slice(0, Math.max(0, cap - kept.length));
     return kept.concat(rest);
