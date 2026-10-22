@@ -440,7 +440,8 @@ function main(){
   const jsonl = a.jsonl ? [] : null;
   const report = runBenchmark({ corpus: loadJson(a.corpus), split: a.split, sizes: a.sizes, difficulties: a.difficulties,
     nodeLimit: a.nodeLimit, runs: a.runs, seed: a.seed, maxMoves: a.maxMoves, maxMs: a.maxMs, bootstrap: a.bootstrap,
-    maxPairs: a.maxPairs, candidate, pool, jsonl });
+        maxPairs: a.maxPairs, candidate, pool, jsonl,
+    candOverride: a.candOverride || null, oppOverride: a.oppOverride || null, progress: a.progress === true });
   const text = JSON.stringify(report, null, 2) + '\n';
   if (a.out){ fs.mkdirSync(path.dirname(a.out), { recursive: true }); fs.writeFileSync(a.out, text); console.log('report written:', a.out); }
   else process.stdout.write(text);
