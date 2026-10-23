@@ -172,12 +172,17 @@ function createBotPool(options = {}){
     return n;
   }
 
+  // Идемпотентно: каждый вызов (и повторный тоже) резолвится только после
+  // фактического завершения ВСЕХ потоков, включая те, что уже завершаются
+  // после таймаута/отмены/падения.
   function close(){
-    if (closed && !all.size) return Promise.resolve();
     closed = true;
     while (queue.length) queue.shift().reject(poolError('pool-closed'));
-    const ps = Array.from(all).map((w) => kill(w, poolError('pool-closed')));
-    return Promise.all(ps).then(() => undefined);
+    Array.from(all).forEach((w) => kill(w, poolError('pool-closed')));
+    const wait = () => terminating.size
+      ? Promise.all(Array.from(terminating)).then(wait)
+      : Promise.resolve();
+    return wait();
   }
 
   function stats(){
