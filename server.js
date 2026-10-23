@@ -143,6 +143,7 @@ const { openDatabase, resolveDbPath } = require('./db.js');
 const { createAuth } = require('./auth.js');
 const { createGameLog } = require('./gamelog.js');
 const TrainBot = require('./tools/train-bot.js');
+const { createBotPool } = require('./botPool.js');
 
 const MAX_JSON_BODY_BYTES = 10 * 1024; // регистрация/вход — маленькие тела, больше не нужно
 
