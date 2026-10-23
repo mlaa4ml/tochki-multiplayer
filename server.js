@@ -1374,7 +1374,25 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     });
   });
 
-  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath };
+  // A10: корректная остановка — снимаем все поиски бота и завершаем потоки
+  // пула, чтобы после остановки сервера не оставалось worker_threads.
+  function closeBotPool(){
+    for (const room of rooms.values()) room.botTicket = null;
+    return botPool ? botPool.close() : Promise.resolve();
+  }
+  httpServer.on('close', () => { closeBotPool().catch(() => {}); });
+
+  function close(){
+    return new Promise((resolve) => {
+      for (const client of wss.clients) { try { client.terminate(); } catch (_) {} }
+      wss.close(() => {
+        if (httpServer.listening) httpServer.close(() => resolve());
+        else resolve();
+      });
+    }).then(() => closeBotPool());
+  }
+
+  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath, botPool, closeBotPool, close };
 }
 
 if (require.main === module){
