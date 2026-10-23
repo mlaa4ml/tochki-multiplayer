@@ -969,7 +969,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       const s = room.match.getSnapshot();
       return !stopping && getRoom(room.code) === room && room.botTicket === ticket &&
         room.match === ticket.match && room.gameId === ticket.gameId &&
-        s.revision === ticket.revision && !s.gameOver && s.current === room.botSeat;
+        (room.botRevision || 0) === ticket.revision && !s.gameOver && s.current === room.botSeat;
     }
     function retry(err){
       if (!current()) return;
