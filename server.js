@@ -821,7 +821,20 @@ function createServer(serverOptions){
   const dbPath = resolveDbPath(serverOptions.dbPath);
   const db = serverOptions.db || openDatabase(dbPath);
   const auth = createAuth(db);
-  const gameLog = createGameLog(db);
+    const gameLog = createGameLog(db);
+  const botPool = createBotPool(serverOptions.botPool || {
+    size: Number(process.env.BOT_POOL_SIZE || 2),
+    maxQueue: Number(process.env.BOT_QUEUE || 16),
+    timeoutMs: Number(process.env.BOT_TIMEOUT_MS || 10000)
+  });
+  let stopping = false, requestSequence = 0;
+  function cancelBot(room){
+    const ticket = room.botTicket;
+    room.botTicket = null;
+    if (!ticket) return;
+    clearTimeout(ticket.timer);
+    botPool.cancel(ticket.requestId);
+  }
 
   // ADMIN_TOKEN пуст по умолчанию — это осознанно ВЫКЛЮЧАЕТ
   // /api/admin/train, а не оставляет его открытым (см. createTrainingRunner
