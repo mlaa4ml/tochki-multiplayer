@@ -1397,7 +1397,19 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
 
 if (require.main === module){
   const PORT = process.env.PORT || 8080;
-  const { httpServer } = createServer();
+  const server = createServer();
+  const { httpServer } = server;
+  // A10: по SIGINT/SIGTERM завершаем потоки поиска бота вместе с сервером.
+  let stopping = false;
+  const shutdown = (sig) => {
+    if (stopping) return;
+    stopping = true;
+    console.log(`${sig}: остановка сервера...`);
+    server.close().then(() => process.exit(0), () => process.exit(1));
+    setTimeout(() => process.exit(1), 5000).unref();
+  };
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
   httpServer.listen(PORT, () => {
     console.log(`Tochki multiplayer server: http://localhost:${PORT}`);
     console.log('Один игрок создаёт комнату и получает код, второй присоединяется по этому коду.');
