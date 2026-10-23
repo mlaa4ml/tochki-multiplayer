@@ -84,6 +84,25 @@ async function expectCode(p, code, label){
     console.log('OK: close() во время зависшего поиска не оставляет потоков');
   }
 
+  // 6b. Повторный close() тоже ждёт фактического завершения потоков:
+  // поток, прерванный отменой (terminate ещё идёт), учитывается.
+  {
+    const pool = createBotPool({ size: 1, maxQueue: 2, timeoutMs: 5000, workerPath: hang, workerOptions: { eval: true } });
+    const g = pool.search({}, { key: 'g' });
+    const chk = expectCode(g, 'cancelled', 'отмена перед close');
+    await new Promise((r) => setTimeout(r, 50));
+    pool.cancel('g'); // terminate() запущен, но ещё не завершён
+    await chk;
+    const first = pool.close();
+    const second = pool.close();
+    await second;
+    assert.strictEqual(pool.stats().workers, 0, 'повторный close() дождался завершения потоков');
+    assert.strictEqual(pool.stats().terminating, 0);
+    await first;
+    await pool.close(); // третий вызов на закрытом пуле — сразу и без ошибок
+    console.log('OK: повторный close() дожидается завершения всех потоков');
+  }
+
   // 7. Падение потока: отклоняется только текущий запрос, пул живёт дальше.
   {
     const pool = createBotPool({ size: 1, maxQueue: 4, timeoutMs: 2000, workerPath: crash, workerOptions: { eval: true } });
