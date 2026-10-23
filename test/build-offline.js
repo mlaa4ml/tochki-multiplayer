@@ -57,7 +57,15 @@ async function main(){
 
   // Партия бот–бот до конца на собранных файлах с настоящим Worker'ом.
   const Engine = require(path.join(outDir, 'gameEngine.js'));
-  const { createLocalSession } = require(path.join(outDir, 'localSession.js'));
+    // localSession.js загружаем как в браузере (глобальный self.TochkiEngine),
+  // а не через require: CommonJS-ветка файла ссылается на ../gameEngine.js
+  // (раскладка репозитория), а в браузере используется именно глобальная ветка.
+  const vm = require('vm');
+  const sandboxSelf = { TochkiEngine: Engine };
+  vm.runInNewContext(fs.readFileSync(path.join(outDir, 'localSession.js'), 'utf8'),
+    { self: sandboxSelf, setTimeout, clearTimeout, console }, { filename: 'dist/localSession.js' });
+  assert.ok(sandboxSelf.TochkiLocalSession, 'localSession.js из артефакта регистрирует TochkiLocalSession');
+  const { createLocalSession } = sandboxSelf.TochkiLocalSession;
   const workers = [];
   const createWorker = () => {
     const nw = new Worker(path.join(outDir, 'botWorker.js'));
