@@ -829,6 +829,7 @@ function createServer(serverOptions){
   });
   let stopping = false, requestSequence = 0;
   function cancelBot(room){
+    room.botRevision = (room.botRevision || 0) + 1;
     const ticket = room.botTicket;
     room.botTicket = null;
     if (!ticket) return;
