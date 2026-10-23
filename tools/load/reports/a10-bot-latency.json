@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-23T09:33:33.547Z",
+  "node": "v24.21.0",
+  "budget": {
+    "wsP95Ms": 100,
+    "httpP95Ms": 150,
+    "loopLagP99Ms": 100
+  },
+  "args": {
+    "ROOMS": 4,
+    "STRONG": 2,
+    "SECONDS": 20,
+    "POOL_SIZE": 2,
+    "PROBE_MS": 100
+  },
+  "results": [
+    {
+      "mode": "sync",
+      "rooms": 4,
+      "strong": 2,
+      "normal": 2,
+      "poolSize": 0,
+      "seconds": 22.7,
+      "ws": {
+        "n": 5,
+        "p50": 2.1,
+        "p95": 3.9,
+        "p99": 3.9,
+        "max": 3.9
+      },
+      "http": {
+        "n": 5,
+        "p50": 2.9,
+        "p95": 20.4,
+        "p99": 20.4,
+        "max": 20.4
+      },
+      "loopLagMs": {
+        "p50": 10.2,
+        "p95": 2104.5,
+        "p99": 4099.9,
+        "max": 4099.9
+      },
+      "botReplyMs": {
+        "n": 21,
+        "p50": 4118.9,
+        "p95": 4131.3,
+        "p99": 4131.5,
+        "max": 4131.5
+      },
+      "cpuPercent": 104,
+      "rssMaxMB": 217,
+      "heapMaxMB": 37,
+      "pool": null,
+      "withinBudget": false
+    },
+    {
+      "mode": "pool",
+      "rooms": 4,
+      "strong": 2,
+      "normal": 2,
+      "poolSize": 2,
+      "seconds": 21.9,
+      "ws": {
+        "n": 194,
+        "p50": 0.4,
+        "p95": 0.6,
+        "p99": 1.6,
+        "max": 2.6
+      },
+      "http": {
+        "n": 194,
+        "p50": 2.1,
+        "p95": 5,
+        "p99": 9.3,
+        "max": 13.9
+      },
+      "loopLagMs": {
+        "p50": 10.1,
+        "p95": 11.7,
+        "p99": 13,
+        "max": 21
+      },
+      "botReplyMs": {
+        "n": 52,
+        "p50": 1970.9,
+        "p95": 2289.2,
+        "p99": 2322.7,
+        "max": 2322.7
+      },
+      "cpuPercent": 183,
+      "rssMaxMB": 531,
+      "heapMaxMB": 21,
+      "pool": {
+        "submitted": 52,
+        "completed": 52,
+        "searchErrors": 0,
+        "timeouts": 0,
+        "crashes": 0,
+        "rejectedQueueFull": 0,
+        "cancelled": 0,
+        "spawned": 2,
+        "maxQueueSeen": 2,
+        "maxBusySeen": 2,
+        "size": 2,
+        "maxQueue": 16,
+        "timeoutMs": 10000,
+        "closed": false,
+        "workers": 2,
+        "busy": 0,
+        "idle": 2,
+        "queued": 0,
+        "maxQueuedProbe": 2,
+        "maxBusyProbe": 2
+      },
+      "withinBudget": true
+    }
+  ]
+}
