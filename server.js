@@ -1278,6 +1278,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       if (msg.type === 'end'){
         const result = room.match.endNow();
         if (!result.ok) return send(ws, { type:'error', reason: result.reason });
+        cancelBotSearch(room); // A10: после gameOver ход бота не применяется
         gameLog.finish(room, result.winner, result.scores, 'manual');
         broadcastRoom(room, stateMessage(room));
         return;
