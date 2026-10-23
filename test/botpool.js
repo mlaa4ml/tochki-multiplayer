@@ -77,8 +77,9 @@ async function expectCode(p, code, label){
     assert.ok(!pool.isBusyFor('e'));
     console.log('OK: отмена идущего поиска прерывает поток');
     const pending = pool.search({}, { key: 'f' });
+    const chk = expectCode(pending, 'pool-closed', 'close с идущим поиском');
     await pool.close();
-    await expectCode(pending, 'pool-closed', 'close с идущим поиском');
+    await chk;
     assert.strictEqual(pool.stats().workers, 0);
     console.log('OK: close() во время зависшего поиска не оставляет потоков');
   }
