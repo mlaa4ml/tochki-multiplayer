@@ -22,6 +22,20 @@
 `replay.js` работает без SQLite в Node и браузере; полноценный replay UI
 и восстановление комнат после рестарта не входят в эту реализацию.
 
+## Offline-приложение: статическая сборка (A06, B01)
+
+Offline человек–бот и бот–бот (без `server.js`, аккаунта, WS/API и SQLite)
+собирается в статический артефакт из канонических `gameEngine.js`,
+`botWorker.js` и `offline/`:
+
+```sh
+npm run build:offline                          # -> dist/offline/ (npm install не нужен)
+python3 -m http.server 8080 -d dist/offline    # открыть http://localhost:8080/
+```
+
+Подробности, состав артефакта и ручная проверка в браузерах описаны в
+[offline/README.md](offline/README.md).
+
 ## Что здесь есть
 
 - `gameEngine.js` — чистые правила игры (без DOM/canvas), общие для клиента
