@@ -16,6 +16,52 @@ python3 -m http.server 8080        # или: npx http-server -p 8080 .
 только `gameEngine.js`, `offline/localSession.js` и `botWorker.js`; других
 сетевых запросов нет (проверяется во вкладке Network).
 
+## Статическая сборка (B01, issue #24)
+
+Сборка кладёт в `dist/offline/` самодостаточный статический артефакт, который
+можно раздавать любым статическим сервером:
+
+```sh
+npm run build:offline              # = node tools/build-offline.js [--out <папка>]
+python3 -m http.server 8080 -d dist/offline   # или: npx http-server dist/offline -p 8080
+# открыть http://localhost:8080/  (index.html)
+```
+
+Требуется только Node (см. `.node-version`) и любой статический сервер;
+`npm install` для сборки **не нужен** — скрипт использует лишь встроенные
+модули Node. `dist/` в `.gitignore`.
+
+Состав артефакта (плоская папка):
+
+| файл | источник |
+|---|---|
+| `gameEngine.js` | канонический `gameEngine.js` из корня, побайтно |
+| `botWorker.js` | канонический `botWorker.js`, побайтно |
+| `localSession.js` | `offline/localSession.js`, побайтно |
+| `index.html` | `offline/index.html`; `../gameEngine.js` → `gameEngine.js`, задаётся `self.TOCHKI_BOT_WORKER_URL = 'botWorker.js'` |
+| `build-manifest.json` | список файлов, источники и sha256 |
+
+Ручной копии движка в репозитории нет: движок копируется из канонического
+исходника при каждой сборке, и сборка падает, если sha256 копии не совпадает
+с исходником. Сборка также падает, если в артефакте оказались `server.js`,
+`db.js`, `auth.js`, `ws`, `better-sqlite3`, внешние URL (CDN) в
+`src`/`href`/`importScripts`/`@import`, либо `WebSocket`/`fetch`/
+`XMLHttpRequest`/`EventSource`.
+
+Автотест: `node test/build-offline.js` (входит в `npm test`). Он собирает
+артефакт во временную папку и проверяет:
+- состав артефакта и совпадение sha256 с исходниками;
+- что все ссылки `index.html` локальные и разрешаются внутри артефакта;
+- что партия бот–бот на **собранных** файлах доводится до конца с настоящим
+  Worker (`worker_threads`, тот же `botWorker.js`).
+
+Ручная проверка артефакта в Chromium и Firefox:
+1. Раздать `dist/offline`, как показано выше.
+2. Довести партию до конца: человек–бот, затем бот–бот «▶ Запуск».
+3. Во вкладке Network должны быть только `index.html`, `gameEngine.js`,
+   `localSession.js` и `botWorker.js`, а также повторная загрузка
+   `gameEngine.js` из Worker. Внешних доменов и WS/API-запросов быть не должно.
+
 ## Устройство
 
 - `offline/localSession.js` — `createLocalSession(opts)`: единственный владелец
