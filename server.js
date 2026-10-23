@@ -1036,14 +1036,15 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
         }
         if (!botTicketValid(room, t)) return;
         t.attempts += 1;
-        if (t.attempts <= BOT_RETRY_LIMIT){
-          const tm = setTimeout(() => runBotSearch(room, t), BOT_RETRY_DELAY_MS);
-          if (typeof tm.unref === 'function') tm.unref();
-          return;
+        if (t.attempts === BOT_RETRY_LIMIT + 1){
+          console.error('bot search failed, retrying in pool with small budget:', code, err && err.message);
         }
-        console.error('bot search failed, fallback to small sync search:', code, err && err.message);
-        const mv = room.match.botMove(difficulty, weights, BOT_FALLBACK_OPTS);
-        applyBotResult(room, t, mv, weights);
+        // Никакого синхронного поиска в основном потоке: только повтор в
+        // пуле (с растущей задержкой, не больше 2 с). Билет снимается при
+        // undo/end/реванше/удалении комнаты, так что повторы не вечны.
+        const delay = Math.min(2000, BOT_RETRY_DELAY_MS * Math.pow(2, Math.max(0, t.attempts - 1)));
+        const tm = setTimeout(() => runBotSearch(room, t), delay);
+        if (typeof tm.unref === 'function') tm.unref();
       });
   }
 
