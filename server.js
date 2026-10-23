@@ -1349,7 +1349,14 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
 
 if (require.main === module){
   const PORT = process.env.PORT || 8080;
-  const { httpServer } = createServer();
+  const server = createServer();
+  const { httpServer } = server;
+  for (const signal of ['SIGINT', 'SIGTERM']){
+    process.once(signal, () => server.close().catch(err => {
+      console.error('Shutdown error:', err);
+      process.exitCode = 1;
+    }));
+  }
   httpServer.listen(PORT, () => {
     console.log(`Tochki multiplayer server: http://localhost:${PORT}`);
     console.log('Один игрок создаёт комнату и получает код, второй присоединяется по этому коду.');
