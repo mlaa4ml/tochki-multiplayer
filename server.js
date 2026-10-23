@@ -1326,7 +1326,25 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     });
   });
 
-  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath };
+    let closePromise;
+  function closeBotPool(){
+    stopping = true;
+    for (const room of rooms.values()) cancelBot(room);
+    return botPool.close();
+  }
+  httpServer.on('close', closeBotPool);
+  function close(){
+    if (closePromise) return closePromise;
+    const poolClosed = closeBotPool();
+    for (const ws of wss.clients) ws.terminate();
+    closePromise = Promise.all([
+      poolClosed,
+      new Promise((resolve) => wss.close(() => resolve())),
+      new Promise((resolve) => httpServer.close(() => resolve()))
+    ]).then(() => {});
+    return closePromise;
+  }
+  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath, botPool, close };
 }
 
 if (require.main === module){
