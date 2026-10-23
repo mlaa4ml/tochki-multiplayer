@@ -188,7 +188,8 @@ function createBotPool(options = {}){
   function stats(){
     return Object.assign({}, counters, {
       size, maxQueue, timeoutMs, closed,
-      workers: all.size, busy: busy.size, idle: idle.length, queued: queue.length
+            workers: all.size + terminating.size, terminating: terminating.size,
+      busy: busy.size, idle: idle.length, queued: queue.length
     });
   }
 
