@@ -957,34 +957,62 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   }
 
   function maybeTriggerBotMove(room){
-    if (!room.vsBot) return;
+    if (stopping || !room.vsBot || room.botTicket) return;
     const snap = room.match.getSnapshot();
     if (snap.gameOver || snap.current !== room.botSeat) return;
-    setTimeout(() => {
-      const stillThere = getRoom(room.code);
-      if (!stillThere) return; // комнату успели удалить (не должно случаться так быстро, но проверим)
-      const freshSnap = stillThere.match.getSnapshot();
-      if (freshSnap.gameOver || freshSnap.current !== stillThere.botSeat) return;
-      const weights = botWeightsFor(stillThere.botDifficulty);
-      const move = stillThere.match.botMove(stillThere.botDifficulty, weights);
-      if (!move) return;
-      const result = stillThere.match.applyMove(stillThere.botSeat, move.x, move.y, {
-        difficulty: stillThere.botDifficulty,
-        botVersion: Engine.BOT_VERSION,
-        weightsVersion: weights.meta ? `db-${weights.meta.createdAt}` : Engine.WEIGHTS_VERSION,
-        seed: null,
-        budgets: { ...Engine.DIFFICULTY[stillThere.botDifficulty] },
-        weights: { potential: weights.potential, cohesion: weights.cohesion,
-          stones: weights.stones, liberty: weights.liberty }
-      });
-      if (!result.ok) return; // защитная проверка — по правилам бот всегда должен ходить легально
-      recordMoveInLog(stillThere, stillThere.botSeat, move.x, move.y, result);
-      broadcastRoom(stillThere, stateMessage(stillThere, { lastMove: { x: move.x, y: move.y, player: stillThere.botSeat }, extraTurn: result.extraTurn }));
-      // extraTurnOnCapture: если ход бота сам привёл к захвату, ход
-      // остаётся за ботом (current не сменился) — считаем ещё один ход,
-      // а не ждём (несуществующего) хода человека.
-      maybeTriggerBotMove(stillThere);
-    }, BOT_MOVE_DELAY_MS);
+    const ticket = {
+      requestId: ++requestSequence, match: room.match, gameId: room.gameId,
+      revision: snap.revision, attempts: 0, timer: null
+    };
+    room.botTicket = ticket;
+    function current(){
+      const s = room.match.getSnapshot();
+      return !stopping && getRoom(room.code) === room && room.botTicket === ticket &&
+        room.match === ticket.match && room.gameId === ticket.gameId &&
+        s.revision === ticket.revision && !s.gameOver && s.current === room.botSeat;
+    }
+    function retry(err){
+      if (!current()) return;
+      ticket.attempts++;
+      // Backpressure never runs CPU search on the server thread. There is at
+      // most one retry timer per room; cancelBot also cancels this wait.
+      broadcastRoom(room, { type: 'bot-status', status: 'retrying', reason: err.code || 'invalid-move' });
+      ticket.timer = setTimeout(run, Math.min(2000, 250 * ticket.attempts));
+    }
+    async function run(){
+      if (!current()) return;
+      const weights = botWeightsFor(room.botDifficulty);
+      const searchOpts = ticket.attempts >= 2
+        ? { nodeLimit: 1500, timeLimit: 150, emergencyTimeLimit: 200 } : undefined;
+      try {
+        const reply = await botPool.search(ticket.requestId, {
+          type: 'search', roomId: room.code, requestId: ticket.requestId,
+          gameId: ticket.gameId, revision: ticket.revision,
+          snapshot: room.match.getSnapshot(), difficulty: room.botDifficulty,
+          weights, searchOpts
+        });
+        if (!current()) return;
+        const move = reply.move;
+        if (!move) throw Object.assign(new Error('no-move'), { code: 'no-move' });
+        const result = room.match.applyMove(room.botSeat, move.x, move.y, {
+          difficulty: room.botDifficulty, botVersion: Engine.BOT_VERSION,
+          weightsVersion: weights.meta ? `db-${weights.meta.createdAt}` : Engine.WEIGHTS_VERSION,
+          seed: null, budgets: { ...Engine.DIFFICULTY[room.botDifficulty], ...searchOpts },
+          weights: { potential: weights.potential, cohesion: weights.cohesion,
+            stones: weights.stones, liberty: weights.liberty }
+        });
+        if (!result.ok) throw Object.assign(new Error(result.reason), { code: 'invalid-move' });
+        room.botTicket = null;
+        room.botTrace = reply.trace;
+        recordMoveInLog(room, room.botSeat, move.x, move.y, result);
+        broadcastRoom(room, stateMessage(room, {
+          lastMove: { x: move.x, y: move.y, player: room.botSeat }, extraTurn: result.extraTurn
+        }));
+        // The actual current player, not alternation, determines extra turns.
+        maybeTriggerBotMove(room);
+      } catch (err){ retry(err); }
+    }
+    ticket.timer = setTimeout(run, BOT_MOVE_DELAY_MS);
   }
 
   // Шаг 10: реванш в той же комнате — та же комната/код/правила, но новая
