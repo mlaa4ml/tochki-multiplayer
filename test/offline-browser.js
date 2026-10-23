@@ -75,7 +75,7 @@ async function check(name, base) {
 
     await page.selectOption('#c1', 'normal');
     await page.fill('#targetFill', '100');
-    await page.fill('#delay', '0');
+    await page.locator('#delay').evaluate(el => { el.value = '0'; });
     await page.locator('#delay').dispatchEvent('input');
     await page.click('#btnNew');
     await page.click('#btnStart');
