@@ -1067,6 +1067,9 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   // если он остался; если он ушёл (см. 'leave-room'), место 2 просто пустое
   // и ждёт кого угодно нового по тому же коду.
   function startRematch(room){
+    // A10: поиск для прошлой партии больше не нужен; его ответ всё равно
+    // отбросит botTicketValid (room.match/gameId сменятся).
+    cancelBotSearch(room);
     room.match = Engine.createMatch(room.options);
     room.moveCount = 0;
     room.rematchVotes = new Set();
