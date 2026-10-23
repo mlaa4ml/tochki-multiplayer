@@ -7,3 +7,5 @@ data/
 .env.*
 !.env.example
 npm-debug.log*
+# Static build output (npm run build:offline)
+dist/
