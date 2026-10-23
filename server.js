@@ -852,6 +852,7 @@ function createServer(serverOptions){
   } = createRoomsRegistry({
     reconnectGraceMs, emptyRoomTtlMs,
     onRoomExpired: (room) => {
+      cancelBot(room);
       gameLog.abandonIfUnfinished(room);
       // Зрители (шаг 10) не держат место и не участвуют в reconnect —
       // им нужно явное уведомление, что комната пропала из памяти сервера.
