@@ -1058,7 +1058,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       // остаётся за ботом (current не сменился) — считаем ещё один ход,
       // а не ждём (несуществующего) хода человека.
       maybeTriggerBotMove(stillThere);
-    }, BOT_MOVE_DELAY_MS);
+    }
   }
 
   // Шаг 10: реванш в той же комнате — та же комната/код/правила, но новая
