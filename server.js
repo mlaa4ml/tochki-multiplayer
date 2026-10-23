@@ -945,6 +945,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   // остаётся честной историей партии, включая отменённый ход (см. шапку
   // файла). Живая доска в памяти при этом полностью откатывается.
   function applyApprovedUndo(room){
+    cancelBot(room);
     const result = room.match.undoLastMove();
     room.pendingUndo = null;
     if (!result.ok) return result;
