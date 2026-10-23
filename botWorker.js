@@ -40,7 +40,7 @@
 
   function handleBotRequest(E, msg){
     msg = msg || {};
-    const base = { requestId: msg.requestId ?? null, gameId: msg.gameId ?? null, revision: msg.revision ?? null };
+    const base = { roomId: msg.roomId ?? null, requestId: msg.requestId ?? null, gameId: msg.gameId ?? null, revision: msg.revision ?? null };
     try {
       if (msg.type !== undefined && msg.type !== 'search') throw new Error('unknown request type: ' + msg.type);
       const s = msg.snapshot;
