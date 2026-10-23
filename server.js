@@ -966,17 +966,81 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     return result;
   }
 
+  // A10: "билет" поиска бота — room.botTicket. Один активный поиск на
+  // комнату; результат применяется, только если билет всё ещё текущий,
+  // комната та же (не удалена), партия та же (room.match — не реванш),
+  // revision (длина moveLog) не изменилась, партия не окончена и ход
+  // фактически за ботом (учитывает extraTurnOnCapture).
+  let botTicketSeq = 0;
+
+  function cancelBotSearch(room){
+    const t = room.botTicket;
+    if (!t) return;
+    room.botTicket = null;
+    if (botPool) botPool.cancel(t.key);
+  }
+
+  function botTicketValid(room, t){
+    if (getRoom(room.code) !== room || room.botTicket !== t || room.match !== t.match ||
+        room.gameId !== t.gameId || room.match.getMoveLog().length !== t.revision){
+      if (room.botTicket === t) room.botTicket = null;
+      return false;
+    }
+    const snap = room.match.getSnapshot();
+    if (snap.gameOver || snap.current !== room.botSeat){
+      room.botTicket = null;
+      return false;
+    }
+    return true;
+  }
+
   function maybeTriggerBotMove(room){
     if (!room.vsBot) return;
     const snap = room.match.getSnapshot();
     if (snap.gameOver || snap.current !== room.botSeat) return;
-    setTimeout(() => {
-      const stillThere = getRoom(room.code);
-      if (!stillThere) return; // комнату успели удалить (не должно случаться так быстро, но проверим)
-      const freshSnap = stillThere.match.getSnapshot();
-      if (freshSnap.gameOver || freshSnap.current !== stillThere.botSeat) return;
-      const weights = botWeightsFor(stillThere.botDifficulty);
-      const move = stillThere.match.botMove(stillThere.botDifficulty, weights);
+    if (room.botTicket) return; // поиск для этой позиции уже идёт — не дублируем
+    const t = { id: ++botTicketSeq, key: `${room.code}#${botTicketSeq}`, match: room.match,
+      gameId: room.gameId, revision: room.match.getMoveLog().length, attempts: 0 };
+    room.botTicket = t;
+    setTimeout(() => runBotSearch(room, t), BOT_MOVE_DELAY_MS);
+  }
+
+  function runBotSearch(room, t){
+    if (!botTicketValid(room, t)) return;
+    const difficulty = room.botDifficulty;
+    const weights = botWeightsFor(difficulty);
+    if (!botPool){
+      // Синхронный режим (BOT_POOL_SIZE=0) — прежнее поведение, для замера "до".
+      return applyBotResult(room, t, room.match.botMove(difficulty, weights), weights);
+    }
+    botPool.search({ snapshot: room.match.getSnapshot(), difficulty, weights,
+      gameId: t.gameId, revision: t.revision }, { key: t.key })
+      .then((r) => {
+        if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
+        applyBotResult(room, t, r.move, weights);
+      })
+      .catch((err) => {
+        const code = err && err.code;
+        if (code === 'cancelled' || code === 'pool-closed'){
+          if (room.botTicket === t) room.botTicket = null;
+          return;
+        }
+        if (!botTicketValid(room, t)) return;
+        t.attempts += 1;
+        if (t.attempts <= BOT_RETRY_LIMIT){
+          const tm = setTimeout(() => runBotSearch(room, t), BOT_RETRY_DELAY_MS);
+          if (typeof tm.unref === 'function') tm.unref();
+          return;
+        }
+        console.error('bot search failed, fallback to small sync search:', code, err && err.message);
+        const mv = room.match.botMove(difficulty, weights, BOT_FALLBACK_OPTS);
+        applyBotResult(room, t, mv, weights);
+      });
+  }
+
+  function applyBotResult(stillThere, t, move, weights){
+    if (stillThere.botTicket === t) stillThere.botTicket = null;
+    {
       if (!move) return;
       const result = stillThere.match.applyMove(stillThere.botSeat, move.x, move.y, {
         difficulty: stillThere.botDifficulty,
