@@ -13,7 +13,7 @@
         "bench": "node tools/bench/benchmark.js --split validation --sizes small --difficulties normal --runs 2 --max-pairs 3 --node-limit 300 --max-moves 200 --out tools/bench/reports/sample.json",
     "bench:full": "node tools/bench/benchmark.js --full --out tools/bench/reports/full.json --jsonl tools/bench/reports/full.jsonl",
     "test:bench": "node test/bench.js",
-    "test": "node test/replay.js && node test/replay-db.js && node test/rules.js && node test/transition.js && node test/search.js && node test/offline-session.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js && node test/candidates.js && node test/bench.js && node test/eval-a09.js && node test/botpool.js && node test/bot-races.js",
+    "test": "node test/replay.js && node test/replay-db.js && node test/rules.js && node test/transition.js && node test/search.js && node test/offline-session.js && node test/build-offline.js && node test/e2e.js && node test/auth.js && node test/names.js && node test/gamelog.js && node test/rooms.js && node test/train.js && node test/undo.js && node test/candidates.js && node test/bench.js && node test/eval-a09.js && node test/botpool.js && node test/bot-races.js",
     "test:botpool": "node test/botpool.js && node test/bot-races.js",
     "load:bot": "node tools/load/bot-latency.js --rooms 4 --strong 2 --seconds 20 --pool-size 2 --out tools/load/reports/a10-bot-latency.json",
     "test:candidates": "node test/candidates.js"
