@@ -1014,8 +1014,16 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       // Синхронный режим (BOT_POOL_SIZE=0) — прежнее поведение, для замера "до".
       return applyBotResult(room, t, room.match.botMove(difficulty, weights), weights);
     }
-    botPool.search({ snapshot: room.match.getSnapshot(), difficulty, weights,
-      gameId: t.gameId, revision: t.revision }, { key: t.key })
+    // A10: после BOT_RETRY_LIMIT неудач (queue-full/timeout/worker-crashed)
+    // НЕ уходим в синхронный поиск на основном event loop — повторяем в том
+    // же пуле, но с малым бюджетом (BOT_FALLBACK_OPTS) и растущей задержкой.
+    // Пул пересоздаёт упавшие/зависшие потоки, так что партия не зависает,
+    // а другие комнаты не получают блокировку event loop.
+    const degraded = t.attempts > BOT_RETRY_LIMIT;
+    const msg = { snapshot: room.match.getSnapshot(), difficulty, weights,
+      gameId: t.gameId, revision: t.revision };
+    if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
+    botPool.search(msg, { key: t.key })
       .then((r) => {
         if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
         applyBotResult(room, t, r.move, weights);
