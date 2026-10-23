@@ -1231,6 +1231,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       }
 
       if (msg.type === 'end'){
+        cancelBot(room);
         const result = room.match.endNow();
         if (!result.ok) return send(ws, { type:'error', reason: result.reason });
         gameLog.finish(room, result.winner, result.scores, 'manual');
