@@ -837,6 +837,9 @@ function createServer(serverOptions){
   } = createRoomsRegistry({
     reconnectGraceMs, emptyRoomTtlMs,
     onRoomExpired: (room) => {
+      // A10: комната удаляется — идущий поиск бота снимаем, его ответ
+      // всё равно отбросит botTicketValid (getRoom(code) !== room).
+      cancelBotSearch(room);
       gameLog.abandonIfUnfinished(room);
       // Зрители (шаг 10) не держат место и не участвуют в reconnect —
       // им нужно явное уведомление, что комната пропала из памяти сервера.
@@ -856,6 +859,26 @@ function createServer(serverOptions){
     if (trained) return trained;
     return Engine.BOT_WEIGHTS;
   }
+
+  // A10 (issue #15): поиск хода бота вынесен в ограниченный пул
+  // worker_threads (botPool.js -> botWorker.js -> gameEngine.searchMove),
+  // чтобы strong (~2000 мс) не блокировал event loop всех комнат.
+  // Предел параллелизма/очередь/таймаут — serverOptions.botPool или env
+  // BOT_POOL_SIZE / BOT_QUEUE / BOT_TIMEOUT_MS. BOT_POOL_SIZE=0 (или
+  // botPool:{size:0}) — прежний синхронный режим (нужен для замера "до").
+  const botPoolCfg = Object.assign({
+    size: process.env.BOT_POOL_SIZE !== undefined ? Number(process.env.BOT_POOL_SIZE) : 2,
+    maxQueue: process.env.BOT_QUEUE !== undefined ? Number(process.env.BOT_QUEUE) : 16,
+    timeoutMs: process.env.BOT_TIMEOUT_MS !== undefined ? Number(process.env.BOT_TIMEOUT_MS) : 10000
+  }, serverOptions.botPool || {});
+  const { createBotPool } = require('./botPool.js');
+  const botPool = Number(botPoolCfg.size) > 0 ? createBotPool(botPoolCfg) : null;
+  // Сколько раз повторять поиск при queue-full/timeout/worker-crashed,
+  // прежде чем сходить синхронно с минимальным бюджетом (партия не должна
+  // зависнуть навсегда из-за сбоя потока).
+  const BOT_RETRY_LIMIT = 2;
+  const BOT_RETRY_DELAY_MS = 250;
+  const BOT_FALLBACK_OPTS = { nodeLimit: 1500, timeLimit: 150 };
 
   const httpServer = http.createServer((req, res) => {
     handleApiRequest(req, res, auth, gameLog, adminCtx).then((handled) => {
@@ -905,13 +928,11 @@ function createServer(serverOptions){
     return auth.verifySession(authToken); // {id, nickname, email} | null
   }
 
-  // Небольшая задержка перед расчётом хода бота — чтобы ответ на ход
-  // человека успел уйти раньше, чем начнётся (синхронный, блокирующий
-  // event loop) перебор вариантов у бота. Сама задержка не делает расчёт
-  // неблокирующим — это know limitation прототипа, см. README: при
-  // реальной нагрузке с несколькими одновременными комнатами расчёт хода
-  // бота стоит выносить в worker_threads, чтобы не подвешивать другие
-  // комнаты на время "раздумий" бота.
+  // Небольшая задержка перед запуском поиска хода бота — чтобы ответ на ход
+  // человека успел уйти раньше. Сам поиск (A10, issue #15) идёт в пуле
+  // worker_threads (botPool.js) и event loop не блокирует; синхронный
+  // режим остался только при BOT_POOL_SIZE=0 и как запасной малый поиск
+  // после сбоев потока (см. runBotSearch и docs/A10_LOAD.md).
   const BOT_MOVE_DELAY_MS = 30;
 
   // Общая точка записи хода в лог для человека и для бота — оба пути
@@ -930,9 +951,13 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   // остаётся честной историей партии, включая отменённый ход (см. шапку
   // файла). Живая доска в памяти при этом полностью откатывается.
   function applyApprovedUndo(room){
+    // A10: поиск бота, начатый до отмены, считал уже несуществующую
+    // позицию — снимаем его (и в любом случае его результат отбросит
+    // botTicketValid по revision/match).
+    cancelBotSearch(room);
     const result = room.match.undoLastMove();
     room.pendingUndo = null;
-    if (!result.ok) return result;
+    if (!result.ok){ maybeTriggerBotMove(room); return result; }
     gameLog.saveReplay(room);
     broadcastRoom(room, stateMessage(room, { note: 'undo-applied' }));
     // Если после отмены снова наступила очередь бота (например, отменили
@@ -942,17 +967,100 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     return result;
   }
 
+  // A10: "билет" поиска бота — room.botTicket. Один активный поиск на
+  // комнату; результат применяется, только если билет всё ещё текущий,
+  // комната та же (не удалена), партия та же (room.match — не реванш),
+  // revision (длина moveLog) не изменилась, партия не окончена и ход
+  // фактически за ботом (учитывает extraTurnOnCapture).
+  let botTicketSeq = 0;
+
+  function cancelBotSearch(room){
+    const t = room.botTicket;
+    if (!t) return;
+    room.botTicket = null;
+    if (botPool) botPool.cancel(t.key);
+  }
+
+  function botTicketValid(room, t){
+    if (getRoom(room.code) !== room || room.botTicket !== t || room.match !== t.match ||
+        room.gameId !== t.gameId || room.match.getMoveLog().length !== t.revision){
+      if (room.botTicket === t) room.botTicket = null;
+      return false;
+    }
+    const snap = room.match.getSnapshot();
+    if (snap.gameOver || snap.current !== room.botSeat){
+      room.botTicket = null;
+      return false;
+    }
+    return true;
+  }
+
   function maybeTriggerBotMove(room){
     if (!room.vsBot) return;
     const snap = room.match.getSnapshot();
     if (snap.gameOver || snap.current !== room.botSeat) return;
-    setTimeout(() => {
-      const stillThere = getRoom(room.code);
-      if (!stillThere) return; // комнату успели удалить (не должно случаться так быстро, но проверим)
-      const freshSnap = stillThere.match.getSnapshot();
-      if (freshSnap.gameOver || freshSnap.current !== stillThere.botSeat) return;
-      const weights = botWeightsFor(stillThere.botDifficulty);
-      const move = stillThere.match.botMove(stillThere.botDifficulty, weights);
+    if (room.botTicket) return; // поиск для этой позиции уже идёт — не дублируем
+    const t = { id: ++botTicketSeq, key: `${room.code}#${botTicketSeq}`, match: room.match,
+      gameId: room.gameId, revision: room.match.getMoveLog().length, attempts: 0 };
+    room.botTicket = t;
+    setTimeout(() => runBotSearch(room, t), BOT_MOVE_DELAY_MS);
+  }
+
+  function runBotSearch(room, t){
+    if (!botTicketValid(room, t)) return;
+    const difficulty = room.botDifficulty;
+    const weights = botWeightsFor(difficulty);
+    if (!botPool){
+      // Синхронный режим (BOT_POOL_SIZE=0) — прежнее поведение, для замера "до".
+      return applyBotResult(room, t, room.match.botMove(difficulty, weights), weights);
+    }
+    // A10: после BOT_RETRY_LIMIT неудач (queue-full/timeout/worker-crashed)
+    // НЕ уходим в синхронный поиск на основном event loop — повторяем в том
+    // же пуле, но с малым бюджетом (BOT_FALLBACK_OPTS) и растущей задержкой.
+    // Пул пересоздаёт упавшие/зависшие потоки, так что партия не зависает,
+    // а другие комнаты не получают блокировку event loop.
+    const degraded = t.attempts > BOT_RETRY_LIMIT;
+    const msg = { snapshot: room.match.getSnapshot(), difficulty, weights,
+      gameId: t.gameId, revision: t.revision };
+    if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
+    botPool.search(msg, { key: t.key })
+      .then((r) => {
+        if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
+        applyBotResult(room, t, r.move, weights);
+      })
+      .catch((err) => {
+        const code = err && err.code;
+        if (code === 'cancelled' || code === 'pool-closed'){
+          if (room.botTicket === t) room.botTicket = null;
+          return;
+        }
+        if (!botTicketValid(room, t)) return;
+        t.attempts += 1;
+        if (t.attempts <= BOT_RETRY_LIMIT + 1){
+          // Сначала BOT_RETRY_LIMIT обычных повторов в пуле, затем ещё один
+          // повтор в пуле с малым бюджетом (BOT_FALLBACK_OPTS), задержка
+          // растёт (250/500/1000 мс). Event loop при этом не блокируется.
+          if (t.attempts === BOT_RETRY_LIMIT + 1){
+            console.error('bot search failed, retrying in pool with small budget:', code, err && err.message);
+          }
+          const delay = Math.min(2000, BOT_RETRY_DELAY_MS * Math.pow(2, Math.max(0, t.attempts - 1)));
+          const tm = setTimeout(() => runBotSearch(room, t), delay);
+          if (typeof tm.unref === 'function') tm.unref();
+          return;
+        }
+        // Пул стабильно не отвечает (все потоки зависают/падают) — чтобы
+        // партия не зависла навсегда, последний шанс: малый синхронный поиск
+        // с жёстким потолком 1500 узлов / 150 мс. Это ограниченная по времени
+        // и редкая (только при аварии пула) блокировка, а не штатный путь.
+        console.error('bot search failed in pool, fallback to small sync search:', code, err && err.message);
+        const mv = room.match.botMove(difficulty, weights, BOT_FALLBACK_OPTS);
+        applyBotResult(room, t, mv, weights);
+      });
+  }
+
+  function applyBotResult(stillThere, t, move, weights){
+    if (stillThere.botTicket === t) stillThere.botTicket = null;
+    {
       if (!move) return;
       const result = stillThere.match.applyMove(stillThere.botSeat, move.x, move.y, {
         difficulty: stillThere.botDifficulty,
@@ -970,7 +1078,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       // остаётся за ботом (current не сменился) — считаем ещё один ход,
       // а не ждём (несуществующего) хода человека.
       maybeTriggerBotMove(stillThere);
-    }, BOT_MOVE_DELAY_MS);
+    }
   }
 
   // Шаг 10: реванш в той же комнате — та же комната/код/правила, но новая
@@ -979,6 +1087,9 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   // если он остался; если он ушёл (см. 'leave-room'), место 2 просто пустое
   // и ждёт кого угодно нового по тому же коду.
   function startRematch(room){
+    // A10: поиск для прошлой партии больше не нужен; его ответ всё равно
+    // отбросит botTicketValid (room.match/gameId сменятся).
+    cancelBotSearch(room);
     room.match = Engine.createMatch(room.options);
     room.moveCount = 0;
     room.rematchVotes = new Set();
@@ -1187,6 +1298,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       if (msg.type === 'end'){
         const result = room.match.endNow();
         if (!result.ok) return send(ws, { type:'error', reason: result.reason });
+        cancelBotSearch(room); // A10: после gameOver ход бота не применяется
         gameLog.finish(room, result.winner, result.scores, 'manual');
         broadcastRoom(room, stateMessage(room));
         return;
@@ -1279,12 +1391,42 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     });
   });
 
-  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath };
+  // A10: корректная остановка — снимаем все поиски бота и завершаем потоки
+  // пула, чтобы после остановки сервера не оставалось worker_threads.
+  function closeBotPool(){
+    for (const room of rooms.values()) room.botTicket = null;
+    return botPool ? botPool.close() : Promise.resolve();
+  }
+  httpServer.on('close', () => { closeBotPool().catch(() => {}); });
+
+  function close(){
+    return new Promise((resolve) => {
+      for (const client of wss.clients) { try { client.terminate(); } catch (_) {} }
+      wss.close(() => {
+        if (httpServer.listening) httpServer.close(() => resolve());
+        else resolve();
+      });
+    }).then(() => closeBotPool());
+  }
+
+  return { httpServer, wss, rooms, db, auth, gameLog, training, dbPath, botPool, closeBotPool, close };
 }
 
 if (require.main === module){
   const PORT = process.env.PORT || 8080;
-  const { httpServer } = createServer();
+  const server = createServer();
+  const { httpServer } = server;
+  // A10: по SIGINT/SIGTERM завершаем потоки поиска бота вместе с сервером.
+  let stopping = false;
+  const shutdown = (sig) => {
+    if (stopping) return;
+    stopping = true;
+    console.log(`${sig}: остановка сервера...`);
+    server.close().then(() => process.exit(0), () => process.exit(1));
+    setTimeout(() => process.exit(1), 5000).unref();
+  };
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
   httpServer.listen(PORT, () => {
     console.log(`Tochki multiplayer server: http://localhost:${PORT}`);
     console.log('Один игрок создаёт комнату и получает код, второй присоединяется по этому коду.');
