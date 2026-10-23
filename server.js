@@ -962,7 +962,7 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     if (snap.gameOver || snap.current !== room.botSeat) return;
     const ticket = {
       requestId: ++requestSequence, match: room.match, gameId: room.gameId,
-      revision: snap.revision, attempts: 0, timer: null
+      revision: room.botRevision || 0, attempts: 0, timer: null
     };
     room.botTicket = ticket;
     function current(){
