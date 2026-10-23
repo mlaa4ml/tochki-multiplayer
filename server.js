@@ -857,6 +857,26 @@ function createServer(serverOptions){
     return Engine.BOT_WEIGHTS;
   }
 
+  // A10 (issue #15): поиск хода бота вынесен в ограниченный пул
+  // worker_threads (botPool.js -> botWorker.js -> gameEngine.searchMove),
+  // чтобы strong (~2000 мс) не блокировал event loop всех комнат.
+  // Предел параллелизма/очередь/таймаут — serverOptions.botPool или env
+  // BOT_POOL_SIZE / BOT_QUEUE / BOT_TIMEOUT_MS. BOT_POOL_SIZE=0 (или
+  // botPool:{size:0}) — прежний синхронный режим (нужен для замера "до").
+  const botPoolCfg = Object.assign({
+    size: process.env.BOT_POOL_SIZE !== undefined ? Number(process.env.BOT_POOL_SIZE) : 2,
+    maxQueue: process.env.BOT_QUEUE !== undefined ? Number(process.env.BOT_QUEUE) : 16,
+    timeoutMs: process.env.BOT_TIMEOUT_MS !== undefined ? Number(process.env.BOT_TIMEOUT_MS) : 10000
+  }, serverOptions.botPool || {});
+  const { createBotPool } = require('./botPool.js');
+  const botPool = Number(botPoolCfg.size) > 0 ? createBotPool(botPoolCfg) : null;
+  // Сколько раз повторять поиск при queue-full/timeout/worker-crashed,
+  // прежде чем сходить синхронно с минимальным бюджетом (партия не должна
+  // зависнуть навсегда из-за сбоя потока).
+  const BOT_RETRY_LIMIT = 2;
+  const BOT_RETRY_DELAY_MS = 250;
+  const BOT_FALLBACK_OPTS = { nodeLimit: 1500, timeLimit: 150 };
+
   const httpServer = http.createServer((req, res) => {
     handleApiRequest(req, res, auth, gameLog, adminCtx).then((handled) => {
       if (!handled) serveStatic(req, res);
