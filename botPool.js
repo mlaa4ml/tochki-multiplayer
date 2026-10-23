@@ -43,7 +43,8 @@ function createBotPool(options = {}){
   const all = new Set();     // все живые потоки
   const idle = [];           // свободные потоки
   const busy = new Map();    // worker -> task
-  const queue = [];          // ожидающие задачи
+    const queue = [];          // ожидающие задачи
+  const terminating = new Set(); // промисы terminate() ещё не завершённых потоков
   let closed = false;
   let seq = 0;
 
