@@ -80,7 +80,11 @@ function createBotPool(options = {}){
       clearTimeout(task.timer);
       task.reject(error);
     }
-    const p = w.terminate().catch(() => {});
+    // Поток убран из рабочего учёта сразу (новые задачи на него не попадут),
+    // но остаётся в `terminating`, пока terminate() реально не завершился, —
+    // close() (в том числе повторный) ждёт именно этого.
+    const p = w.terminate().catch(() => {}).then(() => { terminating.delete(p); });
+    terminating.add(p);
     if (!closed) setImmediate(dispatch);
     return p;
   }
