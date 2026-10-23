@@ -950,9 +950,13 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
   // остаётся честной историей партии, включая отменённый ход (см. шапку
   // файла). Живая доска в памяти при этом полностью откатывается.
   function applyApprovedUndo(room){
+    // A10: поиск бота, начатый до отмены, считал уже несуществующую
+    // позицию — снимаем его (и в любом случае его результат отбросит
+    // botTicketValid по revision/match).
+    cancelBotSearch(room);
     const result = room.match.undoLastMove();
     room.pendingUndo = null;
-    if (!result.ok) return result;
+    if (!result.ok){ maybeTriggerBotMove(room); return result; }
     gameLog.saveReplay(room);
     broadcastRoom(room, stateMessage(room, { note: 'undo-applied' }));
     // Если после отмены снова наступила очередь бота (например, отменили
