@@ -119,7 +119,7 @@ async function main(){
   assert.ok(swCode.includes('const CACHE_VERSION = "' + manifest.cacheVersion + '"'), 'версия кеша в sw.js = cacheVersion манифеста');
   const assets = JSON.parse(swCode.match(/const ASSETS = (\[.*\]);/)[1]);
   assert.deepStrictEqual(assets.slice().sort(),
-    ['botWorker.js', 'gameEngine.js', 'index.html', 'localSession.js', 'manifest.webmanifest'], 'кешируются все ресурсы игры');
+    ['botWorker.js', 'gameEngine.js', 'index.html', 'localSession.js', 'manifest.webmanifest', 'replay.js', 'replayUI.js', 'storage.js'], 'кешируются все ресурсы игры');
   for (const a of assets) assert.ok(fs.existsSync(path.join(outDir, a)), 'нет ресурса ' + a);
   console.log('ok - sw.js: кеш tochki-offline-' + manifest.cacheVersion + ', ресурсы: ' + assets.join(', '));
 
