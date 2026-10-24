@@ -323,9 +323,51 @@
       listeners.clear();
     }
 
+    // B03 (#26): загрузка реплея в ОБЩЕМ формате A02 (replay.js). Вся
+    // валидация и проигрывание идут в отдельном матче через codec.play();
+    // текущий матч заменяется только после успеха — ошибка импорта партию
+    // не меняет. После загрузки счёт, очередь хода и конец партии берутся
+    // из проигранного матча; места становятся «человек–человек», поиск
+    // не запускается.
+    function replayCodec(){
+      if (sessionOptions.replay) return sessionOptions.replay;
+      if (typeof self !== 'undefined' && self.TochkiReplay) return self.TochkiReplay;
+      if (typeof module === 'object' && module.exports && typeof require === 'function'){
+        try { return require('../replay.js'); } catch (_) {}
+      }
+      return null;
+    }
+
+    function loadReplay(input){
+      if (disposed) return { ok: false, reason: 'session disposed' };
+      const codec = replayCodec();
+      if (!codec || typeof codec.play !== 'function') return { ok: false, reason: 'кодек реплеев (replay.js) не загружен' };
+      let replacement;
+      try { replacement = codec.play(input); }
+      catch (err){ return { ok: false, reason: String(err && err.message || err) }; }
+      invalidate();
+      match = replacement;
+      gameId = 'replay-' + (++gameSeq);
+      controllers = { 1: { type: 'human' }, 2: { type: 'human' } };
+      running = false;
+      workerError = null;
+      lastTrace = null;
+      lastError = null;
+      emit();
+      return { ok: true, snapshot: match.getSnapshot() };
+    }
+
+    function exportReplay(){
+      if (!match) return null;
+      const codec = replayCodec();
+      if (codec && typeof codec.stringify === 'function') return codec.stringify(match);
+      return JSON.stringify(match.getReplay(), null, 2);
+    }
+
     return {
       newGame, move, snapshot, undo, end, subscribe, dispose,
       start, pause, step, setControllers, setDelay, status,
+      loadReplay, exportReplay,
       getReplay: () => match ? match.getReplay() : null
     };
   }
