@@ -62,7 +62,9 @@ const SW_TEMPLATE = 'offline/sw.js';
 const SW_FILE = 'sw.js';
 const WEBMANIFEST_FILE = 'manifest.webmanifest';
 
-const FORBIDDEN_FILES = ['server.js', 'db.js', 'auth.js', 'botPool.js', 'gamelog.js', 'replay.js', 'node_modules'];
+// replay.js сюда больше не входит: это общий кодек A02 без SQLite/DOM/сети,
+// он нужен offline-реплеям (B03, #26).
+const FORBIDDEN_FILES = ['server.js', 'db.js', 'auth.js', 'botPool.js', 'gamelog.js', 'node_modules'];
 
 // Разрешённые исключения из checkContent по имени файла.
 const CONTENT_ALLOW = { 'sw.js': ['fetch()'] };
