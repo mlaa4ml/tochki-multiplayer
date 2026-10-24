@@ -54,7 +54,9 @@ function transformHtml(html){
   // Движок рядом с index.html; URL Worker'а для localSession задаём явно
   // (по умолчанию он ищется в '../botWorker.js' — раскладка репозитория).
   return html.replace(engineTag,
-    '<script>self.TOCHKI_BOT_WORKER_URL = \'botWorker.js\';</script>\n<script src="gameEngine.js"></script>');
+    '<script>self.TOCHKI_BOT_WORKER_URL = \'botWorker.js\';</script>\n<script src="gameEngine.js"></script>')
+    .replace('</head>', '<link rel="manifest" href="manifest.webmanifest">\n</head>')
+    .replace('</body>', '<script src="pwa.js"></script>\n</body>');
 }
 
 // Проверки содержимого артефакта (без комментариев — чтобы не ловить
