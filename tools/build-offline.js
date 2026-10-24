@@ -42,7 +42,8 @@ const FILES = [
   { src: 'gameEngine.js', dst: 'gameEngine.js', verbatim: true },
   { src: 'botWorker.js', dst: 'botWorker.js', verbatim: true },
   { src: 'offline/localSession.js', dst: 'localSession.js', verbatim: true },
-  { src: 'offline/index.html', dst: 'index.html', verbatim: false, transform: transformHtml }
+    { src: 'offline/index.html', dst: 'index.html', verbatim: false, transform: transformHtml },
+  { src: 'offline/pwa.js', dst: 'pwa.js', verbatim: true }
 ];
 
 const FORBIDDEN_FILES = ['server.js', 'db.js', 'auth.js', 'botPool.js', 'gamelog.js', 'replay.js', 'node_modules'];
