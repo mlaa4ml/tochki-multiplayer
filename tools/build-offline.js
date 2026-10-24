@@ -104,6 +104,21 @@ function build(opts){
     manifest.files.push({ file: f.dst, source: f.src, verbatim: !!f.verbatim, bytes: written.length, sha256: sha256(written) });
   }
 
+    const webmanifest = JSON.stringify({
+    name: 'Точки — offline', short_name: 'Точки', lang: 'ru',
+    start_url: './', scope: './', display: 'standalone',
+    background_color: '#f6f4ee', theme_color: '#f6f4ee'
+  }, null, 2) + '\n';
+  fs.writeFileSync(path.join(outDir, 'manifest.webmanifest'), webmanifest);
+  manifest.files.push({ file: 'manifest.webmanifest', source: 'tools/build-offline.js',
+    bytes: Buffer.byteLength(webmanifest), sha256: sha256(webmanifest) });
+  const template = fs.readFileSync(path.join(ROOT, 'offline/sw.js'), 'utf8');
+  manifest.cacheVersion = sha256(JSON.stringify(manifest.files) + template);
+  const resources = [...manifest.files.map(f => f.file), 'build-manifest.json'];
+  const sw = template.replace('__VERSION__', manifest.cacheVersion)
+    .replace('__RESOURCES__', JSON.stringify(resources));
+  fs.writeFileSync(path.join(outDir, 'sw.js'), sw);
+
   const present = fs.readdirSync(outDir);
   for (const bad of FORBIDDEN_FILES) if (present.includes(bad)) problems.push('в артефакт попал ' + bad);
 
