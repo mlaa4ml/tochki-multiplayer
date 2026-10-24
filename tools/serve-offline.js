@@ -37,8 +37,11 @@ function createServer(dir){
   return http.createServer((req, res) => {
     if (req.method !== 'GET' && req.method !== 'HEAD'){ res.writeHead(405); res.end(); return; }
     let rel;
-    try { rel = decodeURIComponent(new URL(req.url, 'http://x').pathname); }
+    // Путь берём из req.url напрямую: new URL('//...') считает такой путь
+    // адресом хоста и падает. Выход за пределы dir отсекается ниже.
+    try { rel = decodeURIComponent(String(req.url).split(/[?#]/)[0]).replace(/\/{2,}/g, '/'); }
     catch (_) { res.writeHead(400); res.end(); return; }
+    if (!rel.startsWith('/')) rel = '/' + rel;
     if (rel.endsWith('/')) rel += 'index.html';
     const file = path.resolve(dir, '.' + rel);
     if (file !== dir && !file.startsWith(dir + path.sep)){ res.writeHead(403); res.end(); return; }
