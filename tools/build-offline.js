@@ -50,6 +50,9 @@ function sha256(buf){ return crypto.createHash('sha256').update(buf).digest('hex
 const FILES = [
   { src: 'gameEngine.js', dst: 'gameEngine.js', verbatim: true },
   { src: 'botWorker.js', dst: 'botWorker.js', verbatim: true },
+    { src: 'replay.js', dst: 'replay.js', verbatim: true },
+  { src: 'offline/storage.js', dst: 'storage.js', verbatim: true },
+  { src: 'offline/replayUI.js', dst: 'replayUI.js', verbatim: true },
   { src: 'offline/localSession.js', dst: 'localSession.js', verbatim: true },
   { src: 'offline/index.html', dst: 'index.html', verbatim: false, transform: transformHtml }
 ];
