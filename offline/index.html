@@ -322,7 +322,13 @@
   $('delay').oninput = () => { $('delayVal').textContent = $('delay').value; session.setDelay(Number($('delay').value)); };
   window.addEventListener('resize', () => { if (lastSnap) render(lastSnap); });
   window.addEventListener('pagehide', () => session.dispose());
+  // Старт: восстановить настройки; если есть автосохранение — предложить его.
+  applySettings(store.loadSettings());
+  const prevAutosave = store.loadAutosave();
+  if (prevAutosave) $('btnResume').style.display = '';
+  refreshList();
   newGame();
+  autosaveEnabled = true;
 })();
 </script>
 </body>
