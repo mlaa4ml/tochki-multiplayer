@@ -135,7 +135,12 @@
     $('btnStart').disabled = !bb || snap.gameOver || st.running;
     $('btnPause').disabled = !bb || !st.running;
     $('btnStep').disabled = !bb || snap.gameOver || st.searching;
-    if (st.lastTrace) $('trace').value = JSON.stringify(st.lastTrace, null, 1);
+        const t = st.lastTrace;
+    $('trace').value = t ? JSON.stringify(t, null, 1) : '';
+    $('searchSummary').textContent = t
+      ? 'Глубина: ' + t.completedDepth + ' · Узлов: ' + t.nodes + ' · Причина остановки: ' + t.stopReason
+      : 'Поиск ещё не выполнялся.';
+    $('searchCandidates').textContent = t ? 'Кандидаты и оценки:\n' + JSON.stringify(t.candidates, null, 1) : '';
   }
 
   function parseWeights(id){
