@@ -123,6 +123,7 @@ function transformHtml(html){
   // (по умолчанию он ищется в '../botWorker.js' — раскладка репозитория).
   return html
     .replace(engineTag, '<script>self.TOCHKI_BOT_WORKER_URL = \'botWorker.js\';</script>\n<script src="gameEngine.js"></script>')
+        .replace('<script src="../replay.js"></script>', '<script src="replay.js"></script>')
     .replace('</head>', PWA_HEAD + '</head>')
     .replace('</body>', PWA_BODY + '</body>');
 }
