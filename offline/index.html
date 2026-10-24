@@ -195,8 +195,99 @@
     try { return JSON.parse(v); } catch (e){ alert('Некорректный JSON весов в ' + id); throw e; }
   }
 
+  // --- Хранилище (B03): отказ/quota не бросает исключений и не блокирует игру. ---
+  const store = window.TochkiStorage.createStorage();
+  function storageNote(r){
+    if (r && r.ok === false) $('storageStatus').textContent = 'Хранилище недоступно (игра продолжается): ' + r.error;
+  }
+  (function(){ const a = store.available();
+    if (!a.localStorage || !a.indexedDB) $('storageStatus').textContent = 'Хранилище: localStorage ' + (a.localStorage ? 'есть' : 'нет') +
+      ', IndexedDB ' + (a.indexedDB ? 'есть' : 'нет') + ' — сохранения отключены, игра работает.'; })();
+  let autosaveEnabled = false; // включается после старта, чтобы не затереть старое автосохранение
+  function autosave(snap, st){
+    if (!autosaveEnabled || !st || st.moveCount === 0) return;
+    try { storageNote(store.saveAutosave(session.getReplay())); } catch (e){ storageNote({ ok: false, error: String(e && e.message || e) }); }
+  }
+  function replayMsg(text, isError){ $('replayMsg').textContent = text; $('replayMsg').style.color = isError ? '#b00020' : '#2b6e2b'; }
+  function loadReplayText(input, label){
+    const r = session.loadReplay(input);
+    if (!r.ok){ replayMsg('Импорт отклонён (' + label + '): ' + r.reason + '. Текущая партия не изменена.', true); return false; }
+    replayMsg('Загружен реплей (' + label + '). Места: человек–человек; продолжить можно ходами.', false);
+    return true;
+  }
+  function settingsFromForm(){
+    return { size: sizeSel.value, targetScore: $('targetScore').value, targetFill: $('targetFill').value,
+      extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+      c1: $('c1').value, c2: $('c2').value, w1: $('w1').value, w2: $('w2').value, delay: $('delay').value };
+  }
+  function applySettings(s){
+    if (!s) return;
+    const setV = (id, v) => { if (typeof v === 'string' && Array.from($(id).options || [{ value: v }]).some(o => o.value === v)) $(id).value = v; };
+    setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+    for (const id of ['targetScore', 'targetFill', 'w1', 'w2', 'delay']) if (typeof s[id] === 'string') $(id).value = s[id];
+    if (typeof s.extra === 'boolean') $('extra').checked = s.extra;
+    if (typeof s.undoAllowed === 'boolean') $('undoAllowed').checked = s.undoAllowed;
+    $('delayVal').textContent = $('delay').value;
+  }
+  function refreshList(){
+    const sel = $('replayList');
+    store.listReplays().then(r => {
+      sel.textContent = '';
+      if (!r.ok){ storageNote(r); const o = document.createElement('option'); o.textContent = '(IndexedDB недоступен)'; o.value = ''; sel.appendChild(o); return; }
+      if (!r.value.length){ const o = document.createElement('option'); o.textContent = '(нет сохранённых реплеев)'; o.value = ''; sel.appendChild(o); }
+      r.value.sort((a, b) => b.savedAt - a.savedAt).forEach(x => {
+        const o = document.createElement('option'); o.value = String(x.id);
+        const s = x.summary || {};
+        o.textContent = x.name + ' · ' + new Date(x.savedAt).toLocaleString() + ' · ходов ' + (s.moves ?? '?') +
+          (s.scores ? ' · ' + s.scores[1] + ':' + s.scores[2] : '');
+        sel.appendChild(o);
+      });
+    });
+  }
+
   const session = window.TochkiLocalSession.createLocalSession({ delayMs: 300 });
   session.subscribe(update);
+
+  $('btnExport').onclick = () => {
+    let text;
+    try { text = session.exportReplay(); } catch (e){ replayMsg('Экспорт не удался: ' + (e && e.message || e), true); return; }
+    if (!text) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    a.download = 'tochki-replay-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    replayMsg('Реплей экспортирован в JSON (общий формат tochki-replay v1).', false);
+  };
+  $('importFile').onchange = ev => {
+    const f = ev.target.files && ev.target.files[0]; if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => { loadReplayText(String(fr.result), f.name); ev.target.value = ''; };
+    fr.onerror = () => { replayMsg('Не удалось прочитать файл: ' + (fr.error && fr.error.message), true); ev.target.value = ''; };
+    fr.readAsText(f);
+  };
+  $('btnSaveReplay').onclick = () => {
+    const r = session.getReplay(); if (!r) return;
+    store.saveReplay('Партия ' + new Date().toLocaleString(), r).then(res => {
+      if (res.ok){ replayMsg('Реплей сохранён в браузере (IndexedDB).', false); refreshList(); }
+      else { replayMsg('Не удалось сохранить: ' + res.error + '. Используйте «Экспорт JSON».', true); storageNote(res); }
+    });
+  };
+  $('btnLoadReplay').onclick = () => {
+    const id = Number($('replayList').value); if (!id) return;
+    store.getReplay(id).then(res => {
+      if (!res.ok || !res.value){ replayMsg('Не удалось прочитать реплей: ' + (res.error || 'не найден'), true); return; }
+      loadReplayText(res.value, 'IndexedDB #' + id);
+    });
+  };
+  $('btnDelReplay').onclick = () => {
+    const id = Number($('replayList').value); if (!id) return;
+    store.deleteReplay(id).then(res => { if (!res.ok) storageNote(res); refreshList(); });
+  };
+  $('btnResume').onclick = () => {
+    const saved = store.loadAutosave();
+    if (saved && loadReplayText(saved, 'автосохранение')) $('btnResume').style.display = 'none';
+  };
 
   function newGame(){
     session.newGame({
