@@ -52,7 +52,11 @@
     <div><span id="spinner">⏳ бот думает…</span></div>
     <div id="info"></div>
     <div id="error"></div>
-    <details><summary>Диагностика поиска</summary><textarea id="trace" rows="8" readonly></textarea></details>
+        <details><summary>Диагностика поиска</summary>
+      <div id="searchSummary" role="status">Поиск ещё не выполнялся.</div>
+      <pre id="searchCandidates" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+      <textarea id="trace" rows="8" readonly aria-label="Полный trace поиска"></textarea>
+    </details>
   </div>
   <canvas id="board" width="600" height="500"></canvas>
 </div>
