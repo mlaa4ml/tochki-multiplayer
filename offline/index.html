@@ -290,6 +290,8 @@
   };
 
   function newGame(){
+    storageNote(store.saveSettings(settingsFromForm()));
+    $('replayMsg').textContent = '';
     session.newGame({
       sizeKey: sizeSel.value,
       firstPlayer: Number($('first').value),
