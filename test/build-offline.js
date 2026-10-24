@@ -175,6 +175,8 @@ async function main(){
     let last = null;
     s.subscribe((snap, st) => { last = st; });
     s.newGame({ sizeKey: 'small', controllers: { 1: 'normal', 2: 'human' } });
+    // Ход бота планируется через setTimeout(0) — ждём, пока он отработает.
+    await new Promise(r => setTimeout(r, 20));
     assert.ok(last && /Worker/.test(last.workerError || ''), 'workerError при недоступном Worker: ' + (last && last.workerError));
     assert.strictEqual(last.searching, false, 'нет зависшего поиска');
     s.dispose();
