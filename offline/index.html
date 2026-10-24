@@ -154,7 +154,40 @@
     $('btnStart').disabled = !bb || snap.gameOver || st.running;
     $('btnPause').disabled = !bb || !st.running;
     $('btnStep').disabled = !bb || snap.gameOver || st.searching;
-    if (st.lastTrace) $('trace').value = JSON.stringify(st.lastTrace, null, 1);
+    renderDiag(st.lastTrace);
+    autosave(snap, st);
+  }
+
+  // --- Панель диагностики (B03): данные trace из A04 (Engine.searchMove). ---
+  const STOP_REASONS = { time: 'лимит времени', 'node-limit': 'лимит узлов', 'max-depth': 'достигнута макс. глубина',
+    'immediate-win': 'немедленная победа', 'no-candidates': 'нет кандидатов', 'no-legal-moves': 'нет легальных ходов',
+    'game-over': 'партия окончена' };
+  function fmtScore(v){ return typeof v === 'number' ? (Number.isFinite(v) ? (Math.round(v * 100) / 100).toString() : (v > 0 ? '+∞' : '−∞')) : String(v); }
+  function renderDiag(t){
+    const tbody = $('diagTable').tBodies[0];
+    tbody.textContent = '';
+    if (!t){ $('diagSummary').textContent = 'нет данных: бот ещё не ходил'; $('trace').value = ''; return; }
+    const p = t.params || {};
+    const reason = t.stopReason ? (STOP_REASONS[t.stopReason] || t.stopReason) + ' [' + t.stopReason + ']' : '—';
+    $('diagSummary').textContent = 'Ход: ' + fmtMove(t.move) +
+      ' · глубина: ' + (t.completedDepth ?? '—') + (p.maxDepth ? ' / ' + p.maxDepth : '') +
+      ' · узлов: ' + (t.nodes ?? '—') + (p.nodeLimit ? ' / ' + p.nodeLimit : '') +
+      ' · время: ' + (t.elapsedMs ?? '—') + ' мс' +
+      ' · остановка: ' + reason + (t.fallback ? ' · резервный ход: ' + t.fallback : '');
+    const cands = (t.candidates || []).slice().sort((a, b) => b.score - a.score);
+    if (!cands.length){
+      const tr = tbody.insertRow(); const td = tr.insertCell(); td.colSpan = 3;
+      td.textContent = 'кандидатов с оценкой нет (ни одна итерация не завершена)';
+    }
+    cands.forEach((c, i) => {
+      const tr = tbody.insertRow();
+      const chosen = t.move && c.x === t.move.x && c.y === t.move.y;
+      if (chosen) tr.style.fontWeight = '700';
+      [String(i + 1), fmtMove(c) + (chosen ? ' ✓' : ''), fmtScore(c.score)].forEach((v, k) => {
+        const td = tr.insertCell(); td.textContent = v; td.style.padding = '0 6px'; if (k === 2) td.style.textAlign = 'right';
+      });
+    });
+    $('trace').value = JSON.stringify(t, null, 1);
   }
 
   function parseWeights(id){
