@@ -223,6 +223,32 @@
       return match.getSnapshot();
     }
 
+        // Validate and reconstruct in isolation before cancelling the live match.
+    // Imported games are paused, with human seats, so playback never starts a bot.
+    function importReplay(input, eventCount){
+      if (disposed) throw new Error('session disposed');
+      let replacement = Replay.play(input);
+      const replay = replacement.getReplay();
+      if (eventCount !== undefined){
+        if (!Number.isInteger(eventCount) || eventCount < 0 || eventCount > replay.events.length)
+          throw new Error('Replay: invalid playback position');
+        const prefix = JSON.parse(JSON.stringify(replay));
+        prefix.events = prefix.events.slice(0, eventCount);
+        // A terminal move and its mandatory rule-end event form one position.
+        const next = replay.events[eventCount];
+        if (next && next.type === 'end' && next.reason === 'rule') prefix.events.push(next);
+        replacement = Replay.play(prefix);
+      }
+      invalidate();
+      match = replacement;
+      gameId = 'local-' + (++gameSeq);
+      controllers = { 1: { type: 'human' }, 2: { type: 'human' } };
+      running = false;
+      workerError = lastError = lastTrace = null;
+      emit();
+      return match.getSnapshot();
+    }
+
     function move(x, y){
       if (disposed || !match) return { ok: false, reason: 'no-game' };
       const snap = match.getSnapshot();
