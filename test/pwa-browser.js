@@ -24,7 +24,7 @@ async function main(){
       await page.selectOption('#c1', 'normal');
       await page.selectOption('#c2', 'normal');
       await page.fill('#targetFill', '1');
-      await page.fill('#delay', '0');
+      await page.locator('#delay').evaluate(el => { el.value = '0'; el.dispatchEvent(new Event('input')); });
       await page.click('#btnNew');
       await page.click('#btnStart');
       await page.waitForFunction(() => document.querySelector('#status').textContent.includes('Партия окончена'));
