@@ -21,9 +21,9 @@
 //   - отказ/недоступность Worker'а переводит сессию в явное состояние
 //     workerError; синхронного fallback-поиска в основном потоке НЕТ.
 (function(root, factory){
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('../gameEngine.js'));
-  else root.TochkiLocalSession = factory(root.TochkiEngine);
-})(typeof self !== 'undefined' ? self : this, function(DefaultEngine){
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('../gameEngine.js'), require('../replay.js'));
+  else root.TochkiLocalSession = factory(root.TochkiEngine, root.TochkiReplay);
+})(typeof self !== 'undefined' ? self : this, function(DefaultEngine, Replay){
   'use strict';
 
   const BOT_TYPES = { normal: true, strong: true };
