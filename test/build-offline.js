@@ -22,7 +22,7 @@ async function main(){
   const { manifest } = build({ out: outDir });
   const files = fs.readdirSync(outDir).sort();
   assert.deepStrictEqual(files,
-    ['botWorker.js', 'build-manifest.json', 'gameEngine.js', 'index.html', 'localSession.js'],
+    ['botWorker.js', 'build-manifest.json', 'gameEngine.js', 'index.html', 'localSession.js', 'manifest.webmanifest', 'pwa.js', 'sw.js'],
     'состав артефакта');
   console.log('ok - состав артефакта: ' + files.join(', '));
 
