@@ -350,7 +350,8 @@
     }
 
     return {
-      newGame, move, snapshot, undo, end, subscribe, dispose,
+            newGame, importReplay, move, snapshot, undo, end, subscribe, dispose,
+      exportReplay: () => match ? Replay.stringify(match) : null,
       start, pause, step, setControllers, setDelay, status,
       getReplay: () => match ? match.getReplay() : null
     };
