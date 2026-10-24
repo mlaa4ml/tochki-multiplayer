@@ -129,6 +129,7 @@ python3 -m http.server 8080 -d dist/offline   # или: npx http-server dist/off
 
 ```sh
 npm run test:offline   # node test/offline-session.js — fake Worker, гонки, партии до конца
+node test/offline-replay.js  # B03 (#26): экспорт/импорт реплея A02, атомарный импорт, отказ/quota хранилища
 ```
 
 ## Ручная проверка в браузерах
