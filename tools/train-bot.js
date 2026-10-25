@@ -149,7 +149,10 @@ function rejectOpening(reason){
 // fillPercentOverride (--fill-percent) учитывается: дебют, партия по которому
 // при переопределённом пороге заполнения завершилась бы внутри префикса,
 // явно отклоняется (а не засчитывается как результат партии).
-function validateOpening(sizeKey, opening, fillPercentOverride){
+// По умолчанию берётся глобальное переопределение из --fill-percent
+// (выставляется в main() до загрузки дебютов).
+let FILL_PERCENT_OVERRIDE = null;
+function validateOpening(sizeKey, opening, fillPercentOverride = FILL_PERCENT_OVERRIDE){
   try {
     const Runner = require('./bench/runner.js');
     const m = Engine.createMatch({ sizeKey, targetScore: opening.targetScore || 0,
