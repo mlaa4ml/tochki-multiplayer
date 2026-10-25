@@ -598,11 +598,26 @@ async function handleApiRequest(req, res, auth, gameLog, admin){
       return sendJson(res, 400, { error: 'weights-must-include', keys: TrainBot.WEIGHT_KEYS }), true;
     }
 
+    // B05 (issue #28): внешние веса публикуются по тому же заранее выбранному
+    // критерию, что и tools/publish-weights.js: нужен test-отчёт benchmark
+    // (body.report) для этих же весов с нижней границей 95% CI > 0.5 и без
+    // ошибок корректности. Иначе запись в bot_weights обходила бы проверку.
+    const PublishWeights = require('./tools/publish-weights.js');
+    const candidate = { format: 'tochki-weights-candidate', version: 1, difficulty, weights: w,
+      bundle: { engineVersion: Engine.ENGINE_VERSION, botVersion: Engine.BOT_VERSION, source: 'external' } };
+    const chk = PublishWeights.checkReport(body.report, candidate);
+    if (!chk.ok) return sendJson(res, 422, { error: 'publication-criterion-not-met', criterion: PublishWeights.CRITERION, reasons: chk.reasons }), true;
+    const cur = gameLog.getCurrentBotWeights(difficulty);
+    const previous = cur
+      ? { id: null, weights: { potential: cur.potential, cohesion: cur.cohesion, stones: cur.stones, liberty: cur.liberty }, source: cur.meta && cur.meta.source }
+      : { id: null, weights: { ...Engine.BOT_WEIGHTS }, source: 'engine-default' };
     gameLog.saveBotWeights(difficulty, w, {
       source: 'external',
-      winRate: typeof body.winRate === 'number' ? body.winRate : null,
-      gamesPlayed: typeof body.gamesPlayed === 'number' ? body.gamesPlayed : null,
-      note: typeof body.note === 'string' ? body.note.slice(0, 500) : 'загружено вручную через /api/admin/bot-weights'
+      winRate: body.report.vsBaseline.score,
+      gamesPlayed: body.report.vsBaseline.pairs * 2,
+      note: JSON.stringify({ format: 'tochki-weights-publication', version: 1, action: 'publish', criterion: PublishWeights.CRITERION,
+        bundle: candidate.bundle, test: { corpus: body.report.corpus, vsBaseline: body.report.vsBaseline }, previous,
+        comment: typeof body.note === 'string' ? body.note.slice(0, 500) : undefined })
     });
     sendJson(res, 201, { saved: true, difficulty, weights: w });
     return true;
@@ -704,7 +719,11 @@ function createTrainingRunner({ dbPath, adminToken }){
       '--games', String(params.games),
       '--size', params.sizeKey,
       '--seed', String(params.seed),
-      '--db', dbPath
+      '--db', dbPath,
+      // B05 (issue #28): обучение больше не публикует веса в bot_weights —
+      // пишет файл-кандидат рядом с БД; публикация только через
+      // tools/publish-weights.js по test-benchmark (docs/B05_WEIGHTS.md).
+      '--out', path.join(path.dirname(dbPath), `weights-candidate-${params.difficulty}-${params.seed}.json`)
     ];
     if (params.fillPercent !== undefined) args.push('--fill-percent', String(params.fillPercent));
     const child = spawn(process.execPath, args, { cwd: __dirname });

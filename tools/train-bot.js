@@ -64,9 +64,18 @@ function parseArgs(argv){
     else if (a === '--size') out.sizeKey = val();
     else if (a === '--seed') out.seed = parseInt(val(), 10) >>> 0;
     else if (a === '--fill-percent') out.fillPercent = parseInt(val(), 10);
+        else if (a === '--out') out.out = val();
+    else if (a === '--corpus') out.corpus = val();       // путь к корпусу или 'none'
+    else if (a === '--baseline') out.baseline = val();   // файл замороженного пула
+    else if (a === '--no-pool') out.noPool = true;
   }
   return out;
 }
+
+// B05: счётчики для отчёта кандидата — отклонённые (невалидные) дебюты и
+// партии, обрезанные по лимиту ходов, учитываются отдельно, а не молча.
+const openingStats = { rejected: 0, rejectedReasons: [] };
+const gameStats = { truncated: 0 };
 
 // Небольшой детерминированный ГПСЧ (xorshift32) — чтобы прогон с тем же
 // --seed был воспроизводим: та же выборка дебютов, те же случайные веса.
@@ -115,14 +124,66 @@ function loadOpenings(gameLog, sizeKey, maxPrefixLen){
     // it contains cancelled moves. Validate the entire source first.
     let source;
     try { source = require('../replay.js').play(replay.data); }
-    catch (_) { continue; }
+    catch (e) { rejectOpening(`game ${game.id}: replay invalid: ${e.message}`); continue; }
     const moves = source.getMoveLog();
-    if (!moves.length) continue;
+    if (!moves.length) { rejectOpening(`game ${game.id}: empty move log`); continue; }
     const prefixLen = Math.min(maxPrefixLen, moves.length);
     const prefix = moves.slice(0, prefixLen).map(m => ({ x: m.x, y: m.y, seat: m.p }));
-    openings.push({ prefix, ...source.getSnapshot().rules });
+    const opening = { prefix, ...source.getSnapshot().rules };
+    const err = validateOpening(sizeKey, opening);
+    if (err) { rejectOpening(`game ${game.id}: ${err}`); continue; }
+    openings.push(opening);
   }
   return openings;
+}
+
+function rejectOpening(reason){
+  openingStats.rejected++;
+  if (openingStats.rejectedReasons.length < 50) openingStats.rejectedReasons.push(reason);
+  console.warn('Дебют отклонён: ' + reason);
+}
+
+// B05: строгая проверка префикса тем же правилом, что в benchmark
+// (Runner.applyPrefix): любой нелегальный ход или конец партии внутри
+// префикса — отказ с причиной. Возвращает null или текст ошибки.
+// fillPercentOverride (--fill-percent) учитывается: дебют, партия по которому
+// при переопределённом пороге заполнения завершилась бы внутри префикса,
+// явно отклоняется (а не засчитывается как результат партии).
+// По умолчанию берётся глобальное переопределение из --fill-percent
+// (выставляется в main() до загрузки дебютов).
+let FILL_PERCENT_OVERRIDE = null;
+function validateOpening(sizeKey, opening, fillPercentOverride = FILL_PERCENT_OVERRIDE){
+  try {
+    const Runner = require('./bench/runner.js');
+    const m = Engine.createMatch({ sizeKey, targetScore: opening.targetScore || 0,
+      targetFillPercent: fillPercentOverride != null ? fillPercentOverride : opening.targetFillPercent,
+      firstPlayer: opening.firstPlayer || 1,
+      extraTurnOnCapture: opening.extraTurnOnCapture === true, undoAllowed: opening.undoAllowed !== false });
+    Runner.applyPrefix(m, opening.prefix, () => {});
+    return null;
+  } catch (e){ return e.message; }
+}
+
+// B05: дебюты ТОЛЬКО из train-набора версионированного корпуса
+// (validation/test зарезервированы под отбор/публикацию в benchmark).
+function loadCorpusTrainOpenings(corpusPath, sizeKey){
+  const corpus = JSON.parse(require('fs').readFileSync(corpusPath, 'utf8'));
+  const list = ((corpus.openings || {})[sizeKey] || {}).train || [];
+  const out = [];
+  for (const o of list){
+    const opening = { prefix: o.prefix, targetScore: o.rules.targetScore, targetFillPercent: o.rules.targetFillPercent,
+      firstPlayer: o.rules.firstPlayer, extraTurnOnCapture: o.rules.extraTurnOnCapture, undoAllowed: o.rules.undoAllowed };
+    const err = validateOpening(sizeKey, opening);
+    if (err) { rejectOpening(`${o.id}: ${err}`); continue; }
+    out.push(opening);
+  }
+  return out;
+}
+
+// B05: пул замороженных соперников (baseline + pool из weights.v1.json).
+function loadFrozenPool(baselinePath){
+  const b = JSON.parse(require('fs').readFileSync(baselinePath, 'utf8'));
+  return [{ id: 'baseline', weights: b.weights }].concat(b.pool || []);
 }
 
 // ---------- Одна self-play партия между двумя наборами весов ----------
@@ -180,11 +241,15 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
   if (opening){
     for (const mv of opening.prefix){
       const res = match.applyMove(mv.seat, mv.x, mv.y);
-      // Несовместимый/повреждённый дебют (например race between sizeKey и
-      // реальными границами доски) — не роняем прогон, просто доигрываем
-      // self-play с той позиции, до которой дошли.
-      if (!res.ok) break;
-      if (res.gameOver) return res.winner;
+      // B05 (issue #28): невалидный префикс больше НЕ пропускается молча
+      // (раньше был break и доигрывание с середины). Дебюты проверяются
+      // при загрузке (loadOpenings), здесь — защитная явная ошибка.
+      if (!res.ok) throw new Error(`invalid opening prefix move: ${res.reason}`);
+      // B05: конец партии внутри префикса — невалидный дебют (в т.ч. при
+      // переопределённом --fill-percent). Такие дебюты отклоняются при
+      // загрузке (validateOpening учитывает --fill-percent); здесь —
+      // защитная явная ошибка, результат НЕ засчитывается.
+      if (res.gameOver) throw new Error('invalid opening prefix: game ended inside prefix');
     }
   }
 
@@ -200,6 +265,8 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
     moves++;
     if (res.gameOver) break;
   }
+  // B05: партия, упершаяся в лимит ходов, — обрезанная; считаем отдельно.
+  if (moves >= maxMoves && !match.getSnapshot().gameOver) gameStats.truncated++;
   const finalSnap = match.getSnapshot();
   const s1 = finalSnap.scores[1], s2 = finalSnap.scores[2];
   return s1 > s2 ? 1 : (s2 > s1 ? 2 : 0);
@@ -228,6 +295,8 @@ function contest(sizeKey, openings, incumbent, candidate, games, rng, fillPercen
 function main(){
   const args = parseArgs(process.argv.slice(2));
   const rng = makeRng(args.seed);
+  // B05: дебюты валидируются с учётом --fill-percent (до loadOpenings).
+  FILL_PERCENT_OVERRIDE = args.fillPercent != null && !Number.isNaN(args.fillPercent) ? args.fillPercent : null;
 
   // Без --db открывает тот же файл, что и сервер по умолчанию (см.
   // DB_PATH / data/tochki.db в db.js) — тренируемся на реальном
@@ -235,7 +304,15 @@ function main(){
   const db = openDatabase(args.dbPath);
   const gameLog = createGameLog(db);
 
-  const openings = loadOpenings(gameLog, args.sizeKey, 6);
+    // B05: обучающие дебюты = дебюты людей из БД (они не входят в
+  // validation/test корпуса) + train-набор версионированного корпуса.
+  // validation/test корпуса сюда НЕ попадают никогда.
+  const path = require('path');
+  const corpusPath = args.corpus || path.join(__dirname, 'bench', 'corpus', 'openings.v1.json');
+  const openings = loadOpenings(gameLog, args.sizeKey, 6)
+    .concat(args.corpus === 'none' ? [] : loadCorpusTrainOpenings(corpusPath, args.sizeKey));
+  const frozenPool = args.noPool ? [] : loadFrozenPool(args.baseline || path.join(__dirname, 'bench', 'baseline', 'weights.v1.json'));
+  console.log(`Пул замороженных соперников: ${frozenPool.map(p => p.id).join(', ') || '(отключён)'}`);
   console.log(`Дебютов из БД для sizeKey=${args.sizeKey}: ${openings.length}` +
     (openings.length ? '' : ' (нет подходящих доигранных партий — self-play стартует с пустой доски)'));
 
@@ -258,8 +335,22 @@ function main(){
 
     for (let p = 0; p < args.population; p++){
       const candidate = mutate(incumbent, rng, strength);
-      const result = contest(args.sizeKey, openings, incumbent, candidate, args.games, rng, args.fillPercent);
+      const vsInc = contest(args.sizeKey, openings, incumbent, candidate, args.games, rng, args.fillPercent);
       totalGamesPlayed += args.games;
+      // B05: кандидат играет и против пула ЗАМОРОЖЕННЫХ соперников —
+      // иначе ES может «переобучиться» под текущий эталон (циклы
+      // камень-ножницы-бумага). Fitness = средний winRate по эталону и пулу.
+      const parts = [vsInc];
+      for (const opp of frozenPool){
+        parts.push(contest(args.sizeKey, openings, opp.weights, candidate, args.games, rng, args.fillPercent));
+        totalGamesPlayed += args.games;
+      }
+      const result = {
+        candidateWins: parts.reduce((s, r) => s + r.candidateWins, 0),
+        incumbentWins: parts.reduce((s, r) => s + r.incumbentWins, 0),
+        draws: parts.reduce((s, r) => s + r.draws, 0),
+        winRate: parts.reduce((s, r) => s + r.winRate, 0) / parts.length
+      };
       console.log(
         `  поколение ${gen}, кандидат ${p + 1}/${args.population}: ` +
         `winRate=${result.winRate.toFixed(2)} (${result.candidateWins}W/${result.incumbentWins}L/${result.draws}D)` +
@@ -285,15 +376,35 @@ function main(){
   }
 
   console.log('\nИтоговые веса:', incumbent);
-  gameLog.saveBotWeights(args.difficulty, incumbent, {
-    source: 'trained',
-    winRate: lastWinRate,
-    gamesPlayed: totalGamesPlayed,
-    note: `${incumbentLabel}; self-play, openings=${openings.length}, seed=${args.seed}`
-  });
-  console.log(`Сохранено в bot_weights (difficulty=${args.difficulty}). Сервер подхватит эти веса на следующем ходе бота без перезапуска.`);
+  // B05 (issue #28): результат отбора на обучающих партиях НЕ публикуется.
+  // Пишем файл-кандидат со связкой «веса + правила + код»; в bot_weights
+  // веса попадают только через tools/publish-weights.js по отчёту
+  // независимого парного benchmark на test-наборе.
+  const candidate = {
+    format: 'tochki-weights-candidate', version: 1,
+    difficulty: args.difficulty, weights: incumbent,
+    bundle: {
+      engineVersion: Engine.ENGINE_VERSION, botVersion: Engine.BOT_VERSION,
+      baseWeightsVersion: Engine.WEIGHTS_VERSION, commit: codeCommit(),
+      selection: { method: '(1+λ)-ES self-play', split: 'train', sizeKey: args.sizeKey,
+        seed: args.seed, generations: args.generations, population: args.population,
+        games: args.games, fillPercent: args.fillPercent ?? null, nodeLimit: SEARCH_CLI.nodeLimit ?? null,
+        openings: openings.length, rejectedOpenings: openingStats.rejected,
+        gamesPlayed: totalGamesPlayed, truncatedGames: gameStats.truncated, lastWinRate, label: incumbentLabel }
+    },
+    createdAt: new Date().toISOString()
+  };
+  const outPath = args.out || require('path').join(process.cwd(), `weights-candidate-${args.difficulty}-${args.seed}.json`);
+  require('fs').writeFileSync(outPath, JSON.stringify(candidate, null, 2));
+  console.log(`Обрезанных партий (лимит ходов): ${gameStats.truncated} из ${totalGamesPlayed}; отклонённых дебютов: ${openingStats.rejected}`);
+  console.log(`Кандидат сохранён: ${outPath}. В бой НЕ опубликован — проверьте benchmark на test и используйте tools/publish-weights.js (docs/B05_WEIGHTS.md).`);
 
   db.close();
+}
+
+function codeCommit(){
+  try { return require('child_process').execSync('git rev-parse HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); }
+  catch (_){ return null; }
 }
 
 // Только когда файл запущен напрямую (node tools/train-bot.js) — не когда
