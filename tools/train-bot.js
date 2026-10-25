@@ -285,15 +285,35 @@ function main(){
   }
 
   console.log('\nИтоговые веса:', incumbent);
-  gameLog.saveBotWeights(args.difficulty, incumbent, {
-    source: 'trained',
-    winRate: lastWinRate,
-    gamesPlayed: totalGamesPlayed,
-    note: `${incumbentLabel}; self-play, openings=${openings.length}, seed=${args.seed}`
-  });
-  console.log(`Сохранено в bot_weights (difficulty=${args.difficulty}). Сервер подхватит эти веса на следующем ходе бота без перезапуска.`);
+  // B05 (issue #28): результат отбора на обучающих партиях НЕ публикуется.
+  // Пишем файл-кандидат со связкой «веса + правила + код»; в bot_weights
+  // веса попадают только через tools/publish-weights.js по отчёту
+  // независимого парного benchmark на test-наборе.
+  const candidate = {
+    format: 'tochki-weights-candidate', version: 1,
+    difficulty: args.difficulty, weights: incumbent,
+    bundle: {
+      engineVersion: Engine.ENGINE_VERSION, botVersion: Engine.BOT_VERSION,
+      baseWeightsVersion: Engine.WEIGHTS_VERSION, commit: codeCommit(),
+      selection: { method: '(1+λ)-ES self-play', split: 'train', sizeKey: args.sizeKey,
+        seed: args.seed, generations: args.generations, population: args.population,
+        games: args.games, fillPercent: args.fillPercent ?? null, nodeLimit: SEARCH_CLI.nodeLimit ?? null,
+        openings: openings.length, rejectedOpenings: openingStats.rejected,
+        gamesPlayed: totalGamesPlayed, truncatedGames: gameStats.truncated, lastWinRate, label: incumbentLabel }
+    },
+    createdAt: new Date().toISOString()
+  };
+  const outPath = args.out || require('path').join(process.cwd(), `weights-candidate-${args.difficulty}-${args.seed}.json`);
+  require('fs').writeFileSync(outPath, JSON.stringify(candidate, null, 2));
+  console.log(`Обрезанных партий (лимит ходов): ${gameStats.truncated} из ${totalGamesPlayed}; отклонённых дебютов: ${openingStats.rejected}`);
+  console.log(`Кандидат сохранён: ${outPath}. В бой НЕ опубликован — проверьте benchmark на test и используйте tools/publish-weights.js (docs/B05_WEIGHTS.md).`);
 
   db.close();
+}
+
+function codeCommit(){
+  try { return require('child_process').execSync('git rev-parse HEAD', { cwd: __dirname, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); }
+  catch (_){ return null; }
 }
 
 // Только когда файл запущен напрямую (node tools/train-bot.js) — не когда
