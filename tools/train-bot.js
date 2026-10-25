@@ -186,11 +186,11 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
   if (opening){
     for (const mv of opening.prefix){
       const res = match.applyMove(mv.seat, mv.x, mv.y);
-      // Несовместимый/повреждённый дебют (например race between sizeKey и
-      // реальными границами доски) — не роняем прогон, просто доигрываем
-      // self-play с той позиции, до которой дошли.
-      if (!res.ok) break;
-      if (res.gameOver) return res.winner;
+      // B05 (issue #28): невалидный префикс больше НЕ пропускается молча
+      // (раньше был break и доигрывание с середины). Дебюты проверяются
+      // при загрузке (loadOpenings), здесь — защитная явная ошибка.
+      if (!res.ok) throw new Error(`invalid opening prefix move: ${res.reason}`);
+      if (res.gameOver) throw new Error('opening prefix ends the game');
     }
   }
 
