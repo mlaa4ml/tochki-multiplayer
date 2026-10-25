@@ -539,8 +539,8 @@
     // то есть положительно и за собственную оборону, и за давление на чужие
     // группы. weights.liberty может отсутствовать у старых сохранённых
     // весов (из БД/прежних версий) — тогда просто не влияет на оценку.
-    const ownGroups = computeGroupLiberties(state, rows, cols, forPlayer);
-    const oppGroups = computeGroupLiberties(state, rows, cols, opponent);
+    const ownGroups = nodeGroups(ctx, state, rows, cols, forPlayer);
+    const oppGroups = nodeGroups(ctx, state, rows, cols, opponent);
     const libertyDiff = libertyRisk(oppGroups) - libertyRisk(ownGroups);
 
     // A09: признак выключен по умолчанию; считается только при ненулевом весе,
