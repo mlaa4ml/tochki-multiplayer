@@ -704,7 +704,11 @@ function createTrainingRunner({ dbPath, adminToken }){
       '--games', String(params.games),
       '--size', params.sizeKey,
       '--seed', String(params.seed),
-      '--db', dbPath
+      '--db', dbPath,
+      // B05 (issue #28): обучение больше не публикует веса в bot_weights —
+      // пишет файл-кандидат рядом с БД; публикация только через
+      // tools/publish-weights.js по test-benchmark (docs/B05_WEIGHTS.md).
+      '--out', path.join(path.dirname(dbPath), `weights-candidate-${params.difficulty}-${params.seed}.json`)
     ];
     if (params.fillPercent !== undefined) args.push('--fill-percent', String(params.fillPercent));
     const child = spawn(process.execPath, args, { cwd: __dirname });
