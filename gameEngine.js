@@ -747,6 +747,7 @@
     const reason = transitionRejectReason(node, player, x, y);
     if (reason) return { ok:false, reason };
     const { state, rows, cols, rules } = node;
+    GROUP_CACHE.delete(node); // B04: узел мутируется — кеш карт недействителен
     state.stone[y][x] = player;
     if (state.territory[y][x] !== 0) state.territory[y][x] = 0;
     node.stonesPlacedTotal++;
