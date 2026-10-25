@@ -113,37 +113,45 @@
   function runCaptures(state, player, rows, cols){
     const { stone, dead, territory } = state;
     const opponent = player === 1 ? 2 : 1;
-    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    // B04 (issue #27): профиль показал runCaptures главным bottleneck
+    // (~33% CPU + GC от аллокаций [x,y]-пар и массива направлений на каждую
+    // клетку). Заливка переписана на плоские типизированные массивы БЕЗ
+    // изменения семантики: тот же порядок обхода (соседи +x, -x, +y, -y,
+    // стек LIFO), поэтому и состояние, и порядок gained идентичны прежним.
+    const n = rows * cols;
+    const visited = new Uint8Array(n);
+    const stack = new Int32Array(n);  // каждая клетка кладётся не более раза
+    const region = new Int32Array(n);
     const gained = [];
+    const wall = (wx, wy) => {
+      const d = dead[wy][wx];
+      return d === player || territory[wy][wx] === player || (d === 0 && stone[wy][wx] === player);
+    };
 
     for (let y=0; y<rows; y++){
       for (let x=0; x<cols; x++){
-        if (visited[y][x]) continue;
-        if (isWall(state, x, y, player)){
-          visited[y][x] = true;
-          continue;
-        }
-        const stack = [[x,y]];
-        const region = [];
+        const i0 = y*cols + x;
+        if (visited[i0]) continue;
+        visited[i0] = 1;
+        if (wall(x, y)) continue;
+        let sp = 0, rn = 0;
+        stack[sp++] = i0;
         let touchesBorder = false;
         let containsLiveOpponent = false;
-        visited[y][x] = true;
-        while (stack.length){
-          const [cx,cy] = stack.pop();
-          region.push([cx,cy]);
+        while (sp > 0){
+          const ci = stack[--sp];
+          const cy = (ci / cols) | 0, cx = ci - cy*cols;
+          region[rn++] = ci;
           if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) touchesBorder = true;
           if (stone[cy][cx] === opponent && dead[cy][cx] === 0) containsLiveOpponent = true;
-          for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
-            const nx=cx+dx, ny=cy+dy;
-            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-            if (visited[ny][nx]) continue;
-            visited[ny][nx] = true;
-            if (isWall(state, nx, ny, player)) continue;
-            stack.push([nx,ny]);
-          }
+          if (cx+1 < cols && !visited[ci+1]){ visited[ci+1] = 1; if (!wall(cx+1, cy)) stack[sp++] = ci+1; }
+          if (cx-1 >= 0 && !visited[ci-1]){ visited[ci-1] = 1; if (!wall(cx-1, cy)) stack[sp++] = ci-1; }
+          if (cy+1 < rows && !visited[ci+cols]){ visited[ci+cols] = 1; if (!wall(cx, cy+1)) stack[sp++] = ci+cols; }
+          if (cy-1 >= 0 && !visited[ci-cols]){ visited[ci-cols] = 1; if (!wall(cx, cy-1)) stack[sp++] = ci-cols; }
         }
         if (!touchesBorder && containsLiveOpponent){
-          for (const [cx,cy] of region){
+          for (let k=0; k<rn; k++){
+            const cy = (region[k] / cols) | 0, cx = region[k] - cy*cols;
             if (stone[cy][cx] === player){
               // Классическое освобождение: своя ранее пленённая точка внутри
               // нового контура снова живая (dead = 0); очков за неё никто
