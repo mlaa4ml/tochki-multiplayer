@@ -1212,8 +1212,29 @@
     const player = node.current;
     // Статическая оценка — дорогая операция: бюджет проверяется перед ней
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
-    const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
-      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
+    // B04 (issue #27), шаг 3: таблица транспозиций статических оценок в
+    // пределах одного searchMove (sc живёт один поиск, forPlayer/weights в нём
+    // постоянны). Ключ — полная позиция: очередь хода, правила
+    // (targetScore/targetFillPercent/extraTurnOnCapture), stonesPlacedTotal и
+    // все три слоя доски. evaluateStatic детерминирована, поэтому значение из
+    // таблицы идентично пересчёту: узлы/ходы при одинаковом nodeLimit не
+    // меняются. Размер ограничен (EVAL_TT_MAX), чтобы не раздувать память.
+    const staticVal = () => {
+      if (budgetExceeded(sc, 'static-eval')) return 0;
+      const r = node.rules;
+      let key = node.current + '|' + r.targetScore + ',' + r.targetFillPercent + ',' + (r.extraTurnOnCapture ? 1 : 0)
+        + '|' + node.stonesPlacedTotal + '|';
+      for (let yy=0; yy<rows; yy++){
+        const sr = state.stone[yy], dr = state.dead[yy], tr = state.territory[yy];
+        for (let xx=0; xx<cols; xx++) key += String.fromCharCode(65 + sr[xx] + 3*dr[xx] + 9*tr[xx]);
+      }
+      if (!sc.evalTT) sc.evalTT = new Map();
+      const hit = sc.evalTT.get(key);
+      if (hit !== undefined){ sc.evalHits = (sc.evalHits || 0) + 1; return hit; }
+      const v = finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
+      if (sc.evalTT.size < 200000) sc.evalTT.set(key, v);
+      return v;
+    };
     let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
     // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
     // внутренних узлах он выполняется только до ply <= diff.tacticalPly
