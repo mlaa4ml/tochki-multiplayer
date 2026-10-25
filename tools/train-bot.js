@@ -238,7 +238,10 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
       // (раньше был break и доигрывание с середины). Дебюты проверяются
       // при загрузке (loadOpenings), здесь — защитная явная ошибка.
       if (!res.ok) throw new Error(`invalid opening prefix move: ${res.reason}`);
-      if (res.gameOver) throw new Error('opening prefix ends the game');
+            // Конец партии внутри префикса возможен только при --fill-percent
+      // ниже правил дебюта (сам дебют уже проверен при загрузке) — это не
+      // невалидный префикс, а результат переопределения правил.
+      if (res.gameOver) return res.winner;
     }
   }
 
