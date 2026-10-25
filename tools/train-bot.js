@@ -64,7 +64,10 @@ function parseArgs(argv){
     else if (a === '--size') out.sizeKey = val();
     else if (a === '--seed') out.seed = parseInt(val(), 10) >>> 0;
     else if (a === '--fill-percent') out.fillPercent = parseInt(val(), 10);
-    else if (a === '--out') out.out = val();
+        else if (a === '--out') out.out = val();
+    else if (a === '--corpus') out.corpus = val();       // путь к корпусу или 'none'
+    else if (a === '--baseline') out.baseline = val();   // файл замороженного пула
+    else if (a === '--no-pool') out.noPool = true;
   }
   return out;
 }
