@@ -1,0 +1,494 @@
+{
+ "format": "tochki-b06-report",
+ "mctsVersion": 1,
+ "engineVersion": "tochki-rules-1",
+ "botVersion": "tochki-ab-1",
+ "params": {
+  "corpus": "openings.b06.json",
+  "corpusSeed": 20240629,
+  "split": "test",
+  "size": "small",
+  "difficulty": "normal",
+  "nodeLimit": 300,
+  "mcts": {
+   "nodeLimit": 300,
+   "c": 1.4,
+   "rolloutDepth": 8,
+   "radius": 2,
+   "scoreScale": 3,
+   "seed": 29
+  },
+  "parts": 1
+ },
+ "pairsTotal": 12,
+ "wdl": {
+  "W": 0,
+  "D": 1,
+  "L": 23
+ },
+ "pairWdl": {
+  "W": 0,
+  "D": 0,
+  "L": 12
+ },
+ "score": 0.020833333333333332,
+ "ci95": {
+  "lo": 0,
+  "hi": 0.0625,
+  "resamples": 10000,
+  "seed": 29,
+  "method": "bootstrap over pairs"
+ },
+ "scoreDiffMean": -2.25,
+ "truncated": 0,
+ "byRuleset": {
+  "fill30-extra": {
+   "pairs": 4,
+   "score": 0.0625
+  },
+  "score3-fill45": {
+   "pairs": 4,
+   "score": 0
+  },
+  "fill30": {
+   "pairs": 4,
+   "score": 0
+  }
+ },
+ "errors": [],
+ "verdict": "weaker",
+ "cost": {
+  "training": {
+   "timeMs": 0,
+   "modelParamsBytes": 0,
+   "note": "MCTS не обучается"
+  },
+  "codeBytes": 5934,
+  "candidate": {
+   "moves": 383,
+   "moveMs": {
+    "p50": 6.541721,
+    "p95": 9.851084,
+    "mean": 6.852173002610969
+   },
+   "nodesPerMove": 300,
+   "heapDeltaKB": {
+    "p50": 6453.8203125,
+    "p95": 7140.359375
+   },
+   "treeMax": 151
+  },
+  "baseline": {
+   "moves": 400,
+   "moveMs": {
+    "p50": 41.427888,
+    "p95": 71.985523,
+    "mean": 42.755184454999956
+   },
+   "nodesPerMove": 233.4775,
+   "heapDeltaKB": {
+    "p50": -2110.5859375,
+    "p95": 52637.8671875
+   },
+   "treeMax": null
+  }
+ },
+ "pairs": [
+  {
+   "id": "small-test-0",
+   "ruleset": "fill30-extra",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 2
+     },
+     "candScore": 0,
+     "scoreDiff": -2,
+     "moves": 32
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 32
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-1",
+   "ruleset": "score3-fill45",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 4
+     },
+     "candScore": 0,
+     "scoreDiff": -4,
+     "moves": 41
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 38
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-2",
+   "ruleset": "fill30",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 1
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 32
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 31
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-3",
+   "ruleset": "fill30-extra",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 1
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 32
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 2,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -2,
+     "moves": 32
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-4",
+   "ruleset": "score3-fill45",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 4
+     },
+     "candScore": 0,
+     "scoreDiff": -4,
+     "moves": 27
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 20
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-5",
+   "ruleset": "fill30",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 1
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 29
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 2,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -2,
+     "moves": 29
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-6",
+   "ruleset": "fill30-extra",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 2
+     },
+     "candScore": 0,
+     "scoreDiff": -2,
+     "moves": 31
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 1,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 32
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-7",
+   "ruleset": "score3-fill45",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 3
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 40
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 37
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-8",
+   "ruleset": "fill30",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 1
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 32
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 1,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 32
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-9",
+   "ruleset": "fill30-extra",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 0,
+     "scores": {
+      "1": 0,
+      "2": 0
+     },
+     "candScore": 0.5,
+     "scoreDiff": 0,
+     "moves": 30
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 2,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -2,
+     "moves": 30
+    }
+   ],
+   "pairScore": 0.25
+  },
+  {
+   "id": "small-test-10",
+   "ruleset": "score3-fill45",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 5
+     },
+     "candScore": 0,
+     "scoreDiff": -5,
+     "moves": 42
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 3,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 41
+    }
+   ],
+   "pairScore": 0
+  },
+  {
+   "id": "small-test-11",
+   "ruleset": "fill30",
+   "games": [
+    {
+     "candSeat": 1,
+     "end": "finished",
+     "truncated": false,
+     "winner": 2,
+     "scores": {
+      "1": 0,
+      "2": 3
+     },
+     "candScore": 0,
+     "scoreDiff": -3,
+     "moves": 30
+    },
+    {
+     "candSeat": 2,
+     "end": "finished",
+     "truncated": false,
+     "winner": 1,
+     "scores": {
+      "1": 1,
+      "2": 0
+     },
+     "candScore": 0,
+     "scoreDiff": -1,
+     "moves": 31
+    }
+   ],
+   "pairScore": 0
+  }
+ ]
+}
