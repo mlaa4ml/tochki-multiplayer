@@ -288,7 +288,15 @@ function main(){
   const db = openDatabase(args.dbPath);
   const gameLog = createGameLog(db);
 
-  const openings = loadOpenings(gameLog, args.sizeKey, 6);
+    // B05: обучающие дебюты = дебюты людей из БД (они не входят в
+  // validation/test корпуса) + train-набор версионированного корпуса.
+  // validation/test корпуса сюда НЕ попадают никогда.
+  const path = require('path');
+  const corpusPath = args.corpus || path.join(__dirname, 'bench', 'corpus', 'openings.v1.json');
+  const openings = loadOpenings(gameLog, args.sizeKey, 6)
+    .concat(args.corpus === 'none' ? [] : loadCorpusTrainOpenings(corpusPath, args.sizeKey));
+  const frozenPool = args.noPool ? [] : loadFrozenPool(args.baseline || path.join(__dirname, 'bench', 'baseline', 'weights.v1.json'));
+  console.log(`Пул замороженных соперников: ${frozenPool.map(p => p.id).join(', ') || '(отключён)'}`);
   console.log(`Дебютов из БД для sizeKey=${args.sizeKey}: ${openings.length}` +
     (openings.length ? '' : ' (нет подходящих доигранных партий — self-play стартует с пустой доски)'));
 
