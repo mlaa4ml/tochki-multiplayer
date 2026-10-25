@@ -351,6 +351,23 @@
     return groups;
   }
 
+  // B04 (issue #27), шаг 4: кеш карт групп/свобод на узел поиска.
+  // computeGroupLiberties для одной позиции вызывается несколько раз
+  // (evaluateStatic, strategicCandidates — дважды на игрока). Карта кешируется
+  // в WeakMap по объекту узла (узел не получает новых полей, сравнение узлов/
+  // trace не меняется). Кеш используется только если node.state === state и
+  // сбрасывается в applyTransitionInPlace — единственном месте, где узел
+  // поиска мутируется. Результат идентичен пересчёту (те же массивы групп;
+  // вызывающие их только читают).
+  const GROUP_CACHE = new WeakMap();
+  function nodeGroups(node, state, rows, cols, player){
+    if (!node || typeof node !== 'object' || node.state !== state) return computeGroupLiberties(state, rows, cols, player);
+    let c = GROUP_CACHE.get(node);
+    if (!c){ c = {}; GROUP_CACHE.set(node, c); }
+    if (!c[player]) c[player] = computeGroupLiberties(state, rows, cols, player);
+    return c[player];
+  }
+
   // Риск группы растёт резко нелинейно по мере приближения к «атари»
   // (1 свобода — следующий ход соперника захватывает группу целиком).
   // Множитель на size означает, что потеря большой сцепленной группы —
