@@ -363,7 +363,8 @@
   function nodeGroups(node, state, rows, cols, player){
     if (!node || typeof node !== 'object' || node.state !== state) return computeGroupLiberties(state, rows, cols, player);
     let c = GROUP_CACHE.get(node);
-    if (!c){ c = {}; GROUP_CACHE.set(node, c); }
+    // Если у узла подменили state (например, откат хода), кеш устарел.
+    if (!c || c.state !== state){ c = { state }; GROUP_CACHE.set(node, c); }
     if (!c[player]) c[player] = computeGroupLiberties(state, rows, cols, player);
     return c[player];
   }
