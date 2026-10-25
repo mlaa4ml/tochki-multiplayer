@@ -120,20 +120,29 @@ async function main(){
       assert.strictEqual(finished.exitCode, 0, JSON.stringify(finished));
       assert.strictEqual(finished.signal, null);
       assert.strictEqual(finished.ok, true);
-      assert.ok(finished.outputTail.some(line => line.includes('Сохранено в bot_weights')));
+      assert.ok(finished.outputTail.some(line => line.includes('Кандидат сохранён')));
       assertExited(pid);
       console.log(`OK: real self-play child exited successfully in ${finished.finishedAt - finished.startedAt} ms`);
 
+      // B05 (issue #28): обучение НЕ публикует веса — пишет файл-кандидат
+      // рядом с БД, а bot_weights остаётся пустой до tools/publish-weights.js.
+      const candPath = path.join(tmpDir, `weights-candidate-normal-${smallRun.seed}.json`);
+      const cand = JSON.parse(fs.readFileSync(candPath, 'utf8'));
+      assert.strictEqual(cand.format, 'tochki-weights-candidate');
+      assert.strictEqual(cand.difficulty, 'normal');
+      assert.strictEqual(cand.bundle.selection.split, 'train');
+      assert.strictEqual(typeof cand.bundle.selection.truncatedGames, 'number');
+      assert.strictEqual(typeof cand.bundle.selection.rejectedOpenings, 'number');
       const weightsAfter = await request(port, 'GET', '/api/bot/weights/normal');
       assert.strictEqual(weightsAfter.status, 200);
-      assert.strictEqual(weightsAfter.body.history.length, 1);
+      assert.strictEqual(weightsAfter.body.history.length, 0);
       const summary = await request(port, 'GET', '/api/admin/summary');
       assert.strictEqual(summary.status, 200);
-      assert.strictEqual(summary.body.botWeights.normal.generations, 1);
+      assert.strictEqual(summary.body.botWeights.normal.generations, 0);
       const noAuth = await request(port, 'GET', '/api/admin/train');
       assert.strictEqual(noAuth.status, 403);
       await server.training.stop(); // also safe after successful completion
-      console.log('OK: persisted weights visible through both HTTP endpoints');
+      console.log('OK: training wrote a candidate file and did NOT auto-publish weights');
     });
 
     // Inject a polling timeout while a real long training job is active.
