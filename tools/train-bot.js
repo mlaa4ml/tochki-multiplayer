@@ -121,14 +121,59 @@ function loadOpenings(gameLog, sizeKey, maxPrefixLen){
     // it contains cancelled moves. Validate the entire source first.
     let source;
     try { source = require('../replay.js').play(replay.data); }
-    catch (_) { continue; }
+    catch (e) { rejectOpening(`game ${game.id}: replay invalid: ${e.message}`); continue; }
     const moves = source.getMoveLog();
-    if (!moves.length) continue;
+    if (!moves.length) { rejectOpening(`game ${game.id}: empty move log`); continue; }
     const prefixLen = Math.min(maxPrefixLen, moves.length);
     const prefix = moves.slice(0, prefixLen).map(m => ({ x: m.x, y: m.y, seat: m.p }));
-    openings.push({ prefix, ...source.getSnapshot().rules });
+    const opening = { prefix, ...source.getSnapshot().rules };
+    const err = validateOpening(sizeKey, opening);
+    if (err) { rejectOpening(`game ${game.id}: ${err}`); continue; }
+    openings.push(opening);
   }
   return openings;
+}
+
+function rejectOpening(reason){
+  openingStats.rejected++;
+  if (openingStats.rejectedReasons.length < 50) openingStats.rejectedReasons.push(reason);
+  console.warn('Дебют отклонён: ' + reason);
+}
+
+// B05: строгая проверка префикса тем же правилом, что в benchmark
+// (Runner.applyPrefix): любой нелегальный ход или конец партии внутри
+// префикса — отказ с причиной. Возвращает null или текст ошибки.
+function validateOpening(sizeKey, opening){
+  try {
+    const Runner = require('./bench/runner.js');
+    const m = Engine.createMatch({ sizeKey, targetScore: opening.targetScore || 0,
+      targetFillPercent: opening.targetFillPercent, firstPlayer: opening.firstPlayer || 1,
+      extraTurnOnCapture: opening.extraTurnOnCapture === true, undoAllowed: opening.undoAllowed !== false });
+    Runner.applyPrefix(m, opening.prefix, () => {});
+    return null;
+  } catch (e){ return e.message; }
+}
+
+// B05: дебюты ТОЛЬКО из train-набора версионированного корпуса
+// (validation/test зарезервированы под отбор/публикацию в benchmark).
+function loadCorpusTrainOpenings(corpusPath, sizeKey){
+  const corpus = JSON.parse(require('fs').readFileSync(corpusPath, 'utf8'));
+  const list = ((corpus.openings || {})[sizeKey] || {}).train || [];
+  const out = [];
+  for (const o of list){
+    const opening = { prefix: o.prefix, targetScore: o.rules.targetScore, targetFillPercent: o.rules.targetFillPercent,
+      firstPlayer: o.rules.firstPlayer, extraTurnOnCapture: o.rules.extraTurnOnCapture, undoAllowed: o.rules.undoAllowed };
+    const err = validateOpening(sizeKey, opening);
+    if (err) { rejectOpening(`${o.id}: ${err}`); continue; }
+    out.push(opening);
+  }
+  return out;
+}
+
+// B05: пул замороженных соперников (baseline + pool из weights.v1.json).
+function loadFrozenPool(baselinePath){
+  const b = JSON.parse(require('fs').readFileSync(baselinePath, 'utf8'));
+  return [{ id: 'baseline', weights: b.weights }].concat(b.pool || []);
 }
 
 // ---------- Одна self-play партия между двумя наборами весов ----------
