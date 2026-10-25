@@ -1,0 +1,282 @@
+{
+ "tool": "profile-search",
+ "engineVersion": "tochki-rules-1",
+ "botVersion": "tochki-ab-1",
+ "corpus": "tools/bench/corpus/strategic.v1.json",
+ "difficulty": "normal",
+ "nodeLimit": 4000,
+ "repeat": 3,
+ "node": "v24.21.0",
+ "positions": 24,
+ "totalNodes": 2296,
+ "msP50": 11.048999,
+ "msP95": 264.853058,
+ "maxHeapDeltaMB": 61.63,
+ "signature": "small-defend-0:[10,8]:204:3|small-defend-1:[10,7]:404:3|small-defend-2:[9,5]:165:3|small-defend-3:[4,5]:247:3|small-defend-4:[8,5]:243:3|small-defend-5:[7,6]:119:3|small-endgame-0:[11,4]:0:0|small-endgame-1:[6,4]:0:0|small-endgame-2:[5,6]:0:0|small-endgame-3:[11,2]:0:0|small-endgame-4:[1,4]:0:0|small-endgame-5:[8,2]:0:0|medium-defend-0:[7,7]:268:3|medium-defend-1:[7,3]:206:3|medium-defend-2:[8,5]:274:3|medium-defend-3:[7,6]:166:3|medium-endgame-0:[11,4]:0:0|medium-endgame-1:[5,3]:0:0|medium-endgame-2:[4,2]:0:0|medium-endgame-3:[5,9]:0:3|medium-endgame-4:[7,6]:0:0|medium-endgame-5:[4,1]:0:0|medium-endgame-6:[9,10]:0:0|medium-endgame-7:[4,7]:0:0",
+ "results": [
+  {
+   "id": "small-defend-0",
+   "msP50": 122.778556,
+   "move": [
+    10,
+    8
+   ],
+   "nodes": 204,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-defend-1",
+   "msP50": 210.767454,
+   "move": [
+    10,
+    7
+   ],
+   "nodes": 404,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-defend-2",
+   "msP50": 105.652346,
+   "move": [
+    9,
+    5
+   ],
+   "nodes": 165,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-defend-3",
+   "msP50": 94.849409,
+   "move": [
+    4,
+    5
+   ],
+   "nodes": 247,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-defend-4",
+   "msP50": 116.743761,
+   "move": [
+    8,
+    5
+   ],
+   "nodes": 243,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-defend-5",
+   "msP50": 68.191153,
+   "move": [
+    7,
+    6
+   ],
+   "nodes": 119,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "small-endgame-0",
+   "msP50": 8.780315,
+   "move": [
+    11,
+    4
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "small-endgame-1",
+   "msP50": 6.634793,
+   "move": [
+    6,
+    4
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "small-endgame-2",
+   "msP50": 7.687888,
+   "move": [
+    5,
+    6
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "small-endgame-3",
+   "msP50": 5.894683,
+   "move": [
+    11,
+    2
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "small-endgame-4",
+   "msP50": 8.281906,
+   "move": [
+    1,
+    4
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "small-endgame-5",
+   "msP50": 9.301637,
+   "move": [
+    8,
+    2
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-defend-0",
+   "msP50": 275.641988,
+   "move": [
+    7,
+    7
+   ],
+   "nodes": 268,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "medium-defend-1",
+   "msP50": 160.636168,
+   "move": [
+    7,
+    3
+   ],
+   "nodes": 206,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "medium-defend-2",
+   "msP50": 154.638569,
+   "move": [
+    8,
+    5
+   ],
+   "nodes": 274,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "medium-defend-3",
+   "msP50": 141.535012,
+   "move": [
+    7,
+    6
+   ],
+   "nodes": 166,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "medium-endgame-0",
+   "msP50": 10.751261,
+   "move": [
+    11,
+    4
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-1",
+   "msP50": 6.577417,
+   "move": [
+    5,
+    3
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-2",
+   "msP50": 6.707559,
+   "move": [
+    4,
+    2
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-3",
+   "msP50": 7.293011,
+   "move": [
+    5,
+    9
+   ],
+   "nodes": 0,
+   "depth": 3,
+   "stop": "max-depth"
+  },
+  {
+   "id": "medium-endgame-4",
+   "msP50": 7.829312,
+   "move": [
+    7,
+    6
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-5",
+   "msP50": 9.561301,
+   "move": [
+    4,
+    1
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-6",
+   "msP50": 13.552505,
+   "move": [
+    9,
+    10
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  },
+  {
+   "id": "medium-endgame-7",
+   "msP50": 9.747488,
+   "move": [
+    4,
+    7
+   ],
+   "nodes": 0,
+   "depth": 0,
+   "stop": "immediate-win"
+  }
+ ]
+}

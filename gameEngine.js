@@ -113,37 +113,45 @@
   function runCaptures(state, player, rows, cols){
     const { stone, dead, territory } = state;
     const opponent = player === 1 ? 2 : 1;
-    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
+    // B04 (issue #27): профиль показал runCaptures главным bottleneck
+    // (~33% CPU + GC от аллокаций [x,y]-пар и массива направлений на каждую
+    // клетку). Заливка переписана на плоские типизированные массивы БЕЗ
+    // изменения семантики: тот же порядок обхода (соседи +x, -x, +y, -y,
+    // стек LIFO), поэтому и состояние, и порядок gained идентичны прежним.
+    const n = rows * cols;
+    const visited = new Uint8Array(n);
+    const stack = new Int32Array(n);  // каждая клетка кладётся не более раза
+    const region = new Int32Array(n);
     const gained = [];
+    const wall = (wx, wy) => {
+      const d = dead[wy][wx];
+      return d === player || territory[wy][wx] === player || (d === 0 && stone[wy][wx] === player);
+    };
 
     for (let y=0; y<rows; y++){
       for (let x=0; x<cols; x++){
-        if (visited[y][x]) continue;
-        if (isWall(state, x, y, player)){
-          visited[y][x] = true;
-          continue;
-        }
-        const stack = [[x,y]];
-        const region = [];
+        const i0 = y*cols + x;
+        if (visited[i0]) continue;
+        visited[i0] = 1;
+        if (wall(x, y)) continue;
+        let sp = 0, rn = 0;
+        stack[sp++] = i0;
         let touchesBorder = false;
         let containsLiveOpponent = false;
-        visited[y][x] = true;
-        while (stack.length){
-          const [cx,cy] = stack.pop();
-          region.push([cx,cy]);
+        while (sp > 0){
+          const ci = stack[--sp];
+          const cy = (ci / cols) | 0, cx = ci - cy*cols;
+          region[rn++] = ci;
           if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) touchesBorder = true;
           if (stone[cy][cx] === opponent && dead[cy][cx] === 0) containsLiveOpponent = true;
-          for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
-            const nx=cx+dx, ny=cy+dy;
-            if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-            if (visited[ny][nx]) continue;
-            visited[ny][nx] = true;
-            if (isWall(state, nx, ny, player)) continue;
-            stack.push([nx,ny]);
-          }
+          if (cx+1 < cols && !visited[ci+1]){ visited[ci+1] = 1; if (!wall(cx+1, cy)) stack[sp++] = ci+1; }
+          if (cx-1 >= 0 && !visited[ci-1]){ visited[ci-1] = 1; if (!wall(cx-1, cy)) stack[sp++] = ci-1; }
+          if (cy+1 < rows && !visited[ci+cols]){ visited[ci+cols] = 1; if (!wall(cx, cy+1)) stack[sp++] = ci+cols; }
+          if (cy-1 >= 0 && !visited[ci-cols]){ visited[ci-cols] = 1; if (!wall(cx, cy-1)) stack[sp++] = ci-cols; }
         }
         if (!touchesBorder && containsLiveOpponent){
-          for (const [cx,cy] of region){
+          for (let k=0; k<rn; k++){
+            const cy = (region[k] / cols) | 0, cx = region[k] - cy*cols;
             if (stone[cy][cx] === player){
               // Классическое освобождение: своя ранее пленённая точка внутри
               // нового контура снова живая (dead = 0); очков за неё никто
@@ -661,25 +669,33 @@
   // область сразу отходит противнику. Мутирует state.
   function captureSuicideRegion(state, rows, cols, player, x, y){
     const opp = player === 1 ? 2 : 1;
-    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
-    const stack = [[x,y]];
-    const region = [];
-    visited[y][x] = true;
-    while (stack.length){
-      const [cx,cy] = stack.pop();
-      region.push([cx,cy]);
+    // B04 (issue #27), шаг 2: плоские типизированные массивы вместо
+    // массивов [x,y]; порядок обхода (DIRS4, стек LIFO) прежний, поэтому
+    // результат и порядок out не меняются.
+    const visited = new Uint8Array(rows * cols);
+    const stack = new Int32Array(rows * cols);
+    const region = new Int32Array(rows * cols);
+    let sp = 0, rn = 0;
+    stack[sp++] = y*cols + x;
+    visited[y*cols + x] = 1;
+    while (sp > 0){
+      const ci = stack[--sp];
+      const cy = (ci / cols) | 0, cx = ci - cy*cols;
+      region[rn++] = ci;
       if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
-      for (const [dx,dy] of DIRS4){
-        const nx=cx+dx, ny=cy+dy;
+      for (let d=0; d<DIRS4.length; d++){
+        const nx=cx+DIRS4[d][0], ny=cy+DIRS4[d][1];
         if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-        if (visited[ny][nx]) continue;
-        visited[ny][nx] = true;
+        const ni = ny*cols + nx;
+        if (visited[ni]) continue;
+        visited[ni] = 1;
         if (isWall(state, nx, ny, opp)) continue;
-        stack.push([nx,ny]);
+        stack[sp++] = ni;
       }
     }
     const out = [];
-    for (const [cx,cy] of region){
+    for (let k=0; k<rn; k++){
+      const cy = (region[k] / cols) | 0, cx = region[k] - cy*cols;
       if (state.stone[cy][cx] === opp){
         if (state.dead[cy][cx] !== 0){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'freed'}); state.dead[cy][cx] = 0; }
       } else if (state.stone[cy][cx] !== 0){
@@ -1196,8 +1212,29 @@
     const player = node.current;
     // Статическая оценка — дорогая операция: бюджет проверяется перед ней
     // (при исчерпании узел прерывается, значение отбрасывается вызывающим).
-    const staticVal = () => budgetExceeded(sc, 'static-eval') ? 0
-      : finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
+    // B04 (issue #27), шаг 3: таблица транспозиций статических оценок в
+    // пределах одного searchMove (sc живёт один поиск, forPlayer/weights в нём
+    // постоянны). Ключ — полная позиция: очередь хода, правила
+    // (targetScore/targetFillPercent/extraTurnOnCapture), stonesPlacedTotal и
+    // все три слоя доски. evaluateStatic детерминирована, поэтому значение из
+    // таблицы идентично пересчёту: узлы/ходы при одинаковом nodeLimit не
+    // меняются. Размер ограничен (EVAL_TT_MAX), чтобы не раздувать память.
+    const staticVal = () => {
+      if (budgetExceeded(sc, 'static-eval')) return 0;
+      const r = node.rules;
+      let key = node.current + '|' + r.targetScore + ',' + r.targetFillPercent + ',' + (r.extraTurnOnCapture ? 1 : 0)
+        + '|' + node.stonesPlacedTotal + '|';
+      for (let yy=0; yy<rows; yy++){
+        const sr = state.stone[yy], dr = state.dead[yy], tr = state.territory[yy];
+        for (let xx=0; xx<cols; xx++) key += String.fromCharCode(65 + sr[xx] + 3*dr[xx] + 9*tr[xx]);
+      }
+      if (!sc.evalTT) sc.evalTT = new Map();
+      const hit = sc.evalTT.get(key);
+      if (hit !== undefined){ sc.evalHits = (sc.evalHits || 0) + 1; return hit; }
+      const v = finiteScore(evaluateStatic(state, rows, cols, forPlayer, weights, node), 0);
+      if (sc.evalTT.size < 200000) sc.evalTT.set(key, v);
+      return v;
+    };
     let forcedTac = null; // A08: тактический набор, уже посчитанный для продления
     // A08: полный тактический скан стоит O(rows*cols) переходов, поэтому во
     // внутренних узлах он выполняется только до ply <= diff.tacticalPly
