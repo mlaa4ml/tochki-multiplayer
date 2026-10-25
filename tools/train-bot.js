@@ -64,9 +64,15 @@ function parseArgs(argv){
     else if (a === '--size') out.sizeKey = val();
     else if (a === '--seed') out.seed = parseInt(val(), 10) >>> 0;
     else if (a === '--fill-percent') out.fillPercent = parseInt(val(), 10);
+    else if (a === '--out') out.out = val();
   }
   return out;
 }
+
+// B05: счётчики для отчёта кандидата — отклонённые (невалидные) дебюты и
+// партии, обрезанные по лимиту ходов, учитываются отдельно, а не молча.
+const openingStats = { rejected: 0, rejectedReasons: [] };
+const gameStats = { truncated: 0 };
 
 // Небольшой детерминированный ГПСЧ (xorshift32) — чтобы прогон с тем же
 // --seed был воспроизводим: та же выборка дебютов, те же случайные веса.
