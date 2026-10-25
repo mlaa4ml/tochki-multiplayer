@@ -886,7 +886,7 @@
       else out.set(k, zone ? { x, y, zone: true } : { x, y });
     };
     for (const p of [1, 2]){
-      for (const g of computeGroupLiberties(state, rows, cols, p)){
+      for (const g of nodeGroups(node, state, rows, cols, p)){
         if (g.liberties > 3) continue;
         for (const k of g.libCells) add(k % cols, Math.floor(k / cols));
       }
