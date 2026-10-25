@@ -146,11 +146,15 @@ function rejectOpening(reason){
 // B05: строгая проверка префикса тем же правилом, что в benchmark
 // (Runner.applyPrefix): любой нелегальный ход или конец партии внутри
 // префикса — отказ с причиной. Возвращает null или текст ошибки.
-function validateOpening(sizeKey, opening){
+// fillPercentOverride (--fill-percent) учитывается: дебют, партия по которому
+// при переопределённом пороге заполнения завершилась бы внутри префикса,
+// явно отклоняется (а не засчитывается как результат партии).
+function validateOpening(sizeKey, opening, fillPercentOverride){
   try {
     const Runner = require('./bench/runner.js');
     const m = Engine.createMatch({ sizeKey, targetScore: opening.targetScore || 0,
-      targetFillPercent: opening.targetFillPercent, firstPlayer: opening.firstPlayer || 1,
+      targetFillPercent: fillPercentOverride != null ? fillPercentOverride : opening.targetFillPercent,
+      firstPlayer: opening.firstPlayer || 1,
       extraTurnOnCapture: opening.extraTurnOnCapture === true, undoAllowed: opening.undoAllowed !== false });
     Runner.applyPrefix(m, opening.prefix, () => {});
     return null;
