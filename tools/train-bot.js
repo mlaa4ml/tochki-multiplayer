@@ -295,6 +295,8 @@ function contest(sizeKey, openings, incumbent, candidate, games, rng, fillPercen
 function main(){
   const args = parseArgs(process.argv.slice(2));
   const rng = makeRng(args.seed);
+  // B05: дебюты валидируются с учётом --fill-percent (до loadOpenings).
+  FILL_PERCENT_OVERRIDE = args.fillPercent != null && !Number.isNaN(args.fillPercent) ? args.fillPercent : null;
 
   // Без --db открывает тот же файл, что и сервер по умолчанию (см.
   // DB_PATH / data/tochki.db в db.js) — тренируемся на реальном
