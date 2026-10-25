@@ -669,25 +669,33 @@
   // область сразу отходит противнику. Мутирует state.
   function captureSuicideRegion(state, rows, cols, player, x, y){
     const opp = player === 1 ? 2 : 1;
-    const visited = Array.from({length: rows}, () => new Array(cols).fill(false));
-    const stack = [[x,y]];
-    const region = [];
-    visited[y][x] = true;
-    while (stack.length){
-      const [cx,cy] = stack.pop();
-      region.push([cx,cy]);
+    // B04 (issue #27), шаг 2: плоские типизированные массивы вместо
+    // массивов [x,y]; порядок обхода (DIRS4, стек LIFO) прежний, поэтому
+    // результат и порядок out не меняются.
+    const visited = new Uint8Array(rows * cols);
+    const stack = new Int32Array(rows * cols);
+    const region = new Int32Array(rows * cols);
+    let sp = 0, rn = 0;
+    stack[sp++] = y*cols + x;
+    visited[y*cols + x] = 1;
+    while (sp > 0){
+      const ci = stack[--sp];
+      const cy = (ci / cols) | 0, cx = ci - cy*cols;
+      region[rn++] = ci;
       if (cx===0 || cy===0 || cx===cols-1 || cy===rows-1) return [];
-      for (const [dx,dy] of DIRS4){
-        const nx=cx+dx, ny=cy+dy;
+      for (let d=0; d<DIRS4.length; d++){
+        const nx=cx+DIRS4[d][0], ny=cy+DIRS4[d][1];
         if (nx<0||ny<0||nx>=cols||ny>=rows) continue;
-        if (visited[ny][nx]) continue;
-        visited[ny][nx] = true;
+        const ni = ny*cols + nx;
+        if (visited[ni]) continue;
+        visited[ni] = 1;
         if (isWall(state, nx, ny, opp)) continue;
-        stack.push([nx,ny]);
+        stack[sp++] = ni;
       }
     }
     const out = [];
-    for (const [cx,cy] of region){
+    for (let k=0; k<rn; k++){
+      const cy = (region[k] / cols) | 0, cx = region[k] - cy*cols;
       if (state.stone[cy][cx] === opp){
         if (state.dead[cy][cx] !== 0){ out.push({x:cx, y:cy, prevOwner: state.dead[cy][cx], kind:'freed'}); state.dead[cy][cx] = 0; }
       } else if (state.stone[cy][cx] !== 0){
