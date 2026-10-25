@@ -178,14 +178,8 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
   });
 
   if (opening){
-    for (const mv of opening.prefix){
-      const res = match.applyMove(mv.seat, mv.x, mv.y);
-      // Несовместимый/повреждённый дебют (например race between sizeKey и
-      // реальными границами доски) — не роняем прогон, просто доигрываем
-      // self-play с той позиции, до которой дошли.
-      if (!res.ok) break;
-      if (res.gameOver) return res.winner;
-    }
+    // A malformed prefix must never silently become a different opening.
+    require('./bench/runner.js').applyPrefix(match, opening.prefix, () => {});
   }
 
   let moves = 0;
