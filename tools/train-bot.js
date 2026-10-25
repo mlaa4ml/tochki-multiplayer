@@ -206,6 +206,8 @@ function playSelfPlayGame(sizeKey, opening, weightsBySeat, maxMoves, fillPercent
     moves++;
     if (res.gameOver) break;
   }
+  // B05: партия, упершаяся в лимит ходов, — обрезанная; считаем отдельно.
+  if (moves >= maxMoves && !match.getSnapshot().gameOver) gameStats.truncated++;
   const finalSnap = match.getSnapshot();
   const s1 = finalSnap.scores[1], s2 = finalSnap.scores[2];
   return s1 > s2 ? 1 : (s2 > s1 ? 2 : 0);
