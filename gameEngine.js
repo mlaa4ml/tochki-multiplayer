@@ -351,24 +351,6 @@
     return groups;
   }
 
-  // B04 (issue #27), шаг 4: кеш карт групп/свобод на узел поиска.
-  // computeGroupLiberties для одной позиции вызывается несколько раз
-  // (evaluateStatic, strategicCandidates — дважды на игрока). Карта кешируется
-  // в WeakMap по объекту узла (узел не получает новых полей, сравнение узлов/
-  // trace не меняется). Кеш используется только если node.state === state и
-  // сбрасывается в applyTransitionInPlace — единственном месте, где узел
-  // поиска мутируется. Результат идентичен пересчёту (те же массивы групп;
-  // вызывающие их только читают).
-  const GROUP_CACHE = new WeakMap();
-  function nodeGroups(node, state, rows, cols, player){
-    if (!node || typeof node !== 'object' || node.state !== state) return computeGroupLiberties(state, rows, cols, player);
-    let c = GROUP_CACHE.get(node);
-    // Если у узла подменили state (например, откат хода), кеш устарел.
-    if (!c || c.state !== state){ c = { state }; GROUP_CACHE.set(node, c); }
-    if (!c[player]) c[player] = computeGroupLiberties(state, rows, cols, player);
-    return c[player];
-  }
-
   // Риск группы растёт резко нелинейно по мере приближения к «атари»
   // (1 свобода — следующий ход соперника захватывает группу целиком).
   // Множитель на size означает, что потеря большой сцепленной группы —
@@ -540,8 +522,8 @@
     // то есть положительно и за собственную оборону, и за давление на чужие
     // группы. weights.liberty может отсутствовать у старых сохранённых
     // весов (из БД/прежних версий) — тогда просто не влияет на оценку.
-    const ownGroups = nodeGroups(ctx, state, rows, cols, forPlayer);
-    const oppGroups = nodeGroups(ctx, state, rows, cols, opponent);
+    const ownGroups = computeGroupLiberties(state, rows, cols, forPlayer);
+    const oppGroups = computeGroupLiberties(state, rows, cols, opponent);
     const libertyDiff = libertyRisk(oppGroups) - libertyRisk(ownGroups);
 
     // A09: признак выключен по умолчанию; считается только при ненулевом весе,
@@ -748,7 +730,6 @@
     const reason = transitionRejectReason(node, player, x, y);
     if (reason) return { ok:false, reason };
     const { state, rows, cols, rules } = node;
-    GROUP_CACHE.delete(node); // B04: узел мутируется — кеш карт недействителен
     state.stone[y][x] = player;
     if (state.territory[y][x] !== 0) state.territory[y][x] = 0;
     node.stonesPlacedTotal++;
@@ -887,7 +868,7 @@
       else out.set(k, zone ? { x, y, zone: true } : { x, y });
     };
     for (const p of [1, 2]){
-      for (const g of nodeGroups(node, state, rows, cols, p)){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
         if (g.liberties > 3) continue;
         for (const k of g.libCells) add(k % cols, Math.floor(k / cols));
       }
@@ -901,7 +882,7 @@
     const onEdge = (x, y) => x === 0 || y === 0 || x === cols-1 || y === rows-1;
     let escGroups = [];
     for (const p of [1, 2]){
-      for (const g of nodeGroups(node, state, rows, cols, p)){
+      for (const g of computeGroupLiberties(state, rows, cols, p)){
         if (g.liberties > 0 && g.liberties <= 6) escGroups.push(g);
       }
     }
