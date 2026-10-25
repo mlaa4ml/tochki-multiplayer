@@ -322,8 +322,22 @@ function main(){
 
     for (let p = 0; p < args.population; p++){
       const candidate = mutate(incumbent, rng, strength);
-      const result = contest(args.sizeKey, openings, incumbent, candidate, args.games, rng, args.fillPercent);
+      const vsInc = contest(args.sizeKey, openings, incumbent, candidate, args.games, rng, args.fillPercent);
       totalGamesPlayed += args.games;
+      // B05: кандидат играет и против пула ЗАМОРОЖЕННЫХ соперников —
+      // иначе ES может «переобучиться» под текущий эталон (циклы
+      // камень-ножницы-бумага). Fitness = средний winRate по эталону и пулу.
+      const parts = [vsInc];
+      for (const opp of frozenPool){
+        parts.push(contest(args.sizeKey, openings, opp.weights, candidate, args.games, rng, args.fillPercent));
+        totalGamesPlayed += args.games;
+      }
+      const result = {
+        candidateWins: parts.reduce((s, r) => s + r.candidateWins, 0),
+        incumbentWins: parts.reduce((s, r) => s + r.incumbentWins, 0),
+        draws: parts.reduce((s, r) => s + r.draws, 0),
+        winRate: parts.reduce((s, r) => s + r.winRate, 0) / parts.length
+      };
       console.log(
         `  поколение ${gen}, кандидат ${p + 1}/${args.population}: ` +
         `winRate=${result.winRate.toFixed(2)} (${result.candidateWins}W/${result.incumbentWins}L/${result.draws}D)` +
