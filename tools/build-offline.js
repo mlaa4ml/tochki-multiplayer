@@ -50,7 +50,11 @@ function sha256(buf){ return crypto.createHash('sha256').update(buf).digest('hex
 const FILES = [
   { src: 'gameEngine.js', dst: 'gameEngine.js', verbatim: true },
   { src: 'botWorker.js', dst: 'botWorker.js', verbatim: true },
-  { src: 'offline/localSession.js', dst: 'localSession.js', verbatim: true },
+    { src: 'offline/localSession.js', dst: 'localSession.js', verbatim: true },
+  // B03 (#26): общий кодек реплеев A02 (Node/browser, без SQLite/DOM) —
+  // экспорт/импорт в offline идут строго через него, своего формата нет.
+  { src: 'replay.js', dst: 'replay.js', verbatim: true },
+  { src: 'offline/storage.js', dst: 'storage.js', verbatim: true },
   { src: 'offline/index.html', dst: 'index.html', verbatim: false, transform: transformHtml }
 ];
 
@@ -58,7 +62,9 @@ const SW_TEMPLATE = 'offline/sw.js';
 const SW_FILE = 'sw.js';
 const WEBMANIFEST_FILE = 'manifest.webmanifest';
 
-const FORBIDDEN_FILES = ['server.js', 'db.js', 'auth.js', 'botPool.js', 'gamelog.js', 'replay.js', 'node_modules'];
+// replay.js сюда больше не входит: это общий кодек A02 без SQLite/DOM/сети,
+// он нужен offline-реплеям (B03, #26).
+const FORBIDDEN_FILES = ['server.js', 'db.js', 'auth.js', 'botPool.js', 'gamelog.js', 'node_modules'];
 
 // Разрешённые исключения из checkContent по имени файла.
 const CONTENT_ALLOW = { 'sw.js': ['fetch()'] };
@@ -119,7 +125,9 @@ function transformHtml(html){
   // Движок рядом с index.html; URL Worker'а для localSession задаём явно
   // (по умолчанию он ищется в '../botWorker.js' — раскладка репозитория).
   return html
-    .replace(engineTag, '<script>self.TOCHKI_BOT_WORKER_URL = \'botWorker.js\';</script>\n<script src="gameEngine.js"></script>')
+        .replace(engineTag, '<script>self.TOCHKI_BOT_WORKER_URL = \'botWorker.js\';</script>\n<script src="gameEngine.js"></script>')
+    // B03 (#26): общий кодек реплеев лежит рядом с index.html в артефакте.
+    .replace('<script src="../replay.js"></script>', '<script src="replay.js"></script>')
     .replace('</head>', PWA_HEAD + '</head>')
     .replace('</body>', PWA_BODY + '</body>');
 }

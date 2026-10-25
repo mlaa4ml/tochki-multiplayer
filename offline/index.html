@@ -52,12 +52,38 @@
     <div><span id="spinner">⏳ бот думает…</span></div>
     <div id="info"></div>
     <div id="error"></div>
-    <details><summary>Диагностика поиска</summary><textarea id="trace" rows="8" readonly></textarea></details>
+    <fieldset id="replays"><legend>Реплеи и хранилище</legend>
+      <div>
+        <button id="btnExport">Экспорт JSON</button>
+        <button id="btnSaveReplay">Сохранить в браузере</button>
+        <button id="btnResume" style="display:none">Восстановить автосохранение</button>
+      </div>
+      <label>Импорт файла (.json) <input id="importFile" type="file" accept=".json,application/json"></label>
+      <div>
+        <select id="replayList" style="max-width:100%;min-height:36px"></select>
+        <button id="btnLoadReplay">Загрузить</button>
+        <button id="btnDelReplay">Удалить</button>
+      </div>
+      <div id="replayMsg"></div>
+      <div id="storageStatus" style="font-size:12px;color:#8a5a00"></div>
+    </fieldset>
+    <details id="diag" open><summary>Диагностика поиска</summary>
+      <div id="diagSummary" style="font-size:13px">нет данных: бот ещё не ходил</div>
+      <div style="max-height:220px;overflow:auto">
+        <table id="diagTable" style="border-collapse:collapse;font-size:13px">
+          <thead><tr><th style="text-align:left;padding:0 6px">#</th><th style="text-align:left;padding:0 6px">кандидат</th><th style="text-align:right;padding:0 6px">оценка</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <details><summary>trace (JSON)</summary><textarea id="trace" rows="8" readonly></textarea></details>
+    </details>
   </div>
   <canvas id="board" width="600" height="500"></canvas>
 </div>
 <script src="../gameEngine.js"></script>
+<script src="../replay.js"></script>
 <script src="localSession.js"></script>
+<script src="storage.js"></script>
 <script>
 (function(){
   'use strict';
@@ -128,7 +154,40 @@
     $('btnStart').disabled = !bb || snap.gameOver || st.running;
     $('btnPause').disabled = !bb || !st.running;
     $('btnStep').disabled = !bb || snap.gameOver || st.searching;
-    if (st.lastTrace) $('trace').value = JSON.stringify(st.lastTrace, null, 1);
+    renderDiag(st.lastTrace);
+    autosave(snap, st);
+  }
+
+  // --- Панель диагностики (B03): данные trace из A04 (Engine.searchMove). ---
+  const STOP_REASONS = { time: 'лимит времени', 'node-limit': 'лимит узлов', 'max-depth': 'достигнута макс. глубина',
+    'immediate-win': 'немедленная победа', 'no-candidates': 'нет кандидатов', 'no-legal-moves': 'нет легальных ходов',
+    'game-over': 'партия окончена' };
+  function fmtScore(v){ return typeof v === 'number' ? (Number.isFinite(v) ? (Math.round(v * 100) / 100).toString() : (v > 0 ? '+∞' : '−∞')) : String(v); }
+  function renderDiag(t){
+    const tbody = $('diagTable').tBodies[0];
+    tbody.textContent = '';
+    if (!t){ $('diagSummary').textContent = 'нет данных: бот ещё не ходил'; $('trace').value = ''; return; }
+    const p = t.params || {};
+    const reason = t.stopReason ? (STOP_REASONS[t.stopReason] || t.stopReason) + ' [' + t.stopReason + ']' : '—';
+    $('diagSummary').textContent = 'Ход: ' + fmtMove(t.move) +
+      ' · глубина: ' + (t.completedDepth ?? '—') + (p.maxDepth ? ' / ' + p.maxDepth : '') +
+      ' · узлов: ' + (t.nodes ?? '—') + (p.nodeLimit ? ' / ' + p.nodeLimit : '') +
+      ' · время: ' + (t.elapsedMs ?? '—') + ' мс' +
+      ' · остановка: ' + reason + (t.fallback ? ' · резервный ход: ' + t.fallback : '');
+    const cands = (t.candidates || []).slice().sort((a, b) => b.score - a.score);
+    if (!cands.length){
+      const tr = tbody.insertRow(); const td = tr.insertCell(); td.colSpan = 3;
+      td.textContent = 'кандидатов с оценкой нет (ни одна итерация не завершена)';
+    }
+    cands.forEach((c, i) => {
+      const tr = tbody.insertRow();
+      const chosen = t.move && c.x === t.move.x && c.y === t.move.y;
+      if (chosen) tr.style.fontWeight = '700';
+      [String(i + 1), fmtMove(c) + (chosen ? ' ✓' : ''), fmtScore(c.score)].forEach((v, k) => {
+        const td = tr.insertCell(); td.textContent = v; td.style.padding = '0 6px'; if (k === 2) td.style.textAlign = 'right';
+      });
+    });
+    $('trace').value = JSON.stringify(t, null, 1);
   }
 
   function parseWeights(id){
@@ -136,10 +195,103 @@
     try { return JSON.parse(v); } catch (e){ alert('Некорректный JSON весов в ' + id); throw e; }
   }
 
+  // --- Хранилище (B03): отказ/quota не бросает исключений и не блокирует игру. ---
+  const store = window.TochkiStorage.createStorage();
+  function storageNote(r){
+    if (r && r.ok === false) $('storageStatus').textContent = 'Хранилище недоступно (игра продолжается): ' + r.error;
+  }
+  (function(){ const a = store.available();
+    if (!a.localStorage || !a.indexedDB) $('storageStatus').textContent = 'Хранилище: localStorage ' + (a.localStorage ? 'есть' : 'нет') +
+      ', IndexedDB ' + (a.indexedDB ? 'есть' : 'нет') + ' — сохранения отключены, игра работает.'; })();
+  let autosaveEnabled = false; // включается после старта, чтобы не затереть старое автосохранение
+  function autosave(snap, st){
+    if (!autosaveEnabled || !st || st.moveCount === 0) return;
+    try { storageNote(store.saveAutosave(session.getReplay())); } catch (e){ storageNote({ ok: false, error: String(e && e.message || e) }); }
+  }
+  function replayMsg(text, isError){ $('replayMsg').textContent = text; $('replayMsg').style.color = isError ? '#b00020' : '#2b6e2b'; }
+  function loadReplayText(input, label){
+    const r = session.loadReplay(input);
+    if (!r.ok){ replayMsg('Импорт отклонён (' + label + '): ' + r.reason + '. Текущая партия не изменена.', true); return false; }
+    replayMsg('Загружен реплей (' + label + '). Места: человек–человек; продолжить можно ходами.', false);
+    return true;
+  }
+  function settingsFromForm(){
+    return { size: sizeSel.value, targetScore: $('targetScore').value, targetFill: $('targetFill').value,
+      extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+      c1: $('c1').value, c2: $('c2').value, w1: $('w1').value, w2: $('w2').value, delay: $('delay').value };
+  }
+  function applySettings(s){
+    if (!s) return;
+    const setV = (id, v) => { if (typeof v === 'string' && Array.from($(id).options || [{ value: v }]).some(o => o.value === v)) $(id).value = v; };
+    setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+    for (const id of ['targetScore', 'targetFill', 'w1', 'w2', 'delay']) if (typeof s[id] === 'string') $(id).value = s[id];
+    if (typeof s.extra === 'boolean') $('extra').checked = s.extra;
+    if (typeof s.undoAllowed === 'boolean') $('undoAllowed').checked = s.undoAllowed;
+    $('delayVal').textContent = $('delay').value;
+  }
+  function refreshList(){
+    const sel = $('replayList');
+    store.listReplays().then(r => {
+      sel.textContent = '';
+      if (!r.ok){ storageNote(r); const o = document.createElement('option'); o.textContent = '(IndexedDB недоступен)'; o.value = ''; sel.appendChild(o); return; }
+      if (!r.value.length){ const o = document.createElement('option'); o.textContent = '(нет сохранённых реплеев)'; o.value = ''; sel.appendChild(o); }
+      r.value.sort((a, b) => b.savedAt - a.savedAt).forEach(x => {
+        const o = document.createElement('option'); o.value = String(x.id);
+        const s = x.summary || {};
+        o.textContent = x.name + ' · ' + new Date(x.savedAt).toLocaleString() + ' · ходов ' + (s.moves ?? '?') +
+          (s.scores ? ' · ' + s.scores[1] + ':' + s.scores[2] : '');
+        sel.appendChild(o);
+      });
+    });
+  }
+
   const session = window.TochkiLocalSession.createLocalSession({ delayMs: 300 });
   session.subscribe(update);
 
+  $('btnExport').onclick = () => {
+    let text;
+    try { text = session.exportReplay(); } catch (e){ replayMsg('Экспорт не удался: ' + (e && e.message || e), true); return; }
+    if (!text) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    a.download = 'tochki-replay-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    replayMsg('Реплей экспортирован в JSON (общий формат tochki-replay v1).', false);
+  };
+  $('importFile').onchange = ev => {
+    const f = ev.target.files && ev.target.files[0]; if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => { loadReplayText(String(fr.result), f.name); ev.target.value = ''; };
+    fr.onerror = () => { replayMsg('Не удалось прочитать файл: ' + (fr.error && fr.error.message), true); ev.target.value = ''; };
+    fr.readAsText(f);
+  };
+  $('btnSaveReplay').onclick = () => {
+    const r = session.getReplay(); if (!r) return;
+    store.saveReplay('Партия ' + new Date().toLocaleString(), r).then(res => {
+      if (res.ok){ replayMsg('Реплей сохранён в браузере (IndexedDB).', false); refreshList(); }
+      else { replayMsg('Не удалось сохранить: ' + res.error + '. Используйте «Экспорт JSON».', true); storageNote(res); }
+    });
+  };
+  $('btnLoadReplay').onclick = () => {
+    const id = Number($('replayList').value); if (!id) return;
+    store.getReplay(id).then(res => {
+      if (!res.ok || !res.value){ replayMsg('Не удалось прочитать реплей: ' + (res.error || 'не найден'), true); return; }
+      loadReplayText(res.value, 'IndexedDB #' + id);
+    });
+  };
+  $('btnDelReplay').onclick = () => {
+    const id = Number($('replayList').value); if (!id) return;
+    store.deleteReplay(id).then(res => { if (!res.ok) storageNote(res); refreshList(); });
+  };
+  $('btnResume').onclick = () => {
+    const saved = store.loadAutosave();
+    if (saved && loadReplayText(saved, 'автосохранение')) $('btnResume').style.display = 'none';
+  };
+
   function newGame(){
+    storageNote(store.saveSettings(settingsFromForm()));
+    $('replayMsg').textContent = '';
     session.newGame({
       sizeKey: sizeSel.value,
       firstPlayer: Number($('first').value),
@@ -172,7 +324,13 @@
   $('delay').oninput = () => { $('delayVal').textContent = $('delay').value; session.setDelay(Number($('delay').value)); };
   window.addEventListener('resize', () => { if (lastSnap) render(lastSnap); });
   window.addEventListener('pagehide', () => session.dispose());
+  // Старт: восстановить настройки; если есть автосохранение — предложить его.
+  applySettings(store.loadSettings());
+  const prevAutosave = store.loadAutosave();
+  if (prevAutosave) $('btnResume').style.display = '';
+  refreshList();
   newGame();
+  autosaveEnabled = true;
 })();
 </script>
 </body>
