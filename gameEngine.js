@@ -900,7 +900,7 @@
     const onEdge = (x, y) => x === 0 || y === 0 || x === cols-1 || y === rows-1;
     let escGroups = [];
     for (const p of [1, 2]){
-      for (const g of computeGroupLiberties(state, rows, cols, p)){
+      for (const g of nodeGroups(node, state, rows, cols, p)){
         if (g.liberties > 0 && g.liberties <= 6) escGroups.push(g);
       }
     }
