@@ -60,12 +60,19 @@ for (const [file, gi, ply] of CASES){
   checked++;
 }
 
-// Ablation: safety2:false сохраняет прежнее поведение (фильтр не применяется).
+// Санити-проверка метрики угрозы: на почти пустом поле сеть за 2 хода
+// невозможна (twoMoveThreat === 0), и поиск strong с фильтром safety2
+// детерминированно возвращает ход при фиксированном бюджете узлов.
 {
   const m = E.createMatch({ sizeKey: 'small' });
   m.applyMove(1, 6, 5);
-  const r = m.botSearch('strong', null, { nodeLimit: 2000 });
-  assert.ok(r.move, 'ход найден');
+  const node = E.createSearchNode(m.getSnapshot());
+  assert.strictEqual(E.twoMoveThreat(node, 1), 0, 'нет угрозы на пустом поле (игрок 1)');
+  assert.strictEqual(E.twoMoveThreat(node, 2), 0, 'нет угрозы на пустом поле (игрок 2)');
+  const r1 = m.botSearch('strong', null, { nodeLimit: 2000 });
+  const r2 = m.botSearch('strong', null, { nodeLimit: 2000 });
+  assert.ok(r1.move, 'ход найден');
+  assert.deepStrictEqual([r1.move.x, r1.move.y], [r2.move.x, r2.move.y], 'поиск детерминирован');
 }
 
 console.log(`replay-blunders: OK (${checked} позиций, ${Date.now() - t0} мс)`);
