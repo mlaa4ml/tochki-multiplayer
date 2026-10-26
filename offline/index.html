@@ -225,7 +225,8 @@
   function applySettings(s){
     if (!s) return;
     const setV = (id, v) => { if (typeof v === 'string' && Array.from($(id).options || [{ value: v }]).some(o => o.value === v)) $(id).value = v; };
-    setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+        setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+    setV('startPosition', s.startPosition);
     for (const id of ['targetScore', 'targetFill', 'w1', 'w2', 'delay']) if (typeof s[id] === 'string') $(id).value = s[id];
     if (typeof s.extra === 'boolean') $('extra').checked = s.extra;
     if (typeof s.undoAllowed === 'boolean') $('undoAllowed').checked = s.undoAllowed;
