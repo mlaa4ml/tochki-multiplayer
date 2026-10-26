@@ -1,0 +1,69 @@
+# Автоматическая развёртка offline-клиента на GitHub Pages (issue #46).
+#
+# Собирает статический артефакт tools/build-offline.js -> dist/offline/
+# (index.html, gameEngine.js, botWorker.js, localSession.js, replay.js,
+# storage.js, sw.js, manifest.webmanifest, build-manifest.json) и публикует
+# его через официальные actions/upload-pages-artifact + actions/deploy-pages.
+#
+# Однократная настройка репозитория: Settings -> Pages -> Build and deployment
+# -> Source: «GitHub Actions». После этого клиент доступен по адресу
+#   https://<owner>.github.io/<repo>/
+# Все пути в артефакте относительные, поэтому подпуть /<repo>/ работает;
+# GitHub Pages отдаёт по HTTPS, значит Service Worker (PWA, офлайн-кеш) работает.
+name: Deploy offline client to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gameEngine.js'
+      - 'botWorker.js'
+      - 'replay.js'
+      - 'offline/**'
+      - 'tools/build-offline.js'
+      - 'test/build-offline.js'
+      - '.github/workflows/pages-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Одновременно идёт только одна развёртка; уже начатую не прерываем.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      # npm install не нужен: сборка и её тест используют только встроенные модули Node.
+      - name: Test offline build
+        run: node test/build-offline.js
+
+      - name: Build offline client
+        run: node tools/build-offline.js --out dist/offline
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/offline
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
