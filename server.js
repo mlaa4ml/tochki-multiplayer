@@ -791,6 +791,10 @@ function sanitizeCreateOptions(raw){
   // доступна), поэтому передаём в Engine.createMatch только явное false.
   // Дальше вся логика — в gameEngine.js (canUndoLastMove/undoLastMove).
   if (raw.undoAllowed === false) options.undoAllowed = false;
+  // startPosition — стартовая позиция партии (issue #47): 'empty' (по
+  // умолчанию, пустое поле) или 'cross' (4 точки крестом в центре поля).
+  // Передаём в Engine.createMatch только явное 'cross'.
+  if (raw.startPosition === 'cross') options.startPosition = 'cross';
   return options;
 }
 
