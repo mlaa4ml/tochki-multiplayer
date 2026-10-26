@@ -62,6 +62,26 @@ python3 -m http.server 8080 -d dist/offline   # или: npx http-server dist/off
    `localSession.js` и `botWorker.js`, а также повторная загрузка
    `gameEngine.js` из Worker. Внешних доменов и WS/API-запросов быть не должно.
 
+## GitHub Pages (issue #46)
+
+Workflow `.github/workflows/pages-offline.yml` автоматически публикует
+собранный `dist/offline/` на GitHub Pages:
+- запускается при push в `main`, если менялись `gameEngine.js`, `botWorker.js`,
+  `replay.js`, `offline/**`, `tools/build-offline.js`, `test/build-offline.js`
+  или сам workflow, а также вручную (Actions → «Deploy offline client to GitHub Pages» → Run workflow);
+- сначала прогоняет `node test/build-offline.js`, затем
+  `node tools/build-offline.js --out dist/offline` и выкладывает артефакт через
+  `actions/upload-pages-artifact` + `actions/deploy-pages`. `npm install` не нужен.
+
+**Однократная настройка:** Settings → Pages → Build and deployment → Source:
+**GitHub Actions**. После первого успешного прогона клиент доступен по адресу
+`https://<owner>.github.io/<repo>/` (для этого репозитория —
+`https://mlaa4ml.github.io/tochki-multiplayer/`).
+
+Все пути в артефакте относительные (`start_url`/`scope` манифеста — `./`,
+SW регистрируется как `sw.js`), поэтому подпуть `/<repo>/` работает. Pages
+отдаёт по HTTPS, так что Service Worker и офлайн-режим PWA доступны.
+
 ## PWA: игра без сети (B02, issue #25)
 
 По решению автора в #25 реализован только PWA-вариант. Вариант с одним HTML-файлом для `file://` отложен в #40.
