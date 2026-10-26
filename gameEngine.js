@@ -1661,7 +1661,7 @@
         },
         lastMoverSeat: lastMoverSeat(),
         canUndo: canUndoLastMove(),
-        rules: { targetScore, targetFillPercent, scoreRuleActive, fillRuleActive, totalCells, extraTurnOnCapture, firstPlayer, undoAllowed }
+        rules: { targetScore, targetFillPercent, scoreRuleActive, fillRuleActive, totalCells, extraTurnOnCapture, firstPlayer, undoAllowed, startPosition }
       };
     }
 
