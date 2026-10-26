@@ -73,6 +73,21 @@
     return x>=zone.minX && x<=zone.maxX && y>=zone.minY && y<=zone.maxY;
   }
 
+  // ---------- Стартовая позиция (issue #47) ----------
+  // START_POSITIONS — допустимые значения настройки партии startPosition.
+  // getStartStones возвращает точки, которые стоят на поле до первого хода:
+  // для 'cross' — квадрат 2×2 в центре поля (внутри дебютной зоны),
+  // расположенный крестом: (cx-1,cy-1)=1, (cx,cy-1)=2, (cx-1,cy)=2, (cx,cy)=1.
+  const START_POSITIONS = ['empty', 'cross'];
+  function getStartStones(startPosition, rows, cols){
+    if (startPosition !== 'cross') return [];
+    const cx = Math.floor(cols/2), cy = Math.floor(rows/2);
+    return [
+      { x: cx-1, y: cy-1, p: 1 }, { x: cx, y: cy-1, p: 2 },
+      { x: cx-1, y: cy,   p: 2 }, { x: cx, y: cy,   p: 1 }
+    ];
+  }
+
   function createEmptyState(rows, cols){
     return {
       stone: Array.from({length:rows}, () => new Array(cols).fill(0)),
