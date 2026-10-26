@@ -1478,6 +1478,22 @@
     const moveLog = [];
     const totalCells = rows*cols;
 
+    // startPosition — стартовая позиция партии (issue #47):
+    //   'empty' (по умолчанию) — пустое поле, как было всегда;
+    //   'cross' — в центре поля заранее стоят четыре точки крестом:
+    //       верхний ряд: игрок 1, игрок 2
+    //       нижний ряд:  игрок 2, игрок 1
+    // Стартовые точки не являются ходами: их нет в moveLog/history, поэтому
+    // отменить их нельзя. Они учитываются в stonesPlacedTotal, поэтому
+    // ограничение дебютной зоны (первые 2 точки партии) для такой партии
+    // уже выполнено — первые точки уже стоят в центре.
+    const startPosition = options.startPosition === 'cross' ? 'cross' : 'empty';
+    const startStones = getStartStones(startPosition, rows, cols);
+    for (const s of startStones){
+      state.stone[s.y][s.x] = s.p;
+      stonesPlacedTotal++;
+    }
+
     // Стек снимков "состояние прямо перед ходом N" — по одному на каждый
     // применённый ход, в порядке ходов. Понадобился для отмены хода
     // (шаг 14): захват мутирует сразу три слоя (stone/dead/territory) плюс
