@@ -444,7 +444,10 @@
     if (firstMoveSel.value === 'opponent') opts.firstMove = 'opponent';
     // Чекбокс изначально включён (undoAllowed:true — прежнее поведение),
     // поэтому на сервер отправляем только явное отключение.
-    if (!undoAllowedCheckbox.checked) opts.undoAllowed = false;
+        if (!undoAllowedCheckbox.checked) opts.undoAllowed = false;
+    // Стартовая позиция (issue #47): 'empty' по умолчанию или 'cross'.
+    const startPositionSel = document.getElementById('startPositionSel');
+    if (startPositionSel && startPositionSel.value === 'cross') opts.startPosition = 'cross';
     if (vsBotCheckbox.checked){
       opts.vsBot = true;
       opts.botDifficulty = botDifficultySel.value;
