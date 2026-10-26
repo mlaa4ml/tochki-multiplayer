@@ -36,5 +36,6 @@ const m = E.createMatch({ sizeKey: 'small', targetFillPercent: 1, startPosition:
 const n = E.createSearchNode(m.getSnapshot());
 const move = A.legalMoves(n)[0];
 const t = E.applyTransition(n, n.current, move.x, move.y);
-if (t.node.gameOver) assert.strictEqual(A.immediateLoss(n, move).reply, null);
+assert(t.node.gameOver, 'fixture must terminate on this move');
+assert.strictEqual(A.immediateLoss(n, move).reply, null);
 console.log('human-replays: OK');
