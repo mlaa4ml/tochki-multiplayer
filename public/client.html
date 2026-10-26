@@ -626,6 +626,7 @@
     if (rules && rules.extraTurnOnCapture) ruleNotes.push('доп. ход за окружение');
     if (rules && rules.firstPlayer === 2) ruleNotes.push(`первым ходит ${displayName(2)}`);
     if (rules && rules.undoAllowed === false) ruleNotes.push('отмена хода отключена');
+    if (rules && rules.startPosition === 'cross') ruleNotes.push('старт: 4 точки крестом');
     const ruleText = ruleNotes.length ? ` (${ruleNotes.join(', ')})` : '';
     metaEl.textContent = isSpectator
       ? `Партия в комнате ${code}.${ruleText}`
