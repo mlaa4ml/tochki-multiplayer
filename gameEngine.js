@@ -1444,6 +1444,141 @@
   // Экспорт для тестов через уже экспортированную функцию.
   twoMoveThreat.forkLoss = forkLoss;
 
+    // ---------- issue #52: анти-вилка на 4 полухода ----------
+  // Ошибка из replays01#0 (полуход 46): ход бота (5,7) позволил ответ (10,5),
+  // после которого ни одна защита не опускала «сеть за 2 хода» ниже 11 точек.
+  // Это видно только на глубине: наш ход -> ответ соперника -> наша защита ->
+  // соперник ходит дважды. forkLoss4 считает такую гарантированную потерю.
+  //
+  // localNetThreat — сеть за 2 хода, где первый ход в радиусе R от (fx,fy):
+  // дешёвый фильтр «создал ли ответ соперника новую сеть рядом с собой».
+  function localNetThreat(node, p, fx, fy, R){
+    const n = cloneSearchNode(node);
+    n.current = p;
+    const { rows, cols } = n;
+    let best = 0, cells = [];
+    for (let dy=-R; dy<=R; dy++) for (let dx=-R; dx<=R; dx++){
+      const x = fx+dx, y = fy+dy;
+      if (x<0 || y<0 || x>=cols || y>=rows) continue;
+      if (!nearOccupied(n.state, rows, cols, x, y) || !isTransitionLegal(n, x, y)) continue;
+      const t = applyTransition(n, p, x, y);
+      if (!t.ok) continue;
+      const c1 = countCaptured(t.result.gained);
+      if (c1 > best){ best = c1; cells = [{ x, y }]; }
+      if (t.node.gameOver) continue;
+      t.node.current = p;
+      const s = t.node.state;
+      for (let y2=0; y2<rows; y2++) for (let x2=0; x2<cols; x2++){
+        if (!nearOccupied(s, rows, cols, x2, y2) || !isTransitionLegal(t.node, x2, y2)) continue;
+        const u = applyTransition(t.node, p, x2, y2);
+        if (!u.ok) continue;
+        const v = c1 + countCaptured(u.result.gained);
+        if (v > best){ best = v; cells = [{ x, y }, { x: x2, y: y2 }]; }
+      }
+    }
+    return { v: best, cells };
+  }
+
+  // forkLoss4(node, opp, mover, ctx) — node: позиция после нашего хода, ходит
+  // opp. Худшая по ответам соперника потеря, которую мы не можем предотвратить
+  // защитой (защиты: радиус 2 от ответа и радиус 1 от клеток найденной сети).
+  // ctx = { calls, cap, thr }: учёт работы в «вызовах twoMoveThreat»
+  // (локальный фильтр ~0.35); при превышении cap возвращает null
+  // (детерминирован, не зависит от часов).
+  function forkLoss4(node, opp, mover, ctx){
+    const { rows, cols } = node;
+    let worst = 0, worstAt = null;
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      if (ctx.calls > ctx.cap){ ctx.aborted = true; return null; }
+      if (!nearOccupied(node.state, rows, cols, x, y) || !isTransitionLegal(node, x, y)) continue;
+      const t = applyTransition(node, opp, x, y);
+      if (!t.ok) continue;
+      if (t.node.gameOver){ if (t.node.winner === opp) return { loss: 100, at: { x, y } }; continue; }
+      const imm = countCaptured(t.result.gained);
+      let loss = imm;
+      if (t.node.current === opp){
+        loss = imm + oneMoveGain(t.node, opp);
+      } else {
+        ctx.calls += 0.35;
+        const net = localNetThreat(t.node, opp, x, y, 2);
+        if (net.v >= ctx.thr && imm + net.v > worst){
+          const defs = new Set();
+          const addR = (cx, cy, r) => {
+            for (let ey=-r; ey<=r; ey++) for (let ex=-r; ex<=r; ex++){
+              const nx = cx+ex, ny = cy+ey;
+              if (nx>=0 && ny>=0 && nx<cols && ny<rows) defs.add(ny*cols + nx);
+            }
+          };
+          addR(x, y, 2);
+          for (const c of net.cells) addR(c.x, c.y, 1);
+          let bestDef = Infinity;
+          for (const k of defs){
+            if (bestDef < ctx.thr) break;
+            if (ctx.calls > ctx.cap){ ctx.aborted = true; return null; }
+            const ex = k % cols, ey = Math.floor(k / cols);
+            if (!isTransitionLegal(t.node, ex, ey)) continue;
+            const u = applyTransition(t.node, mover, ex, ey);
+            if (!u.ok) continue;
+            if (u.node.gameOver){ if (u.node.winner !== opp) bestDef = 0; continue; }
+            if (u.node.current === mover){ bestDef = 0; continue; }
+            const mine = countCaptured(u.result.gained);
+            ctx.calls += 1;
+            const g = Math.max(0, twoMoveThreat(u.node, opp) - mine);
+            if (g < bestDef) bestDef = g;
+          }
+          if (!Number.isFinite(bestDef)) bestDef = net.v;
+          loss = imm + bestDef;
+        }
+      }
+      if (loss > worst){ worst = loss; worstAt = { x, y }; }
+    }
+    return { loss: worst, at: worstAt };
+  }
+  twoMoveThreat.forkLoss4 = forkLoss4;
+
+  // applyAntiFork (diff.antiFork): для diff.antiForkTop лучших кандидатов
+  // (после штрафа safety2) считает forkLoss4; если у лучшего хода есть
+  // опасный ответ соперника, его клетка (ключевая точка вилки) тоже
+  // проверяется как наш ход — занять её самому. Ход с потерей больше
+  // минимальной на (thr-1) и более штрафуется SAFETY2_WEIGHT за точку.
+  // При превышении бюджета (diff.antiForkCap) фильтр не применяется.
+  function applyAntiFork(root, mover, diff, top, pick){
+    const opp = mover === 1 ? 2 : 1;
+    const ctx = { calls: 0, cap: diff.antiForkCap || 60, thr: diff.antiForkThreshold || 4, aborted: false };
+    const pool = top.filter(c => Number.isFinite(c.adj)).sort((a,b) => b.adj - a.adj).slice(0, diff.antiForkTop || 3);
+    if (!pool.length) return { pick, info: null };
+    const evalC = c => {
+      const t = applyTransition(root, mover, c.x, c.y);
+      if (!t.ok) return null;
+      if (t.node.gameOver || t.node.current === mover) return { loss: 0, at: null };
+      const mine = countCaptured(t.result.gained);
+      const r = forkLoss4(t.node, opp, mover, ctx);
+      return r ? { loss: Math.max(0, r.loss - mine), at: r.at } : null;
+    };
+    for (const c of pool){
+      c.fork = evalC(c);
+      if (!c.fork) return { pick, info: { aborted: true, calls: Math.round(ctx.calls) } };
+    }
+    const key = pool[0].fork.at;
+    if (key && pool[0].fork.loss >= ctx.thr && !pool.some(c => c.x === key.x && c.y === key.y) &&
+        isTransitionLegal(root, key.x, key.y)){
+      const base = pool[pool.length-1].adj;
+      const kc = { x: key.x, y: key.y, score: base, adj: base, keyPoint: true };
+      kc.fork = evalC(kc);
+      if (kc.fork) pool.push(kc);
+    }
+    let minF = Infinity;
+    for (const c of pool) if (c.fork.loss < minF) minF = c.fork.loss;
+    let best = pick, bestV = -Infinity;
+    for (const c of pool){
+      const extra = c.fork.loss - minF;
+      const v = c.adj - (extra >= ctx.thr - 1 ? SAFETY2_WEIGHT * extra : 0);
+      if (v > bestV){ bestV = v; best = c; }
+    }
+    return { pick: best, info: { calls: Math.round(ctx.calls), minLoss: minF,
+      losses: pool.map(c => ({ x: c.x, y: c.y, loss: c.fork.loss, key: !!c.keyPoint })) } };
+  }
+
   function applySafety2(root, mover, diff, ordered, candidates, bestMove){
     if (!diff.safety2 || !bestMove || candidates.length < 2) return { move: bestMove, info: null };
     const opp = mover === 1 ? 2 : 1;
