@@ -1494,6 +1494,11 @@
       const idx = ordered.indexOf(bestMove);
       if (idx > 0){ ordered.splice(idx, 1); ordered.unshift(bestMove); }
     }
+    if (bestMove && trace.candidates.length > 1){
+      const s2 = applySafety2(root, mover, diff, ordered, trace.candidates, bestMove);
+      if (s2.info) trace.safety2 = s2.info;
+      bestMove = s2.move;
+    }
     return finish(bestMove || ordered[0], sc.aborted ? sc.stopReason : 'max-depth');
   }
 
