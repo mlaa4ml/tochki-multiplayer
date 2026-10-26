@@ -69,9 +69,11 @@ for (const sizeKey of Object.keys(Engine.SIZES)){
   m.applyMove(1, 0, 0);
   m.applyMove(2, 11, 9);
   const replay = m.getReplay();
-  const played = Replay.play(replay);
-  const snap = (played.match || played).getSnapshot ? (played.match || played).getSnapshot() : null;
-  if (snap) assert.deepStrictEqual(snap.stone, m.getSnapshot().stone);
+  const played = Replay.play(replay); // возвращает воспроизведённый match
+  const snap = played.getSnapshot();
+  assert.strictEqual(snap.rules.startPosition, 'cross');
+  assert.deepStrictEqual(snap.stone, m.getSnapshot().stone);
+  assert.strictEqual(snap.stonesPlacedTotal, m.getSnapshot().stonesPlacedTotal);
 
   const legacy = Engine.createMatch({ sizeKey: 'small' });
   legacy.applyMove(1, 6, 5);
