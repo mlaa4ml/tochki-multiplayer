@@ -1,0 +1,1447 @@
+{
+  "nodeLimit": 5000,
+  "difficulty": "strong",
+  "metric": "maximum opposing score gain through the next legal opposing move",
+  "games": [
+    {
+      "id": "issue52-replays01.json#0",
+      "size": "small",
+      "moves": 69,
+      "scores": {
+        "1": 12,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 120,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    },
+    {
+      "id": "issue52-replays01.json#1",
+      "size": "small",
+      "moves": 67,
+      "scores": {
+        "1": 16,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 120,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    },
+    {
+      "id": "issue52-replays02.json#0",
+      "size": "small",
+      "moves": 68,
+      "scores": {
+        "1": 24,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 120,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    },
+    {
+      "id": "issue52-replays02.json#1",
+      "size": "small",
+      "moves": 71,
+      "scores": {
+        "1": 27,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 120,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "size": "medium",
+      "moves": 109,
+      "scores": {
+        "1": 36,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 192,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "size": "medium",
+      "moves": 106,
+      "scores": {
+        "1": 35,
+        "2": 0
+      },
+      "rules": {
+        "targetScore": 0,
+        "targetFillPercent": 64,
+        "scoreRuleActive": false,
+        "fillRuleActive": true,
+        "totalCells": 192,
+        "extraTurnOnCapture": false,
+        "firstPlayer": 2,
+        "undoAllowed": true,
+        "startPosition": "cross"
+      }
+    }
+  ],
+  "positions": [
+    {
+      "id": "issue52-replays01.json#0",
+      "eventIndex": 52,
+      "recordedLoss": 12,
+      "minimumLoss": 11,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 9,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 18.596101229340817
+          },
+          "loss": 12,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 821.8026369999998
+        },
+        "1": {
+          "move": {
+            "x": 10,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 12.07807764064044
+          },
+          "loss": 11,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 794.5195629999998
+        }
+      }
+    },
+    {
+      "id": "issue52-replays01.json#1",
+      "eventIndex": 24,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 4,
+            "y": 2,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 28.586851709182135
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 696.3841140000004
+        },
+        "1": {
+          "move": {
+            "x": 4,
+            "y": 2,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 28.586851709182135
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 769.5585750000009
+        }
+      }
+    },
+    {
+      "id": "issue52-replays01.json#1",
+      "eventIndex": 36,
+      "recordedLoss": 5,
+      "minimumLoss": 5,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 7,
+            "y": 7,
+            "q": 15.123606797749979
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 587.4359729999996
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 7,
+            "strategic": true,
+            "q": 21.206851709182136
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1034.7925969999997
+        }
+      }
+    },
+    {
+      "id": "issue52-replays01.json#1",
+      "eventIndex": 44,
+      "recordedLoss": 7,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 4,
+            "y": 8,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 23.706851709182136
+          },
+          "loss": 7,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1171.9040750000004
+        },
+        "1": {
+          "move": {
+            "x": 4,
+            "y": 9,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 13.073097599052623
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 810.0839829999986
+        }
+      }
+    },
+    {
+      "id": "issue52-replays01.json#1",
+      "eventIndex": 62,
+      "recordedLoss": 3,
+      "minimumLoss": 3,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 7,
+            "y": 9,
+            "strategic": true,
+            "q": 18.69807764064044
+          },
+          "loss": 3,
+          "nodes": 5000,
+          "completedDepth": 5,
+          "stopReason": "node-limit",
+          "elapsedMs": 4517.505520000001
+        },
+        "1": {
+          "move": {
+            "x": 1,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 14.065584312217485
+          },
+          "loss": 3,
+          "nodes": 5000,
+          "completedDepth": 5,
+          "stopReason": "node-limit",
+          "elapsedMs": 4163.350909000001
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#0",
+      "eventIndex": 8,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 6,
+            "y": 7,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 25.133333333333333
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 789.5096510000003
+        },
+        "1": {
+          "move": {
+            "x": 6,
+            "y": 7,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 25.133333333333333
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 889.3369600000005
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#0",
+      "eventIndex": 14,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 9,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 27.096101229340817
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 876.8622239999968
+        },
+        "1": {
+          "move": {
+            "x": 9,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 27.096101229340817
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 808.9194050000006
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#0",
+      "eventIndex": 66,
+      "recordedLoss": 22,
+      "minimumLoss": 22,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 3,
+            "y": 7,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 22.086851709182135
+          },
+          "loss": 23,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 661.528287000001
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 7,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 22.086851709182135
+          },
+          "loss": 23,
+          "nodes": 1271,
+          "completedDepth": 6,
+          "stopReason": "max-depth",
+          "elapsedMs": 1211.9643140000007
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#1",
+      "eventIndex": 22,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 1,
+            "y": 2,
+            "strategic": true,
+            "q": 18.67855699266479
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 687.1750730000022
+        },
+        "1": {
+          "move": {
+            "x": 1,
+            "y": 2,
+            "strategic": true,
+            "q": 18.67855699266479
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 772.2698060000002
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#1",
+      "eventIndex": 38,
+      "recordedLoss": 11,
+      "minimumLoss": 10,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 5,
+            "y": 8,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 27.096101229340817
+          },
+          "loss": 11,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 667.3880989999998
+        },
+        "1": {
+          "move": {
+            "x": 5,
+            "y": 9,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 13.07807764064044
+          },
+          "loss": 10,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 611.7572529999998
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#1",
+      "eventIndex": 48,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 7,
+            "y": 8,
+            "strategic": true,
+            "q": 32.83610122934082
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 631.2134559999977
+        },
+        "1": {
+          "move": {
+            "x": 7,
+            "y": 8,
+            "strategic": true,
+            "q": 32.83610122934082
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 656.9587480000009
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#1",
+      "eventIndex": 64,
+      "recordedLoss": 14,
+      "minimumLoss": 13,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 10,
+            "y": 3,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 27.573097599052623
+          },
+          "loss": 14,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 666.0569849999993
+        },
+        "1": {
+          "move": {
+            "x": 8,
+            "y": 1,
+            "strategic": true,
+            "q": 18.573097599052623
+          },
+          "loss": 13,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 621.9042860000009
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 26,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 11,
+            "y": 7,
+            "strategic": true,
+            "q": 20.21610122934082
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 946.7080380000007
+        },
+        "1": {
+          "move": {
+            "x": 11,
+            "y": 7,
+            "strategic": true,
+            "q": 20.21610122934082
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 944.523637000002
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 28,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 9,
+            "y": 1,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 28.065584312217485
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1041.9684730000008
+        },
+        "1": {
+          "move": {
+            "x": 9,
+            "y": 1,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 28.065584312217485
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1057.693889999995
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 44,
+      "recordedLoss": 9,
+      "minimumLoss": 9,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 14,
+            "y": 5,
+            "q": 12.556475139225535
+          },
+          "loss": 9,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 956.3187749999997
+        },
+        "1": {
+          "move": {
+            "x": 5,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 15.086851709182133
+          },
+          "loss": 9,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1153.4443910000045
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 60,
+      "recordedLoss": 7,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 13,
+            "y": 9,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 20.05855699266479
+          },
+          "loss": 7,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 803.057799000002
+        },
+        "1": {
+          "move": {
+            "x": 13,
+            "y": 10,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 12.554031242374329
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 801.0110029999996
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 68,
+      "recordedLoss": 3,
+      "minimumLoss": 3,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 8,
+            "y": 10,
+            "strategic": true,
+            "q": 17.200000000000003
+          },
+          "loss": 3,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 841.7454010000001
+        },
+        "1": {
+          "move": {
+            "x": 10,
+            "y": 10,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 17.073097599052623
+          },
+          "loss": 3,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1013.8908510000037
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 78,
+      "recordedLoss": 5,
+      "minimumLoss": 5,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 5,
+            "y": 2,
+            "strategic": true,
+            "q": 24.686666666666667
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 943.0379029999967
+        },
+        "1": {
+          "move": {
+            "x": 5,
+            "y": 8,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 13.086851709182133
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1013.3715490000031
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 80,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 8,
+            "y": 10,
+            "strategic": true,
+            "q": 28.82
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1099.1630579999983
+        },
+        "1": {
+          "move": {
+            "x": 13,
+            "y": 5,
+            "strategic": true,
+            "q": 36.185584312217486
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 0,
+          "stopReason": "node-limit",
+          "elapsedMs": 942.9674490000034
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 96,
+      "recordedLoss": 6,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 5,
+            "y": 5,
+            "strategic": true,
+            "q": 31.33610122934082
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 934.7341650000017
+        },
+        "1": {
+          "move": {
+            "x": 4,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 17.08
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1063.476708000002
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 98,
+      "recordedLoss": 6,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 4,
+            "y": 4,
+            "strategic": true,
+            "q": 23.193097599052624
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 938.4055210000006
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 15.566666666666666
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 974.4834910000063
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#2",
+      "eventIndex": 106,
+      "recordedLoss": 3,
+      "minimumLoss": 2,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 3,
+            "y": 5,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 35.56558431221748
+          },
+          "loss": 3,
+          "nodes": 230,
+          "completedDepth": 6,
+          "stopReason": "max-depth",
+          "elapsedMs": 136.40666200000123
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 5,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 35.56558431221748
+          },
+          "loss": 3,
+          "nodes": 140,
+          "completedDepth": 6,
+          "stopReason": "max-depth",
+          "elapsedMs": 172.2118780000019
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 24,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 6,
+            "y": 7,
+            "kinds": [
+              "block",
+              "defend"
+            ],
+            "tactical": true,
+            "q": 27.62360679774998
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 896.1872729999959
+        },
+        "1": {
+          "move": {
+            "x": 6,
+            "y": 7,
+            "kinds": [
+              "block",
+              "defend"
+            ],
+            "tactical": true,
+            "q": 27.62360679774998
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 964.3328529999999
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 28,
+      "recordedLoss": 1,
+      "minimumLoss": 1,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 8,
+            "y": 7,
+            "strategic": true,
+            "q": 22.82
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 826.249613
+        },
+        "1": {
+          "move": {
+            "x": 8,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 30.633333333333333
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 917.403194999999
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 32,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 8,
+            "y": 7,
+            "strategic": true,
+            "q": 22.82
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 821.2330309999961
+        },
+        "1": {
+          "move": {
+            "x": 6,
+            "y": 8,
+            "strategic": true,
+            "q": 15.604481549985497
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 962.1018239999976
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 40,
+      "recordedLoss": 6,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 10,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 16.604481549985497
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1117.809669000002
+        },
+        "1": {
+          "move": {
+            "x": 10,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 16.604481549985497
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1148.4652849999984
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 42,
+      "recordedLoss": 6,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 7,
+            "y": 1,
+            "strategic": true,
+            "q": 14.565584312217485
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 834.2764509999979
+        },
+        "1": {
+          "move": {
+            "x": 10,
+            "y": 4,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 16.604481549985497
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1142.7492150000035
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 50,
+      "recordedLoss": 6,
+      "minimumLoss": 6,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 3,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 17.566666666666666
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 920.8590019999974
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 6,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 17.566666666666666
+          },
+          "loss": 6,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1068.897069999999
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 66,
+      "recordedLoss": 8,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 6,
+            "y": 9,
+            "strategic": true,
+            "q": 21.206851709182136
+          },
+          "loss": 8,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 876.7090370000005
+        },
+        "1": {
+          "move": {
+            "x": 2,
+            "y": 8,
+            "kinds": [
+              "block",
+              "defend"
+            ],
+            "tactical": true,
+            "q": 28.554610823798324
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1099.4145100000023
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 68,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 1,
+            "y": 8,
+            "strategic": true,
+            "q": 20.168308537609853
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 870.1097569999984
+        },
+        "1": {
+          "move": {
+            "x": 3,
+            "y": 9,
+            "kinds": [
+              "block",
+              "defend"
+            ],
+            "tactical": true,
+            "q": 27.55855699266479
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1187.5800299999974
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 70,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 4,
+            "y": 9,
+            "strategic": true,
+            "q": 31.80666666666667
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 896.9742399999959
+        },
+        "1": {
+          "move": {
+            "x": 9,
+            "y": 2,
+            "strategic": true,
+            "q": 18.69807764064044
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 950.3087499999965
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 76,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 9,
+            "y": 9,
+            "strategic": true,
+            "q": 19.096101229340817
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 968.9978440000123
+        },
+        "1": {
+          "move": {
+            "x": 6,
+            "y": 10,
+            "kinds": [
+              "block",
+              "defend"
+            ],
+            "tactical": true,
+            "q": 23.073097599052623
+          },
+          "loss": 0,
+          "nodes": 5000,
+          "completedDepth": 3,
+          "stopReason": "node-limit",
+          "elapsedMs": 1175.3308589999942
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 90,
+      "recordedLoss": 5,
+      "minimumLoss": 5,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 10,
+            "y": 11,
+            "strategic": true,
+            "q": 21.682645211530495
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 970.4083359999931
+        },
+        "1": {
+          "move": {
+            "x": 13,
+            "y": 9,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 11.05855699266479
+          },
+          "loss": 5,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1019.0503540000063
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 92,
+      "recordedLoss": 1,
+      "minimumLoss": 0,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 8,
+            "y": 10,
+            "strategic": true,
+            "q": 30.32
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1007.2458920000063
+        },
+        "1": {
+          "move": {
+            "x": 8,
+            "y": 10,
+            "strategic": true,
+            "q": 30.32
+          },
+          "loss": 1,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1013.986202
+        }
+      }
+    },
+    {
+      "id": "issue52-replays02.json#3",
+      "eventIndex": 104,
+      "recordedLoss": 3,
+      "minimumLoss": 3,
+      "variants": {
+        "0": {
+          "move": {
+            "x": 2,
+            "y": 9,
+            "strategic": true,
+            "q": 30.291892763022723
+          },
+          "loss": 3,
+          "nodes": 5000,
+          "completedDepth": 2,
+          "stopReason": "node-limit",
+          "elapsedMs": 1064.5799750000006
+        },
+        "1": {
+          "move": {
+            "x": 13,
+            "y": 5,
+            "kinds": [
+              "block"
+            ],
+            "tactical": true,
+            "q": 17.065584312217485
+          },
+          "loss": 4,
+          "nodes": 1484,
+          "completedDepth": 6,
+          "stopReason": "max-depth",
+          "elapsedMs": 2647.396701000005
+        }
+      }
+    }
+  ],
+  "summary": {
+    "improved": 11,
+    "worsened": 1,
+    "equal": 23
+  }
+}
