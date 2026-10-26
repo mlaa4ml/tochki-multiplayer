@@ -1818,7 +1818,7 @@
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
     chooseMove, searchMove, createSearchBudget, isBoardFull, countFilledCells, checkEndConditions,
     normalizeRules, createSearchNode, cloneSearchNode, applyTransition, applyTransitionInPlace,
-    isTransitionLegal, terminalValue, WIN_SCORE,
+    isTransitionLegal, terminalValue, WIN_SCORE, twoMoveThreat,
     createMatch
   };
 });
