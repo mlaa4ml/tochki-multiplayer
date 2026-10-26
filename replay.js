@@ -106,7 +106,10 @@
     const size = Engine.SIZES[b.sizeKey];
     if (b.rows !== size.rows || b.cols !== size.cols) fail('board dimensions do not match sizeKey');
     keys(r, ['targetScore', 'targetFillPercent', 'scoreRuleActive', 'fillRuleActive',
-      'totalCells', 'extraTurnOnCapture', 'firstPlayer', 'undoAllowed'], [], 'rules');
+      'totalCells', 'extraTurnOnCapture', 'firstPlayer', 'undoAllowed'], ['startPosition'], 'rules');
+    // startPosition (issue #47) — необязательный: старые реплеи без него
+    // воспроизводятся с пустого поля, как и раньше.
+    if (r.startPosition !== undefined && !Engine.START_POSITIONS.includes(r.startPosition)) fail('startPosition: unsupported value');
     integer(r.targetScore, 0, 9999, 'targetScore');
     integer(r.targetFillPercent, 0, 100, 'targetFillPercent');
     integer(r.firstPlayer, 1, 2, 'firstPlayer');
