@@ -1261,7 +1261,7 @@
     // каждом листе (дорого; по умолчанию условие — прежняя дешёвая проверка,
     // а набор ходов продления берётся из полного тактического скана).
     const tacOn = diff.tactical !== false;
-    const tacPly = Number.isInteger(diff.tacticalPly) ? diff.tacticalPly : 0;
+    const tacPly = Number.isInteger(diff.tacticalPly) ? diff.tacticalPly : 1;
     const tacInternal = diff.tacticalInternal !== false;
     if (depth <= 0){
       if (extensionsLeft <= 0) return staticVal();
