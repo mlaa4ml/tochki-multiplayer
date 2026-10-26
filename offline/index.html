@@ -218,7 +218,8 @@
   }
   function settingsFromForm(){
     return { size: sizeSel.value, targetScore: $('targetScore').value, targetFill: $('targetFill').value,
-      extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+            extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+      startPosition: $('startPosition').value,
       c1: $('c1').value, c2: $('c2').value, w1: $('w1').value, w2: $('w2').value, delay: $('delay').value };
   }
   function applySettings(s){
