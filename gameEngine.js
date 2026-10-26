@@ -1328,6 +1328,82 @@
   // Возвращает { move, trace }; принимается только полностью завершённая
   // итерация, иначе — ход предыдущей завершённой или первый по порядку
   // кандидатов (сортировка quickScore, равенства — по y, затем x).
+  // ---------- issue #52: угроза «сети» за 2 хода ----------
+  // Разбор реплеев проигранных партий (tools/bench/corpus/human, см.
+  // tools/bench/replay-blunders.js) показал типичную ошибку strong: ход бота
+  // создаёт позицию, где соперник ДВУМЯ своими ходами подряд пленит большую
+  // группу (пример: replays01#0, ход 48 — угроза растёт с 1 до 11 точек, через
+  // 4 хода соперник забирает 12). Поиск глубины 3 с узким beam этого не видит,
+  // а статическая оценка плоская (разброс корневых оценок ~40 при цене точки 100).
+  // twoMoveThreat(node, p) — сколько точек игрок p пленит за 2 своих хода
+  // подряд (без ответа другой стороны) по ПОЛНЫМ правилам. Перебор ограничен
+  // клетками рядом с занятыми (как в tacticalCandidates: изолированная точка
+  // не замыкает контур).
+  function twoMoveThreat(node, p){
+    if (node.gameOver) return 0;
+    const n = cloneSearchNode(node);
+    n.current = p;
+    const { rows, cols } = n;
+    let best = 0;
+    for (let y=0; y<rows; y++){
+      for (let x=0; x<cols; x++){
+        if (!nearOccupied(n.state, rows, cols, x, y) || !isTransitionLegal(n, x, y)) continue;
+        const t = applyTransition(n, p, x, y);
+        if (!t.ok) continue;
+        const c1 = countCaptured(t.result.gained);
+        if (c1 > best) best = c1;
+        if (t.node.gameOver) continue;
+        t.node.current = p;
+        const s = t.node.state;
+        for (let y2=0; y2<rows; y2++){
+          for (let x2=0; x2<cols; x2++){
+            if (!nearOccupied(s, rows, cols, x2, y2) || !isTransitionLegal(t.node, x2, y2)) continue;
+            const u = applyTransition(t.node, p, x2, y2);
+            if (!u.ok) continue;
+            const v = c1 + countCaptured(u.result.gained);
+            if (v > best) best = v;
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  // Корневой фильтр безопасности (diff.safety2): среди лучших по поиску
+  // кандидатов (diff.safety2Top, по умолчанию 8) штрафует ходы, после которых
+  // угроза соперника за 2 хода (минус собственный захват этим ходом) больше
+  // минимальной хотя бы на 2 точки: штраф SAFETY2_WEIGHT за каждую лишнюю
+  // точку. Детерминирован (не зависит от часов). Форсированные победы/
+  // поражения (|score| >= WIN_SCORE/2) не трогаются.
+  const SAFETY2_WEIGHT = 50;
+  function applySafety2(root, mover, diff, ordered, candidates, bestMove){
+    if (!diff.safety2 || !bestMove || candidates.length < 2) return { move: bestMove, info: null };
+    const opp = mover === 1 ? 2 : 1;
+    const top = candidates.slice().sort((a,b) => b.score - a.score).slice(0, diff.safety2Top || 8);
+    if (Math.abs(top[0].score) >= WIN_SCORE/2) return { move: bestMove, info: null };
+    let minRisk = Infinity;
+    for (const c of top){
+      const t = applyTransition(root, mover, c.x, c.y);
+      if (!t.ok){ c.risk = Infinity; continue; }
+      const mine = countCaptured(t.result.gained);
+      const th = (t.node.gameOver || t.node.current === mover) ? 0 : twoMoveThreat(t.node, opp);
+      c.risk = Math.max(0, th - mine);
+      if (c.risk < minRisk) minRisk = c.risk;
+    }
+    let pick = null, pickAdj = -Infinity;
+    for (const c of top){
+      if (!Number.isFinite(c.risk)) continue;
+      const extra = c.risk - minRisk;
+      const adj = c.score - (extra >= 2 ? SAFETY2_WEIGHT * extra : 0);
+      if (adj > pickAdj){ pickAdj = adj; pick = c; }
+    }
+    const info = { checked: top.length, minRisk, risks: top.map(c => ({ x: c.x, y: c.y, risk: c.risk })) };
+    if (!pick || (pick.x === bestMove.x && pick.y === bestMove.y)) return { move: bestMove, info };
+    const mv = ordered.find(o => o.x === pick.x && o.y === pick.y) || { x: pick.x, y: pick.y };
+    info.overridden = { from: { x: bestMove.x, y: bestMove.y }, to: { x: pick.x, y: pick.y } };
+    return { move: mv, info };
+  }
+
   function searchMove(state, rows, cols, mover, diff, weights, opts){
     opts = opts || {};
     diff = diff || DIFFICULTY.normal;
