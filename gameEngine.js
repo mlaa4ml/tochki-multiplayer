@@ -1460,12 +1460,17 @@
     }
     let pick = null, pickAdj = -Infinity;
     for (const c of top){
-      if (!Number.isFinite(c.risk)) continue;
+      if (!Number.isFinite(c.risk)){ c.adj = -Infinity; continue; }
       const extra = c.risk - minRisk;
-      const adj = c.score - (extra >= 2 ? SAFETY2_WEIGHT * extra : 0);
-      if (adj > pickAdj){ pickAdj = adj; pick = c; }
+      c.adj = c.score - (extra >= 2 ? SAFETY2_WEIGHT * extra : 0);
+      if (c.adj > pickAdj){ pickAdj = c.adj; pick = c; }
     }
     const info = { checked: top.length, minRisk, risks: top.map(c => ({ x: c.x, y: c.y, risk: c.risk })) };
+    if (diff.antiFork && pick){
+      const af = applyAntiFork(root, mover, diff, top, pick);
+      info.antiFork = af.info;
+      pick = af.pick;
+    }
     if (!pick || (pick.x === bestMove.x && pick.y === bestMove.y)) return { move: bestMove, info };
     const mv = ordered.find(o => o.x === pick.x && o.y === pick.y) || { x: pick.x, y: pick.y };
     info.overridden = { from: { x: bestMove.x, y: bestMove.y }, to: { x: pick.x, y: pick.y } };
