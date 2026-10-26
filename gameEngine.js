@@ -1379,6 +1379,71 @@
   // точку. Детерминирован (не зависит от часов). Форсированные победы/
   // поражения (|score| >= WIN_SCORE/2) не трогаются.
   const SAFETY2_WEIGHT = 50;
+
+  // ---------- issue #52: анти-вилка (3 полухода) ----------
+  // oneMoveGain(node, p, cap) — лучший захват игрока p одним ходом (победа = 100).
+  // cap — ранний выход, как только найден захват >= cap.
+  function oneMoveGain(node, p, cap){
+    const n = cloneSearchNode(node);
+    n.current = p;
+    const { rows, cols } = n;
+    let best = 0;
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      if (!nearOccupied(n.state, rows, cols, x, y) || !isTransitionLegal(n, x, y)) continue;
+      const t = applyTransition(n, p, x, y);
+      if (!t.ok) continue;
+      if (t.node.gameOver && t.node.winner === p) return 100;
+      const g = countCaptured(t.result.gained);
+      if (g > best){ best = g; if (cap !== undefined && best >= cap) return best; }
+    }
+    return best;
+  }
+
+  // forkLoss(node, opp, mover) — позиция после нашего хода, ходит opp.
+  // Сколько точек opp гарантированно заберёт за ход-ответ + следующий ход,
+  // если мы защищаемся лучшим ходом в радиусе 3 от его ответа. Это ловит
+  // вилку (ход, создающий две угрозы сразу) ДО того, как она сыграна:
+  // в replays01#0 бот допустил ответ (10,5), после которого ни одна защита
+  // не опускала потерю ниже 11 точек.
+  function forkLoss(node, opp, mover){
+    const { rows, cols } = node;
+    let worst = 0;
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
+      if (!nearOccupied(node.state, rows, cols, x, y) || !isTransitionLegal(node, x, y)) continue;
+      const t = applyTransition(node, opp, x, y);
+      if (!t.ok) continue;
+      if (t.node.gameOver){ if (t.node.winner === opp) return 100; continue; }
+      const imm = countCaptured(t.result.gained);
+      let loss;
+      if (t.node.current === opp){
+        loss = imm + oneMoveGain(t.node, opp);
+      } else {
+        const th = oneMoveGain(t.node, opp);
+        if (th < 2 || imm + th <= worst) loss = imm;
+        else {
+          let bestDef = th;
+          for (let dy=-3; dy<=3 && bestDef>0; dy++) for (let dx=-3; dx<=3 && bestDef>0; dx++){
+            const dxp = x+dx, dyp = y+dy;
+            if (dxp<0 || dyp<0 || dxp>=cols || dyp>=rows) continue;
+            if (!isTransitionLegal(t.node, dxp, dyp)) continue;
+            const u = applyTransition(t.node, mover, dxp, dyp);
+            if (!u.ok) continue;
+            if (u.node.gameOver){ if (u.node.winner !== opp) bestDef = 0; continue; }
+            if (u.node.current === mover){ bestDef = 0; continue; }
+            const mine = countCaptured(u.result.gained);
+            const g = Math.max(0, oneMoveGain(u.node, opp, bestDef + mine) - mine);
+            if (g < bestDef) bestDef = g;
+          }
+          loss = imm + bestDef;
+        }
+      }
+      if (loss > worst) worst = loss;
+    }
+    return worst;
+  }
+  // Экспорт для тестов через уже экспортированную функцию.
+  twoMoveThreat.forkLoss = forkLoss;
+
   function applySafety2(root, mover, diff, ordered, candidates, bestMove){
     if (!diff.safety2 || !bestMove || candidates.length < 2) return { move: bestMove, info: null };
     const opp = mover === 1 ? 2 : 1;
