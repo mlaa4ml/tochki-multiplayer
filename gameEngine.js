@@ -1728,7 +1728,7 @@
   return {
     ENGINE_VERSION, BOT_VERSION, WEIGHTS_VERSION,
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
-    OPENING_ZONE_SIDE, getOpeningZone, inZone,
+    OPENING_ZONE_SIDE, getOpeningZone, inZone, START_POSITIONS, getStartStones,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
     generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, computeEdgeEscape, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
