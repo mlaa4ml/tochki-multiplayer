@@ -42,9 +42,12 @@
   };
 
   const DIFFICULTY = {
-    normal: { radius:2, candidateCap:10, timeLimit:220, maxDepth:3, branchWide:5, branchMid:4, branchNarrow:3, quiescenceExt:2 },
-    strong: { radius:4, candidateCap:20, timeLimit:2000, maxDepth:6, branchWide:8, branchMid:6, branchNarrow:5, quiescenceExt:3 }
+    normal: { radius:2, candidateCap:10, timeLimit:220, maxDepth:3, branchWide:5, branchMid:4, branchNarrow:3, quiescenceExt:2, safety2:true, safety2Top:5 },
+    strong: { radius:4, candidateCap:20, timeLimit:2000, maxDepth:6, branchWide:8, branchMid:6, branchNarrow:5, quiescenceExt:3, safety2:true, safety2Top:8 }
   };
+  // safety2 (issue #52) — корневой фильтр угрозы «сети» за 2 хода соперника,
+  // см. twoMoveThreat/applySafety2. TRAIN_DIFF его не включает (self-play
+  // подбирает веса оценки, а не фильтр); для ablation — safety2:false.
   const TRAIN_DIFF = { radius:3, candidateCap:16, timeLimit:700, maxDepth:4, branchWide:6, branchMid:6, branchNarrow:4, quiescenceExt:3 };
 
   const BOT_PLAYER = 2;
