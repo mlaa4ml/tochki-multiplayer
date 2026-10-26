@@ -16,16 +16,28 @@
   .p1 { color: #1f5fd1; } .p2 { color: #d1301f; }
   #spinner { display: none; } #spinner.on { display: inline; }
   textarea { width: 100%; font-size: 11px; }
+  /* Вкладки (#50): «Настройки» и «Игра» — два экрана одного документа.
+     Переключение не перезагружает страницу, поэтому партия, бот (Worker) и
+     таймеры сессии продолжают работать, пока открыты настройки. */
+  #tabs { display: flex; gap: 4px; margin: 0 0 8px; border-bottom: 1px solid #ccc; }
+  #tabs button { border: 1px solid #ccc; border-bottom: none; background: #ece8dc; border-radius: 6px 6px 0 0; margin: 0; }
+  #tabs button.cur { background: #fffdf6; font-weight: 700; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .linklike { background: none; border: none; color: #1f5fd1; text-decoration: underline; cursor: pointer; padding: 0 4px; }
+  #gameBar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 4px; }
+  #btnBackToGame { font-weight: 700; }
   @media (max-width: 640px) { .panel { width: 100%; } }
 </style>
 </head>
 <body>
 <h1 style="font-size:18px;margin:4px 0">Точки — offline (без сервера, аккаунта, WS/API)</h1>
 <nav id="tabs">
-  <a href="#settings" id="tabSettings">⚙ Настройки</a>
-  <a href="#game" id="tabGame">● Игра</a>
+  <button id="tabSettings" type="button">⚙ Настройки</button>
+  <button id="tabGame" type="button" disabled>● Игра</button>
 </nav>
-<section id="viewSettings" class="view">
+
+<section id="viewSettings" class="view active">
 <div class="wrap">
   <div class="panel">
     <fieldset><legend>Правила</legend>
@@ -44,20 +56,10 @@
       <label>Веса 2 (JSON) <input id="w2" style="width:160px"></label>
     </fieldset>
     <div>
-      <button id="btnNew">Новая партия</button>
-      <button id="btnUndo">Отменить</button>
-      <button id="btnEnd">Закончить</button>
+      <button id="btnNew">▶ Начать партию</button>
+      <button id="btnBackToGame" style="display:none">↩ Вернуться к игре</button>
     </div>
-    <fieldset id="botbot"><legend>Бот–бот</legend>
-      <button id="btnStart">▶ Запуск</button>
-      <button id="btnPause">⏸ Пауза</button>
-      <button id="btnStep">Шаг</button>
-      <label>Скорость показа, мс <input id="delay" type="range" min="0" max="2000" step="50" value="300"> <span id="delayVal">300</span></label>
-    </fieldset>
-    <div id="status"></div>
-    <div><span id="spinner">⏳ бот думает…</span></div>
-    <div id="info"></div>
-    <div id="error"></div>
+    <div id="settingsNote" style="font-size:13px;color:#555;margin:2px 0 8px"></div>
     <fieldset id="replays"><legend>Реплеи и хранилище</legend>
       <div>
         <button id="btnExport">Экспорт JSON</button>
@@ -84,8 +86,30 @@
       <details><summary>trace (JSON)</summary><textarea id="trace" rows="8" readonly></textarea></details>
     </details>
   </div>
-  <canvas id="board" width="600" height="500"></canvas>
 </div>
+</section>
+
+<section id="viewGame" class="view">
+  <div id="gameBar">
+    <button id="linkSettings" class="linklike" type="button">⚙ К настройкам (партия продолжится)</button>
+    <span id="status"></span>
+  </div>
+  <div id="info"></div>
+  <div><span id="spinner">⏳ бот думает…</span></div>
+  <div id="error"></div>
+  <div>
+    <button id="btnUndo">Отменить</button>
+    <button id="btnEnd">Закончить</button>
+    <button id="btnRestart">Новая партия (те же настройки)</button>
+  </div>
+  <fieldset id="botbot"><legend>Бот–бот</legend>
+    <button id="btnStart">▶ Запуск</button>
+    <button id="btnPause">⏸ Пауза</button>
+    <button id="btnStep">Шаг</button>
+    <label>Скорость показа, мс <input id="delay" type="range" min="0" max="2000" step="50" value="300"> <span id="delayVal">300</span></label>
+  </fieldset>
+  <canvas id="board" width="600" height="500"></canvas>
+</section>
 <script src="../gameEngine.js"></script>
 <script src="../replay.js"></script>
 <script src="localSession.js"></script>
@@ -105,8 +129,44 @@
   const COLORS = { 1: '#1f5fd1', 2: '#d1301f' };
   let geom = null, lastSnap = null, lastStatus = null;
 
+  // --- Вкладки (#50): сначала только настройки, после старта — только поле. ---
+  // Переход между вкладками не трогает сессию: партия и бот продолжаются.
+  let hasGame = false, currentView = 'settings';
+  function viewFromHash(){ return location.hash === '#game' ? 'game' : 'settings'; }
+  function showView(v){
+    if (v === 'game' && !hasGame) v = 'settings';
+    currentView = v;
+    $('viewSettings').classList.toggle('active', v === 'settings');
+    $('viewGame').classList.toggle('active', v === 'game');
+    $('tabSettings').classList.toggle('cur', v === 'settings');
+    $('tabGame').classList.toggle('cur', v === 'game');
+    $('tabGame').disabled = !hasGame;
+    $('btnBackToGame').style.display = hasGame ? '' : 'none';
+    $('settingsNote').textContent = hasGame
+      ? 'Партия продолжается в фоне. «Начать партию» запустит новую с этими настройками; «Вернуться к игре» — продолжить текущую.'
+      : 'Выберите правила и места, затем нажмите «Начать партию».';
+    const h = '#' + v;
+    if (location.hash !== h){
+      try { history.replaceState(null, '', h); } catch (e){ location.hash = h; }
+    }
+    if (v === 'game' && lastSnap) render(lastSnap);
+  }
+  function gotoView(v){
+    // pushState — чтобы кнопка «Назад» браузера возвращала на предыдущую вкладку.
+    if (v === 'game' && !hasGame) v = 'settings';
+    if (location.hash !== '#' + v){ try { history.pushState(null, '', '#' + v); } catch (e){ /* replaceState в showView */ } }
+    showView(v);
+  }
+  window.addEventListener('hashchange', () => showView(viewFromHash()));
+  window.addEventListener('popstate', () => showView(viewFromHash()));
+  $('tabSettings').onclick = () => gotoView('settings');
+  $('linkSettings').onclick = () => gotoView('settings');
+  $('tabGame').onclick = () => gotoView('game');
+  $('btnBackToGame').onclick = () => gotoView('game');
+
   // --- Renderer: только рисует snapshot, состояние не меняет. ---
   function render(snap){
+    if (currentView !== 'game') return; // скрытый canvas не перерисовываем; отрисуем при показе
     const cell = Math.max(18, Math.min(40, Math.floor(Math.min(window.innerWidth - 24, 900) / (snap.cols + 1))));
     const w = cell * (snap.cols + 1), h = cell * (snap.rows + 1);
     if (canvas.width !== w || canvas.height !== h){ canvas.width = w; canvas.height = h; }
@@ -148,6 +208,7 @@
     }
     $('status').textContent = s;
     $('status').className = snap.gameOver ? '' : 'p' + snap.current;
+    $('tabGame').textContent = snap.gameOver ? '● Игра (окончена)' : (st.humanTurn ? '● Игра — ваш ход' : '● Игра');
     $('info').innerHTML = 'Счёт: <span class="p1">' + snap.scores[1] + '</span> : <span class="p2">' + snap.scores[2] +
       '</span><br>Ходов: ' + st.moveCount + ' · режим: ' + st.mode + (st.mode === 'bot-bot' ? (st.running ? ' (идёт)' : ' (пауза)') : '') +
       '<br>Последние ходы: <span class="p1">1 ' + fmtMove(snap.lastMoveByPlayer[1]) + '</span>, <span class="p2">2 ' + fmtMove(snap.lastMoveByPlayer[2]) + '</span>';
@@ -157,6 +218,7 @@
     $('btnUndo').disabled = !snap.canUndo;
     $('btnEnd').disabled = snap.gameOver;
     const bb = st.mode === 'bot-bot';
+    $('botbot').style.display = bb ? '' : 'none';
     $('btnStart').disabled = !bb || snap.gameOver || st.running;
     $('btnPause').disabled = !bb || !st.running;
     $('btnStep').disabled = !bb || snap.gameOver || st.searching;
@@ -209,7 +271,7 @@
   (function(){ const a = store.available();
     if (!a.localStorage || !a.indexedDB) $('storageStatus').textContent = 'Хранилище: localStorage ' + (a.localStorage ? 'есть' : 'нет') +
       ', IndexedDB ' + (a.indexedDB ? 'есть' : 'нет') + ' — сохранения отключены, игра работает.'; })();
-  let autosaveEnabled = false; // включается после старта, чтобы не затереть старое автосохранение
+  let autosaveEnabled = false; // включается после инициализации, чтобы не затереть старое автосохранение
   function autosave(snap, st){
     if (!autosaveEnabled || !st || st.moveCount === 0) return;
     try { storageNote(store.saveAutosave(session.getReplay())); } catch (e){ storageNote({ ok: false, error: String(e && e.message || e) }); }
@@ -219,18 +281,20 @@
     const r = session.loadReplay(input);
     if (!r.ok){ replayMsg('Импорт отклонён (' + label + '): ' + r.reason + '. Текущая партия не изменена.', true); return false; }
     replayMsg('Загружен реплей (' + label + '). Места: человек–человек; продолжить можно ходами.', false);
+    hasGame = true;
+    gotoView('game');
     return true;
   }
   function settingsFromForm(){
     return { size: sizeSel.value, targetScore: $('targetScore').value, targetFill: $('targetFill').value,
-            extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+      extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
       startPosition: $('startPosition').value,
       c1: $('c1').value, c2: $('c2').value, w1: $('w1').value, w2: $('w2').value, delay: $('delay').value };
   }
   function applySettings(s){
     if (!s) return;
     const setV = (id, v) => { if (typeof v === 'string' && Array.from($(id).options || [{ value: v }]).some(o => o.value === v)) $(id).value = v; };
-        setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+    setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
     setV('startPosition', s.startPosition);
     for (const id of ['targetScore', 'targetFill', 'w1', 'w2', 'delay']) if (typeof s[id] === 'string') $(id).value = s[id];
     if (typeof s.extra === 'boolean') $('extra').checked = s.extra;
@@ -257,6 +321,7 @@
   session.subscribe(update);
 
   $('btnExport').onclick = () => {
+    if (!hasGame){ replayMsg('Нет партии для экспорта: сначала начните партию.', true); return; }
     let text;
     try { text = session.exportReplay(); } catch (e){ replayMsg('Экспорт не удался: ' + (e && e.message || e), true); return; }
     if (!text) return;
@@ -275,6 +340,7 @@
     fr.readAsText(f);
   };
   $('btnSaveReplay').onclick = () => {
+    if (!hasGame){ replayMsg('Нет партии для сохранения: сначала начните партию.', true); return; }
     const r = session.getReplay(); if (!r) return;
     store.saveReplay('Партия ' + new Date().toLocaleString(), r).then(res => {
       if (res.ok){ replayMsg('Реплей сохранён в браузере (IndexedDB).', false); refreshList(); }
@@ -297,9 +363,15 @@
     if (saved && loadReplayText(saved, 'автосохранение')) $('btnResume').style.display = 'none';
   };
 
+  // Старт партии: настройки -> вкладка «Игра». Ошибка в весах оставляет на настройках.
   function newGame(){
+    let controllers;
+    try { controllers = { 1: { type: $('c1').value, weights: parseWeights('w1') }, 2: { type: $('c2').value, weights: parseWeights('w2') } }; }
+    catch (e){ return false; }
     storageNote(store.saveSettings(settingsFromForm()));
     $('replayMsg').textContent = '';
+    hasGame = true;
+    gotoView('game');
     session.newGame({
       sizeKey: sizeSel.value,
       firstPlayer: Number($('first').value),
@@ -308,9 +380,10 @@
       startPosition: $('startPosition').value,
       targetScore: Number($('targetScore').value) || 0,
       targetFillPercent: Number($('targetFill').value) || 100,
-      controllers: { 1: { type: $('c1').value, weights: parseWeights('w1') }, 2: { type: $('c2').value, weights: parseWeights('w2') } },
+      controllers,
       delayMs: Number($('delay').value)
     });
+    return true;
   }
 
   // Клик/касание: только в ход человека; легальность проверяет движок.
@@ -325,6 +398,7 @@
     session.move(x, y);
   });
   $('btnNew').onclick = newGame;
+  $('btnRestart').onclick = newGame;
   $('btnUndo').onclick = () => session.undo();
   $('btnEnd').onclick = () => session.end();
   $('btnStart').onclick = () => session.start();
@@ -333,12 +407,12 @@
   $('delay').oninput = () => { $('delayVal').textContent = $('delay').value; session.setDelay(Number($('delay').value)); };
   window.addEventListener('resize', () => { if (lastSnap) render(lastSnap); });
   window.addEventListener('pagehide', () => session.dispose());
-  // Старт: восстановить настройки; если есть автосохранение — предложить его.
+  // Старт: открывается только вкладка настроек (партия начинается кнопкой).
   applySettings(store.loadSettings());
   const prevAutosave = store.loadAutosave();
   if (prevAutosave) $('btnResume').style.display = '';
   refreshList();
-  newGame();
+  showView('settings');
   autosaveEnabled = true;
 })();
 </script>
