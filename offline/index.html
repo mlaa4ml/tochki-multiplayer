@@ -29,6 +29,7 @@
       <label>Порог заполнения, % (100 — нет) <input id="targetFill" type="number" min="1" max="100" value="100" style="width:70px"></label>
       <label><input id="extra" type="checkbox"> Доп. ход за окружение</label>
       <label><input id="undoAllowed" type="checkbox" checked> Разрешить отмену</label>
+      <label>Старт <select id="startPosition"><option value="empty" selected>Пустое поле</option><option value="cross">4 точки крестом</option></select></label>
       <label>Первым ходит <select id="first"><option value="1">Игрок 1</option><option value="2">Игрок 2</option></select></label>
     </fieldset>
     <fieldset><legend>Места</legend>
@@ -217,13 +218,15 @@
   }
   function settingsFromForm(){
     return { size: sizeSel.value, targetScore: $('targetScore').value, targetFill: $('targetFill').value,
-      extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+            extra: $('extra').checked, undoAllowed: $('undoAllowed').checked, first: $('first').value,
+      startPosition: $('startPosition').value,
       c1: $('c1').value, c2: $('c2').value, w1: $('w1').value, w2: $('w2').value, delay: $('delay').value };
   }
   function applySettings(s){
     if (!s) return;
     const setV = (id, v) => { if (typeof v === 'string' && Array.from($(id).options || [{ value: v }]).some(o => o.value === v)) $(id).value = v; };
-    setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+        setV('size', s.size); setV('first', s.first); setV('c1', s.c1); setV('c2', s.c2);
+    setV('startPosition', s.startPosition);
     for (const id of ['targetScore', 'targetFill', 'w1', 'w2', 'delay']) if (typeof s[id] === 'string') $(id).value = s[id];
     if (typeof s.extra === 'boolean') $('extra').checked = s.extra;
     if (typeof s.undoAllowed === 'boolean') $('undoAllowed').checked = s.undoAllowed;
@@ -297,6 +300,7 @@
       firstPlayer: Number($('first').value),
       extraTurnOnCapture: $('extra').checked,
       undoAllowed: $('undoAllowed').checked,
+      startPosition: $('startPosition').value,
       targetScore: Number($('targetScore').value) || 0,
       targetFillPercent: Number($('targetFill').value) || 100,
       controllers: { 1: { type: $('c1').value, weights: parseWeights('w1') }, 2: { type: $('c2').value, weights: parseWeights('w2') } },

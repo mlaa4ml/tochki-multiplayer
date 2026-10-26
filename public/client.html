@@ -116,6 +116,13 @@
         </label>
       </div>
       <div class="row">
+        <label for="startPositionSel">Стартовая позиция</label>
+        <select id="startPositionSel">
+          <option value="empty" selected>Пустое поле</option>
+          <option value="cross">4 точки крестом в центре</option>
+        </select>
+      </div>
+      <div class="row">
         <label for="firstMoveSel">Кто ходит первым</label>
         <select id="firstMoveSel">
           <option value="creator" selected>Я (создатель комнаты)</option>
@@ -437,7 +444,10 @@
     if (firstMoveSel.value === 'opponent') opts.firstMove = 'opponent';
     // Чекбокс изначально включён (undoAllowed:true — прежнее поведение),
     // поэтому на сервер отправляем только явное отключение.
-    if (!undoAllowedCheckbox.checked) opts.undoAllowed = false;
+        if (!undoAllowedCheckbox.checked) opts.undoAllowed = false;
+    // Стартовая позиция (issue #47): 'empty' по умолчанию или 'cross'.
+    const startPositionSel = document.getElementById('startPositionSel');
+    if (startPositionSel && startPositionSel.value === 'cross') opts.startPosition = 'cross';
     if (vsBotCheckbox.checked){
       opts.vsBot = true;
       opts.botDifficulty = botDifficultySel.value;
@@ -616,6 +626,7 @@
     if (rules && rules.extraTurnOnCapture) ruleNotes.push('доп. ход за окружение');
     if (rules && rules.firstPlayer === 2) ruleNotes.push(`первым ходит ${displayName(2)}`);
     if (rules && rules.undoAllowed === false) ruleNotes.push('отмена хода отключена');
+    if (rules && rules.startPosition === 'cross') ruleNotes.push('старт: 4 точки крестом');
     const ruleText = ruleNotes.length ? ` (${ruleNotes.join(', ')})` : '';
     metaEl.textContent = isSpectator
       ? `Партия в комнате ${code}.${ruleText}`

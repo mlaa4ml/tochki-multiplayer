@@ -73,6 +73,21 @@
     return x>=zone.minX && x<=zone.maxX && y>=zone.minY && y<=zone.maxY;
   }
 
+  // ---------- Стартовая позиция (issue #47) ----------
+  // START_POSITIONS — допустимые значения настройки партии startPosition.
+  // getStartStones возвращает точки, которые стоят на поле до первого хода:
+  // для 'cross' — квадрат 2×2 в центре поля (внутри дебютной зоны),
+  // расположенный крестом: (cx-1,cy-1)=1, (cx,cy-1)=2, (cx-1,cy)=2, (cx,cy)=1.
+  const START_POSITIONS = ['empty', 'cross'];
+  function getStartStones(startPosition, rows, cols){
+    if (startPosition !== 'cross') return [];
+    const cx = Math.floor(cols/2), cy = Math.floor(rows/2);
+    return [
+      { x: cx-1, y: cy-1, p: 1 }, { x: cx, y: cy-1, p: 2 },
+      { x: cx-1, y: cy,   p: 2 }, { x: cx, y: cy,   p: 1 }
+    ];
+  }
+
   function createEmptyState(rows, cols){
     return {
       stone: Array.from({length:rows}, () => new Array(cols).fill(0)),
@@ -1478,6 +1493,22 @@
     const moveLog = [];
     const totalCells = rows*cols;
 
+    // startPosition — стартовая позиция партии (issue #47):
+    //   'empty' (по умолчанию) — пустое поле, как было всегда;
+    //   'cross' — в центре поля заранее стоят четыре точки крестом:
+    //       верхний ряд: игрок 1, игрок 2
+    //       нижний ряд:  игрок 2, игрок 1
+    // Стартовые точки не являются ходами: их нет в moveLog/history, поэтому
+    // отменить их нельзя. Они учитываются в stonesPlacedTotal, поэтому
+    // ограничение дебютной зоны (первые 2 точки партии) для такой партии
+    // уже выполнено — первые точки уже стоят в центре.
+    const startPosition = options.startPosition === 'cross' ? 'cross' : 'empty';
+    const startStones = getStartStones(startPosition, rows, cols);
+    for (const s of startStones){
+      state.stone[s.y][s.x] = s.p;
+      stonesPlacedTotal++;
+    }
+
     // Стек снимков "состояние прямо перед ходом N" — по одному на каждый
     // применённый ход, в порядке ходов. Понадобился для отмены хода
     // (шаг 14): захват мутирует сразу три слоя (stone/dead/territory) плюс
@@ -1630,7 +1661,7 @@
         },
         lastMoverSeat: lastMoverSeat(),
         canUndo: canUndoLastMove(),
-        rules: { targetScore, targetFillPercent, scoreRuleActive, fillRuleActive, totalCells, extraTurnOnCapture, firstPlayer, undoAllowed }
+        rules: { targetScore, targetFillPercent, scoreRuleActive, fillRuleActive, totalCells, extraTurnOnCapture, firstPlayer, undoAllowed, startPosition }
       };
     }
 
@@ -1697,7 +1728,7 @@
   return {
     ENGINE_VERSION, BOT_VERSION, WEIGHTS_VERSION,
     SIZES, DIFFICULTY, TRAIN_DIFF, BOT_PLAYER, BOT_WEIGHTS,
-    OPENING_ZONE_SIDE, getOpeningZone, inZone,
+    OPENING_ZONE_SIDE, getOpeningZone, inZone, START_POSITIONS, getStartStones,
     createEmptyState, cloneState, cellOwner, isWall, runCaptures,
     generateCandidates, tacticalCandidates, strategicCandidates, searchCandidates, legalCandidates, quickScore, computeTerritoryPotential, computeEdgeEscape, evaluateStatic,
     computeGroupLiberties, libertyRisk, computeUrgentCells, hasUrgentAtari,
