@@ -298,6 +298,7 @@
       firstPlayer: Number($('first').value),
       extraTurnOnCapture: $('extra').checked,
       undoAllowed: $('undoAllowed').checked,
+        startPosition: $('startPosition').value,
       targetScore: Number($('targetScore').value) || 0,
       targetFillPercent: Number($('targetFill').value) || 100,
       controllers: { 1: { type: $('c1').value, weights: parseWeights('w1') }, 2: { type: $('c2').value, weights: parseWeights('w2') } },
