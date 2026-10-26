@@ -212,6 +212,8 @@
         firstPlayer: options.firstPlayer === 2 ? 2 : 1,
         extraTurnOnCapture: options.extraTurnOnCapture === true,
         undoAllowed: options.undoAllowed !== false,
+        // Стартовая позиция (issue #47): 'empty' (по умолчанию) или 'cross'.
+        startPosition: options.startPosition === 'cross' ? 'cross' : 'empty',
         targetScore: options.targetScore,
         targetFillPercent: options.targetFillPercent
       });
