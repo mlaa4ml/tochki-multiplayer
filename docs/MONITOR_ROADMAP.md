@@ -89,7 +89,7 @@ S1 перенос #52 ─► S2 разбиение корпуса ─► S3 по
 
 ## S1. Перенос инфраструктуры из ветки issue #52 (План, п. 3)
 
-**Работа.** Перенести в `main` из `anthropic-claude-opus-5-5-default-issue-52`: корпус, `tools/bench/replay-blunders.js`, `twoMoveThreat` (экспорт из `gameEngine.js`), `applySafety2`, `test/replay-blunders.js`, `docs/ISSUE52_REPLAY_ANALYSIS.md`. Установить `safety2:false` в `DIFFICULTY.normal` и `DIFFICULTY.strong`.
+**Работа.** Перенести в `main` из `anthropic-claude-opus-5-5-default-issue-52`: корпус, `tools/bench/replay-blunders.js`, `twoMoveThreat` (экспорт из `gameEngine.js`), `applySafety2`, `test/replay-blunders.js`, `docs/ISSUE52_REPLAY_ANALYSIS.md`, а также анти-вилку `forkLoss`/`forkLoss4`/`applyAntiFork`. Установить `safety2:false` в `DIFFICULTY.normal` и `DIFFICULTY.strong` и `antiFork:false` в `strong`. Добавить `node test/replay-blunders.js` в `npm test`. Ветку не сливать целиком: её diff удаляет файл Плана.
 
 **Готово, когда:**
 - `npm test` зелёный;
