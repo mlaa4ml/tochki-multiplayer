@@ -82,4 +82,88 @@ function classifyMiss(root, diff, result, savingMoves){
       completedDepth: trace.completedDepth, maxDepth: diff.maxDepth, stopReason: trace.stopReason } };
 }
 
-module.exports = { createDefenceSolver, classifyMiss, legalMoves, key };
+function replayPosition(g, ply){
+  const r = g.replay, rules = r.rules || {};
+  const match = E.createMatch({ sizeKey: r.board.sizeKey, ...rules });
+  const moves = r.events.filter(e => e.type === 'move');
+  for (let i = 0; i < ply; i++){
+    const m = moves[i], t = match.applyMove(m.player, m.x, m.y);
+    if (!t || t.ok === false) throw new Error(`invalid replay ${g.id} ply ${i}`);
+  }
+  return { match, node: E.createSearchNode(match.getSnapshot()), moves };
+}
+
+function main(argv){
+  const fs = require('fs'), path = require('path');
+  const R = require('./replay-blunders');
+  const opt = { depth: 6, proofNodeLimit: 200000, lossThreshold: 4 };
+  let gameId, onlyPly, output;
+  for (let i = 0; i < argv.length; i++){
+    const a = argv[i];
+    if (a === '--prefork') continue;
+    if (a === '--game') gameId = argv[++i];
+    else if (a === '--ply') onlyPly = Number(argv[++i]);
+    else if (a === '--depth') opt.depth = Number(argv[++i]);
+    else if (a === '--proof-node-limit') opt.proofNodeLimit = Number(argv[++i]);
+    else if (a === '--min-loss') opt.lossThreshold = Number(argv[++i]);
+    else if (a === '--json') output = argv[++i];
+    else throw new Error(`unknown prefork argument ${a}`);
+  }
+  const games = R.selectGames(R.listCorpusFiles(), R.loadManifest(path.join(R.CORPUS_DIR, 'manifest.json')), 'regression')
+    .filter(g => !gameId || g.id === gameId);
+  if (!games.length) throw new Error('no regression games selected');
+  const report = { format: 'tochki-prefork-regression', version: 1, options: opt,
+    positions: [], captures: [], baseline: {} };
+  for (const g of games){
+    const { moves } = replayPosition(g, 0);
+    const bot = (moves.find(m => m.decision) || {}).player;
+    for (let c = 0; c < moves.length; c++){
+      if (moves[c].player === bot) continue;
+      const p = replayPosition(g, c), m = moves[c];
+      const t = E.applyTransition(p.node, m.player, m.x, m.y);
+      const captured = t.result.gained.filter(v => v.kind === 'captured');
+      if (captured.length < opt.lossThreshold) continue;
+      const capture = { game: g.id, ply: c, lost: captured.length, checked: [] };
+      report.captures.push(capture);
+      for (let ply = c-1; ply >= 0; ply--){
+        if (moves[ply].player !== bot || (onlyPly !== undefined && ply !== onlyPly)) continue;
+        const { node, match } = replayPosition(g, ply);
+        const solver = createDefenceSolver(node, { ...opt, focus: captured });
+        const played = { x: moves[ply].x, y: moves[ply].y };
+        const playedProof = solver.after(played);
+        const check = { ply, playedProof, safe: [], unknown: [] };
+        capture.checked.push(check);
+        if (playedProof.safe !== false){
+          console.log(g.id, c, ply, 'played', playedProof);
+          continue;
+        }
+        for (const move of solver.legalMoves()){
+          if (key(move) === key(played)) continue;
+          const proof = solver.after(move);
+          if (proof.safe === true) check.safe.push({ ...move, proof });
+          if (proof.safe === null) check.unknown.push(move);
+        }
+        console.log(g.id, c, ply, 'safe', check.safe.length, 'unknown', check.unknown.length);
+        if (!check.safe.length) continue;
+        const searches = {};
+        for (const [level, nodeLimit] of [['normal', 300], ['strong', 3000]]){
+          const result = match.botSearch(level, null, { nodeLimit });
+          searches[level] = { nodeLimit, ...classifyMiss(node, E.DIFFICULTY[level], result, check.safe) };
+        }
+        report.positions.push({ game: g.id, file: g.file, index: g.index, ply,
+          capturePly: c, captured: captured.length, played, playedProof,
+          savingMoves: check.safe, unknownMoves: check.unknown, searches });
+        break;
+      }
+    }
+  }
+  for (const level of ['normal', 'strong']){
+    report.baseline[level] = { saved: report.positions.filter(p => p.searches[level].reason === 'saved').length,
+      total: report.positions.length };
+  }
+  if (output) fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+  console.log(JSON.stringify(report.baseline));
+  return report;
+}
+
+module.exports = { createDefenceSolver, classifyMiss, legalMoves, key, replayPosition, main };
