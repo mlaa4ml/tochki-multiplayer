@@ -388,7 +388,8 @@ function runPrefork(opts){
   let data = { format: 'tochki-prefork-regression', version: 1, positions: [] };
   if (fs.existsSync(opts.prefork)) data = JSON.parse(fs.readFileSync(opts.prefork, 'utf8'));
   data.description = 'Позиции «до вилки» (issue #57): последний ход бота перед взятием, после которого спасение ещё существовало. rescue — спасающие ходы (loss <= minLoss+1), levels — ход текущего поиска при фиксированном nodeLimit и причина ошибки. Генерируется: node tools/bench/replay-blunders.js --prefork';
-  data.params = { split, maxBack: opts.maxBack, radius: opts.radius, minLoss: opts.minLoss, forkCap: opts.forkCap,
+    data.params = { split, maxBack: opts.maxBack, radius: opts.radius, minLoss: opts.minLoss, forkCap: opts.forkCap,
+    fullCap: opts.fullCap || 1e6, verifyTop: opts.verifyTop || 12, rescueRule: 'loss === minLoss (forkLoss4, 6 полуходов, без допуска)',
     nodeLimits: opts.nodeLimit ? { normal: opts.nodeLimit, strong: opts.nodeLimit } : PREFORK_NODE_LIMITS };
   const byKey = new Map(data.positions.map(p => [preforkKey(p), p]));
   for (const g of games){
