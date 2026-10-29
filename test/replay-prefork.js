@@ -12,6 +12,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const B = require('../tools/bench/replay-blunders.js');
+const E = require('../gameEngine.js');
 
 const t0 = Date.now();
 const data = JSON.parse(fs.readFileSync(B.PREFORK_FILE, 'utf8'));
