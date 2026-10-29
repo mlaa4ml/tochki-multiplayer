@@ -68,7 +68,7 @@ function listCorpusFiles(dir){
 
 function parseArgs(argv){
   const out = { files: [], json: null, search: null, nodeLimit: 0, split: null, manifest: path.join(CORPUS_DIR, MANIFEST_NAME),
-    prefork: null, game: null, maxBack: 3, radius: 2, minLoss: 4, forkCap: 40 };
+    prefork: null, game: null, maxBack: 5, radius: 2, minLoss: 4, forkCap: 40 };
   for (let i = 0; i < argv.length; i++){
     const a = argv[i];
     if (a === '--json') out.json = argv[++i];
