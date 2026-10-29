@@ -4,7 +4,7 @@
 // Использование:
 //   node tools/bench/replay-blunders.js [файлы-реплеев...] [--json out.json] [--search strong|normal]
 //   node tools/bench/replay-blunders.js --prefork out.json [--split regression] [--game id]
-//        [--max-back 5] [--radius 2] [--min-loss 4] [--fork-cap 40] [--node-limit N]
+//        [--max-back 8] [--radius 1] [--min-loss 4] [--fork-cap 1000000] [--node-limit N]
 // По умолчанию берутся tools/bench/corpus/human/*.json (экспорт «Сохранённые
 // партии» из клиента: массив { name, summary, replay }).
 //
@@ -68,7 +68,7 @@ function listCorpusFiles(dir){
 
 function parseArgs(argv){
   const out = { files: [], json: null, search: null, nodeLimit: 0, split: null, manifest: path.join(CORPUS_DIR, MANIFEST_NAME),
-    prefork: null, game: null, maxBack: 5, radius: 2, minLoss: 4, forkCap: 40 };
+    prefork: null, game: null, maxBack: 8, radius: 1, minLoss: 4, forkCap: 1e6 };
   for (let i = 0; i < argv.length; i++){
     const a = argv[i];
     if (a === '--json') out.json = argv[++i];
@@ -84,10 +84,10 @@ function parseArgs(argv){
       if (v && !v.startsWith('--')){ out.prefork = v; i++; } else out.prefork = PREFORK_FILE;
     }
     else if (a === '--game') out.game = argv[++i];
-    else if (a === '--max-back') out.maxBack = Number(argv[++i]) || 5;
-    else if (a === '--radius') out.radius = Number(argv[++i]) || 2;
+    else if (a === '--max-back') out.maxBack = Number(argv[++i]) || 8;
+    else if (a === '--radius') out.radius = Number(argv[++i]) || 1;
     else if (a === '--min-loss') out.minLoss = Number(argv[++i]) || 4;
-    else if (a === '--fork-cap') out.forkCap = Number(argv[++i]) || 40;
+    else if (a === '--fork-cap') out.forkCap = Number(argv[++i]) || 1e6;
     else out.files.push(a);
   }
   if (!out.files.length) out.files = listCorpusFiles(CORPUS_DIR);
@@ -252,7 +252,7 @@ function preforkLoss(node, mover, x, y, cap){
   if (t.node.current === mover) return { loss: 0, measure: 'extra-turn' };
   const opp = mover === 1 ? 2 : 1;
   const mine = countCaptured(t);
-  const ctx = { calls: 0, cap: cap || 40, thr: 3, aborted: false };
+  const ctx = { calls: 0, cap: cap || 1e6, thr: 3, aborted: false };
   const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, ctx);
   if (r) return { loss: Math.max(0, r.loss - mine), measure: 'forkLoss4' };
   return { loss: Math.max(0, E.twoMoveThreat(t.node, opp) - mine), measure: 'twoMove' };
@@ -334,17 +334,10 @@ function analyzePreFork(g, opts){
         if (l) evals.push({ x: c.x, y: c.y, loss: l.loss, measure: l.measure });
       }
       if (!evals.length) continue;
-      // 1) Отбор: дешёвая оценка с бюджетом forkCap (может откатиться на twoMove).
-      const screenMin = Math.min(...evals.map(e => e.loss));
-      if (!(screenMin <= Math.floor(cap.count / 2) && pl.loss - screenMin >= 3)) continue;
-      // 2) Полная проверка: forkLoss4 на 6 полуходов БЕЗ обрыва по бюджету
-      //    для лучших по отбору ходов (не больше verifyTop).
-      const pool = evals.filter(e => e.loss <= screenMin + 2).sort((a, b) => a.loss - b.loss).slice(0, opts.verifyTop || 12);
-      const full = [];
-      for (const e of pool){
-        const l = preforkLoss(node, botSeat, e.x, e.y, opts.fullCap || 1e6);
-        if (l && l.measure !== 'twoMove') full.push({ x: e.x, y: e.y, loss: l.loss, measure: l.measure });
-      }
+      // Решатель на 6 полуходов без обрыва по бюджету (forkCap по умолчанию 1e6):
+      // дешёвый отбор через twoMoveThreat оказался ложным (давал 1 там, где
+      // forkLoss4 даёт 11-12). Ходы, где forkLoss4 всё же оборвался, не учитываются.
+      const full = evals.filter(e => e.measure !== 'twoMove');
       if (!full.length) continue;
       const minLoss = Math.min(...full.map(e => e.loss));
       if (minLoss <= Math.floor(cap.count / 2) && pl.loss - minLoss >= 3){
@@ -389,7 +382,7 @@ function runPrefork(opts){
   if (fs.existsSync(opts.prefork)) data = JSON.parse(fs.readFileSync(opts.prefork, 'utf8'));
   data.description = 'Позиции «до вилки» (issue #57): последний ход бота перед взятием, после которого спасение ещё существовало. rescue — спасающие ходы (loss <= minLoss+1), levels — ход текущего поиска при фиксированном nodeLimit и причина ошибки. Генерируется: node tools/bench/replay-blunders.js --prefork';
     data.params = { split, maxBack: opts.maxBack, radius: opts.radius, minLoss: opts.minLoss, forkCap: opts.forkCap,
-    fullCap: opts.fullCap || 1e6, verifyTop: opts.verifyTop || 12, rescueRule: 'loss === minLoss (forkLoss4, 6 полуходов, без допуска)',
+    fullCap: opts.fullCap || 1e6, rescueRule: 'loss === minLoss (forkLoss4, 6 полуходов, без допуска)',
     nodeLimits: opts.nodeLimit ? { normal: opts.nodeLimit, strong: opts.nodeLimit } : PREFORK_NODE_LIMITS };
   const byKey = new Map(data.positions.map(p => [preforkKey(p), p]));
   for (const g of games){
