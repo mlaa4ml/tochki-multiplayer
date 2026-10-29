@@ -183,7 +183,13 @@ function analyzeGame(g, opts){
 function main(){
   const opts = parseArgs(process.argv.slice(2));
   const report = [];
-  for (const f of opts.files) for (const g of loadGames(f)) report.push(analyzeGame(g, opts));
+    const games = selectGames(opts.files, loadManifest(opts.manifest), opts.split);
+  if (opts.split) console.log(`часть ${opts.split}: партий ${games.length} (${games.map(g => g.id).join(', ')})`);
+  for (const g of games){
+    const a = analyzeGame(g, opts);
+    a.id = g.id; a.split = g.split;
+    report.push(a);
+  }
   let total = 0, blunders = 0, missed = 0, lost = 0, nowFixed = 0, nowChecked = 0;
   for (const g of report){
     const bl = g.moves.filter(m => m.blunder);
