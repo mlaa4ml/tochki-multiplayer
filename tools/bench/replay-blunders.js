@@ -213,4 +213,4 @@ function main(){
 }
 
 if (require.main === module) main();
-module.exports = { analyzeGame, loadGames, bestImmediateCapture };
+module.exports = { analyzeGame, loadGames, bestImmediateCapture, parseArgs, listCorpusFiles, loadManifest, splitOf, selectGames, SPLITS, DEFAULT_SPLIT, CORPUS_DIR };
