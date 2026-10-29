@@ -181,6 +181,7 @@ function analyzeGame(g, opts){
 }
 
 function main(){
+    if (process.argv.includes('--prefork')) return require('./prefork').main(process.argv.slice(2));
   const opts = parseArgs(process.argv.slice(2));
   const report = [];
     const games = selectGames(opts.files, loadManifest(opts.manifest), opts.split);
