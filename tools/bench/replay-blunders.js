@@ -84,7 +84,7 @@ function parseArgs(argv){
       if (v && !v.startsWith('--')){ out.prefork = v; i++; } else out.prefork = PREFORK_FILE;
     }
     else if (a === '--game') out.game = argv[++i];
-    else if (a === '--max-back') out.maxBack = Number(argv[++i]) || 3;
+    else if (a === '--max-back') out.maxBack = Number(argv[++i]) || 5;
     else if (a === '--radius') out.radius = Number(argv[++i]) || 2;
     else if (a === '--min-loss') out.minLoss = Number(argv[++i]) || 4;
     else if (a === '--fork-cap') out.forkCap = Number(argv[++i]) || 40;
