@@ -1,0 +1,210 @@
+{
+ "format": "tochki-prefork-regression",
+ "version": 1,
+ "positions": [
+  {
+   "id": "issue52-r01-g0",
+   "file": "issue52-replays01.json",
+   "index": 0,
+   "split": "regression",
+   "ply": 42,
+   "botSeat": 2,
+   "captureAt": 53,
+   "captured": 12,
+   "played": {
+    "x": 8,
+    "y": 3
+   },
+   "playedLoss": 10,
+   "playedMeasure": "forkLoss4",
+   "minLoss": 0,
+   "rescue": [
+    {
+     "x": 8,
+     "y": 5,
+     "loss": 0,
+     "measure": "forkLoss4"
+    }
+   ],
+   "levels": {
+    "normal": {
+     "nodeLimit": 300,
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "saved": false,
+     "cause": "width",
+     "detail": {
+      "baseSize": 51,
+      "rescueRankInBase": 13,
+      "beamSize": 10,
+      "inBeam": []
+     }
+    },
+    "strong": {
+     "nodeLimit": 3000,
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "saved": false,
+     "cause": "time",
+     "detail": {
+      "baseSize": 74,
+      "rescueRankInBase": 13,
+      "beamSize": 20,
+      "inBeam": [
+       "8,5"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 8,
+        "y": 5,
+        "score": 286.45
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g1",
+   "file": "issue52-replays02.json",
+   "index": 1,
+   "split": "regression",
+   "ply": 24,
+   "botSeat": 2,
+   "captureAt": 39,
+   "captured": 11,
+   "played": {
+    "x": 1,
+    "y": 2
+   },
+   "playedLoss": 5,
+   "playedMeasure": "forkLoss4",
+   "minLoss": 0,
+   "rescue": [
+    {
+     "x": 2,
+     "y": 6,
+     "loss": 0,
+     "measure": "forkLoss4"
+    },
+    {
+     "x": 3,
+     "y": 6,
+     "loss": 0,
+     "measure": "forkLoss4"
+    },
+    {
+     "x": 2,
+     "y": 7,
+     "loss": 0,
+     "measure": "forkLoss4"
+    }
+   ],
+   "levels": {
+    "normal": {
+     "nodeLimit": 300,
+     "move": {
+      "x": 1,
+      "y": 2
+     },
+     "saved": false,
+     "cause": "time",
+     "detail": {
+      "baseSize": 62,
+      "rescueRankInBase": 8,
+      "beamSize": 12,
+      "inBeam": [
+       "3,6",
+       "2,6"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 3,
+        "y": 6,
+        "score": 20.25
+       },
+       {
+        "x": 2,
+        "y": 6,
+        "score": 49.44999999999999
+       }
+      ]
+     }
+    },
+    "strong": {
+     "nodeLimit": 3000,
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "saved": false,
+     "cause": "time",
+     "detail": {
+      "baseSize": 92,
+      "rescueRankInBase": 8,
+      "beamSize": 20,
+      "inBeam": [
+       "3,6",
+       "2,6"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 3,
+        "y": 6,
+        "score": 20.25
+       },
+       {
+        "x": 2,
+        "y": 6,
+        "score": 49.44999999999999
+       }
+      ]
+     }
+    }
+   }
+  }
+ ],
+ "description": "Позиции «до вилки» (issue #57): последний ход бота перед взятием, после которого спасение ещё существовало. rescue — спасающие ходы (loss <= minLoss+1), levels — ход текущего поиска при фиксированном nodeLimit и причина ошибки. Генерируется: node tools/bench/replay-blunders.js --prefork",
+ "params": {
+  "split": "regression",
+  "maxBack": 8,
+  "radius": 1,
+  "minLoss": 4,
+  "forkCap": 1000000,
+  "fullCap": 1000000,
+  "rescueRule": "loss === minLoss (forkLoss4, 6 полуходов, без допуска)",
+  "nodeLimits": {
+   "normal": 300,
+   "strong": 3000
+  }
+ },
+ "baseline": {
+  "normal": {
+   "positions": 2,
+   "saved": 0,
+   "rate": 0,
+   "causes": {
+    "width": 1,
+    "time": 1
+   }
+  },
+  "strong": {
+   "positions": 2,
+   "saved": 0,
+   "rate": 0,
+   "causes": {
+    "time": 2
+   }
+  }
+ }
+}
