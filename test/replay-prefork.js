@@ -34,9 +34,7 @@ for (const p of data.positions){
   const moves = r.events.filter(e => e.type === 'move');
   assert.ok(moves[p.ply].decision, `${p.id} ход ${p.ply} должен быть ходом бота`);
   assert.deepStrictEqual({ x: moves[p.ply].x, y: moves[p.ply].y }, p.played, `${p.id}: сыгранный ход`);
-  const node = B.nodeFromMatch ? null : null;
   const m = B.matchAtPly(r, p.ply);
-  const E = require('../gameEngine.js');
   const nd = E.createSearchNode(m.getSnapshot());
   assert.strictEqual(nd.current, p.botSeat, `${p.id}: ходит бот`);
   // Спасение существует: пересчёт решателя совпадает с набором.
