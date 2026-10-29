@@ -43,10 +43,14 @@ for (const p of data.positions){
   const pl = B.preforkLoss(nd, p.botSeat, p.played.x, p.played.y, fc);
   assert.strictEqual(pl.loss, p.playedLoss, `${p.id}: потеря сыгранного хода`);
   assert.ok(p.rescue.length >= 1, `${p.id}: есть спасающие ходы`);
+  // Спасающие ходы проверяются ПОЛНЫМ forkLoss4 (6 полуходов, без обрыва по
+  // бюджету) и имеют ровно минимальную потерю — без допуска «минимум + 1».
+  const fullCap = data.params.fullCap || 1e6;
   for (const c of p.rescue){
-    const l = B.preforkLoss(nd, p.botSeat, c.x, c.y, fc);
+    const l = B.preforkLoss(nd, p.botSeat, c.x, c.y, fullCap);
+    assert.strictEqual(l.measure === 'twoMove', false, `${p.id}: спасающий ход (${c.x},${c.y}) должен быть проверен на 6 полуходов`);
     assert.strictEqual(l.loss, c.loss, `${p.id}: потеря спасающего хода (${c.x},${c.y})`);
-    assert.ok(l.loss <= p.minLoss + 1);
+    assert.strictEqual(l.loss, p.minLoss, `${p.id}: спасающий ход (${c.x},${c.y}) имеет минимальную потерю`);
   }
   assert.ok(p.minLoss <= Math.floor(p.captured / 2) && p.playedLoss - p.minLoss >= 3,
     `${p.id}: спасение существует (минимум ${p.minLoss}, сыграно ${p.playedLoss})`);
