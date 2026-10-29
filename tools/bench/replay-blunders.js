@@ -334,11 +334,24 @@ function analyzePreFork(g, opts){
         if (l) evals.push({ x: c.x, y: c.y, loss: l.loss, measure: l.measure });
       }
       if (!evals.length) continue;
-      const minLoss = Math.min(...evals.map(e => e.loss));
+      // 1) Отбор: дешёвая оценка с бюджетом forkCap (может откатиться на twoMove).
+      const screenMin = Math.min(...evals.map(e => e.loss));
+      if (!(screenMin <= Math.floor(cap.count / 2) && pl.loss - screenMin >= 3)) continue;
+      // 2) Полная проверка: forkLoss4 на 6 полуходов БЕЗ обрыва по бюджету
+      //    для лучших по отбору ходов (не больше verifyTop).
+      const pool = evals.filter(e => e.loss <= screenMin + 2).sort((a, b) => a.loss - b.loss).slice(0, opts.verifyTop || 12);
+      const full = [];
+      for (const e of pool){
+        const l = preforkLoss(node, botSeat, e.x, e.y, opts.fullCap || 1e6);
+        if (l && l.measure !== 'twoMove') full.push({ x: e.x, y: e.y, loss: l.loss, measure: l.measure });
+      }
+      if (!full.length) continue;
+      const minLoss = Math.min(...full.map(e => e.loss));
       if (minLoss <= Math.floor(cap.count / 2) && pl.loss - minLoss >= 3){
         if (done.has(j)) break;
         done.add(j);
-        const rescue = evals.filter(e => e.loss <= minLoss + 1);
+        // Спасающие ходы — ровно с минимальной потерей на 6 полуходов (без допуска).
+        const rescue = full.filter(e => e.loss === minLoss);
         const pos = { id: g.id, file: g.file, index: g.index, split: g.split, ply: j, botSeat,
           captureAt: cap.ply, captured: cap.count, played, playedLoss: pl.loss, playedMeasure: pl.measure,
           minLoss, rescue, levels: {} };
