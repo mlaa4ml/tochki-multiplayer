@@ -213,5 +213,5 @@ function main(){
   if (opts.json) fs.writeFileSync(opts.json, JSON.stringify(report, null, 2));
 }
 
-if (require.main === module) main();
 module.exports = { analyzeGame, loadGames, bestImmediateCapture, parseArgs, listCorpusFiles, loadManifest, splitOf, selectGames, SPLITS, DEFAULT_SPLIT, CORPUS_DIR };
+if (require.main === module) main();
