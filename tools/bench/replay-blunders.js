@@ -272,17 +272,43 @@ function cellsNear(node, cells, R){
   return out;
 }
 
-// Причина, по которой поиск уровня не выбрал спасающий ход.
-function classifyMiss(trace, rescue){
-  const inSet = (c) => rescue.some(r => r.x === c.x && r.y === c.y);
-  const cands = (trace && trace.candidates) || [];
-  if (!cands.some(inSet)){
-    const cap = trace && trace.params ? trace.params.candidateCap : null;
-    return cap && cands.length >= cap ? 'width' : 'not-in-candidates';
+// Причина, по которой поиск уровня не выбрал спасающий ход. Проверяется
+// ФАКТИЧЕСКИЙ путь спасающих ходов через конвейер поиска, а не общие параметры:
+//   base    — E.legalCandidates(root, diff): полный упорядоченный список до обрезки;
+//   beam    — E.searchCandidates(root, diff, candidateCap): корневые кандидаты
+//             после обрезки по ширине (тот же вызов, что в searchMove);
+//   scored  — trace.candidates: ходы, реально оценённые в последней ПОЛНОЙ
+//             итерации углубления.
+// not-in-candidates — ни одного спасающего хода нет даже в base (генератор их
+//                     не порождает); width — есть в base, но ни одного нет в
+//                     beam (отрезаны по ширине); time — есть в beam, но ни один
+//                     не оценён (бюджет кончился раньше), либо оценены только
+//                     на глубине < maxDepth при обрыве по бюджету; misjudged —
+//                     оценены на полной глубине, но выбран другой ход.
+function classifyMiss(trace, rescue, root, diff){
+  const key = c => c.x + ',' + c.y;
+  const rs = new Set(rescue.map(key));
+  const detail = {};
+  if (root && diff){
+    const base = E.legalCandidates(root, diff) || [];
+    const beam = E.searchCandidates(root, diff, diff.candidateCap) || [];
+    const idx = base.findIndex(c => rs.has(key(c)));
+    detail.baseSize = base.length;
+    detail.rescueRankInBase = idx;          // -1 — генератор не породил
+    detail.beamSize = beam.length;
+    detail.inBeam = beam.filter(c => rs.has(key(c))).map(key);
+    if (idx < 0) return { cause: 'not-in-candidates', detail };
+    if (!detail.inBeam.length) return { cause: 'width', detail };
   }
-  const maxDepth = trace && trace.params ? trace.params.maxDepth : null;
-  if (trace && trace.stopReason !== 'max-depth' && maxDepth && trace.completedDepth < maxDepth) return 'time';
-  return 'misjudged';
+  const scored = (trace && trace.candidates) || [];
+  const sc = scored.filter(c => rs.has(key(c)));
+  detail.completedDepth = trace ? trace.completedDepth : null;
+  detail.stopReason = trace ? trace.stopReason : null;
+  detail.scored = sc.map(c => ({ x: c.x, y: c.y, score: c.score }));
+  if (!sc.length) return { cause: (root && diff) ? 'time' : 'not-in-candidates', detail };
+  const maxDepth = trace.params ? trace.params.maxDepth : null;
+  if (trace.stopReason !== 'max-depth' && maxDepth && trace.completedDepth < maxDepth) return { cause: 'time', detail };
+  return { cause: 'misjudged', detail };
 }
 
 // Ход текущего поиска уровня level в позиции перед полуходом ply и его разбор.
@@ -291,7 +317,10 @@ function evalLevel(r, ply, level, nodeLimit, rescue){
   const s = m.botSearch(level, null, { nodeLimit });
   const move = s && s.move ? { x: s.move.x, y: s.move.y } : null;
   const saved = !!move && rescue.some(c => c.x === move.x && c.y === move.y);
-  return { nodeLimit, move, saved, cause: saved ? null : classifyMiss(s && s.trace, rescue) };
+  if (saved) return { nodeLimit, move, saved, cause: null };
+  const root = E.createSearchNode(m.getSnapshot());
+  const c = classifyMiss(s && s.trace, rescue, root, E.DIFFICULTY[level]);
+  return { nodeLimit, move, saved, cause: c.cause, detail: c.detail };
 }
 
 function analyzePreFork(g, opts){
