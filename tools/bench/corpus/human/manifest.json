@@ -1,0 +1,60 @@
+{
+  "format": "tochki-human-corpus-manifest",
+  "version": 1,
+  "description": "Манифест корпуса реальных партий (issue #56, п. 5.1 плана монитора). Корпус делится ПО ПАРТИЯМ, а не по ходам: каждая партия целиком входит ровно в одну часть. Части: dev — для разработки и подбора параметров; regression — позиции, закреплённые регрессионными тестами (test/replay-blunders.js); holdout — отложенная проверка, при разработке не смотреть. Новая партия, не указанная явно, по умолчанию попадает в holdout (поле defaultSplit).",
+  "splits": ["dev", "regression", "holdout"],
+  "defaultSplit": "holdout",
+  "games": [
+    {
+      "id": "issue52-r01-g0",
+      "file": "issue52-replays01.json",
+      "index": 0,
+      "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "regression",
+      "note": "зевки ходов 48, 50, 52 закреплены в test/replay-blunders.js"
+    },
+    {
+      "id": "issue52-r01-g1",
+      "file": "issue52-replays01.json",
+      "index": 1,
+      "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "regression",
+      "note": "зевок хода 44 закреплён в test/replay-blunders.js"
+    },
+    {
+      "id": "issue52-r02-g0",
+      "file": "issue52-replays02.json",
+      "index": 0,
+      "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "dev"
+    },
+    {
+      "id": "issue52-r02-g1",
+      "file": "issue52-replays02.json",
+      "index": 1,
+      "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "regression",
+      "note": "зевки ходов 38, 64 закреплены в test/replay-blunders.js"
+    },
+    {
+      "id": "issue52-r02-g2",
+      "file": "issue52-replays02.json",
+      "index": 2,
+      "board": "medium",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "dev"
+    },
+    {
+      "id": "issue52-r02-g3",
+      "file": "issue52-replays02.json",
+      "index": 3,
+      "board": "medium",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
+      "split": "holdout"
+    }
+  ]
+}
