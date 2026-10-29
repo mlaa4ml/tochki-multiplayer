@@ -4,7 +4,7 @@
 // Использование:
 //   node tools/bench/replay-blunders.js [файлы-реплеев...] [--json out.json] [--search strong|normal]
 //   node tools/bench/replay-blunders.js --prefork out.json [--split regression] [--game id]
-//        [--max-back 3] [--radius 2] [--min-loss 4] [--fork-cap 40] [--node-limit N]
+//        [--max-back 5] [--radius 2] [--min-loss 4] [--fork-cap 40] [--node-limit N]
 // По умолчанию берутся tools/bench/corpus/human/*.json (экспорт «Сохранённые
 // партии» из клиента: массив { name, summary, replay }).
 //
