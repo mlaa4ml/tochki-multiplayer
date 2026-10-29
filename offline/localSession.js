@@ -155,6 +155,31 @@
       return true;
     }
 
+    // Метаданные решения бота в формате реплея A02 (docs/REPLAY.md): обязательные
+    // botVersion/weightsVersion/seed/budgets/weights + difficulty. Любые другие
+    // поля (nodes, completedDepth, ...) строгий валидатор replay.js отвергает,
+    // поэтому диагностика поиска живёт только в lastTrace, а не в реплее.
+    function botDecision(ctrl){
+      const base = (E.DIFFICULTY && E.DIFFICULTY[ctrl.type]) || {};
+      const budgets = {};
+      for (const k of ['radius', 'candidateCap', 'timeLimit', 'maxDepth', 'branchWide',
+        'branchMid', 'branchNarrow', 'quiescenceExt']){
+        if (Number.isSafeInteger(base[k])) budgets[k] = base[k];
+      }
+      const so = searchOpts[ctrl.type] || {};
+      if (Number.isSafeInteger(so.nodeLimit) && so.nodeLimit >= 0) budgets.nodeLimit = so.nodeLimit;
+      const src = ctrl.weights || E.BOT_WEIGHTS || null;
+      let weights = null;
+      if (src){
+        weights = {};
+        for (const k of ['potential', 'cohesion', 'stones', 'liberty']){
+          if (typeof src[k] === 'number' && Number.isFinite(src[k])) weights[k] = src[k];
+        }
+      }
+      return { botVersion: E.BOT_VERSION || null, weightsVersion: E.WEIGHTS_VERSION || null,
+        seed: null, budgets, weights, difficulty: ctrl.type };
+    }
+
     function onWorkerMessage(w, msg){
       if (disposed) return;
       const p = pending;
@@ -172,9 +197,7 @@
         setWorkerError('бот не вернул ход в неоконченной партии');
         return;
       }
-      const t = msg.trace || {};
-      const decision = { controller: controllers[p.player].type, nodes: t.nodes ?? null,
-        completedDepth: t.completedDepth ?? null, stopReason: t.stopReason ?? null };
+      const decision = botDecision(controllers[p.player]);
       const res = match.applyMove(p.player, msg.move.x, msg.move.y, decision);
       if (!res.ok){ setWorkerError('бот предложил недопустимый ход (' + res.reason + ')'); return; }
       revision++;
