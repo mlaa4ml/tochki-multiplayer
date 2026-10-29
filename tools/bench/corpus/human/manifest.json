@@ -12,7 +12,7 @@
       "board": "small",
       "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
       "split": "regression",
-      "note": "зевки ходов 48, 50, 52 закреплены в test/replay-blunders.js; позиция «до вилки» (ход 46) — в tools/bench/corpus/prefork.regression.json и test/replay-prefork.js (issue #57)"
+      "note": "зевки ходов 48, 50, 52 закреплены в test/replay-blunders.js; позиция «до вилки» (ход 42) — в tools/bench/corpus/prefork.regression.json и test/replay-prefork.js (issue #57)"
     },
     {
       "id": "issue52-r01-g1",
@@ -38,7 +38,7 @@
       "board": "small",
       "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
       "split": "regression",
-      "note": "зевки ходов 38, 64 закреплены в test/replay-blunders.js; позиция «до вилки» (ход 60) — в tools/bench/corpus/prefork.regression.json и test/replay-prefork.js (issue #57)"
+      "note": "зевки ходов 38, 64 закреплены в test/replay-blunders.js; позиция «до вилки» (ход 24) — в tools/bench/corpus/prefork.regression.json и test/replay-prefork.js (issue #57)"
     },
     {
       "id": "issue52-r02-g2",
