@@ -21,18 +21,63 @@ const fs = require('fs');
 const path = require('path');
 const E = require('../../gameEngine.js');
 
+// Корпус реальных партий делится ПО ПАРТИЯМ на части dev / regression / holdout
+// (issue #56). Разбиение задаёт tools/bench/corpus/human/manifest.json; партия,
+// которой нет в манифесте, считается holdout (defaultSplit).
+//   --split dev|regression|holdout — анализировать только партии этой части;
+//   --manifest путь                — другой файл манифеста.
+const CORPUS_DIR = path.join(__dirname, 'corpus', 'human');
+const MANIFEST_NAME = 'manifest.json';
+const SPLITS = ['dev', 'regression', 'holdout'];
+const DEFAULT_SPLIT = 'holdout';
+
+function listCorpusFiles(dir){
+  dir = dir || CORPUS_DIR;
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => f.endsWith('.json') && f !== MANIFEST_NAME).sort().map(f => path.join(dir, f));
+}
+
 function parseArgs(argv){
-  const out = { files: [], json: null, search: null, nodeLimit: 0 };
+  const out = { files: [], json: null, search: null, nodeLimit: 0, split: null, manifest: path.join(CORPUS_DIR, MANIFEST_NAME) };
   for (let i = 0; i < argv.length; i++){
     const a = argv[i];
     if (a === '--json') out.json = argv[++i];
     else if (a === '--search') out.search = argv[++i];
     else if (a === '--node-limit') out.nodeLimit = Number(argv[++i]) || 0;
+    else if (a === '--split'){
+      out.split = argv[++i];
+      if (!SPLITS.includes(out.split)) throw new Error(`--split: ожидается ${SPLITS.join('|')}, получено ${out.split}`);
+    }
+    else if (a === '--manifest') out.manifest = argv[++i];
     else out.files.push(a);
   }
-  if (!out.files.length){
-    const dir = path.join(__dirname, 'corpus', 'human');
-    if (fs.existsSync(dir)) out.files = fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => path.join(dir, f));
+  if (!out.files.length) out.files = listCorpusFiles(CORPUS_DIR);
+  return out;
+}
+
+function loadManifest(file){
+  if (!file || !fs.existsSync(file)) return null;
+  const m = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!m || !Array.isArray(m.games)) throw new Error(`манифест ${file}: нет массива games`);
+  return m;
+}
+
+// Часть, к которой относится партия (file — имя или путь файла, index — номер партии в файле).
+function splitOf(manifest, file, index){
+  const base = path.basename(file);
+  const def = (manifest && manifest.defaultSplit) || DEFAULT_SPLIT;
+  const e = manifest ? manifest.games.find(g => g.file === base && g.index === index) : null;
+  return e ? { split: e.split, id: e.id } : { split: def, id: null };
+}
+
+// Все партии из файлов с пометкой части; при split — только партии этой части.
+function selectGames(files, manifest, split){
+  const out = [];
+  for (const f of files) for (const g of loadGames(f)){
+    const s = splitOf(manifest, g.file, g.index);
+    g.split = s.split;
+    g.id = s.id || (g.file.replace(/\.json$/, '') + '#' + g.index);
+    if (!split || g.split === split) out.push(g);
   }
   return out;
 }
