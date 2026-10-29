@@ -34,7 +34,13 @@
       "y": 3
      },
      "saved": false,
-     "cause": "width"
+     "cause": "width",
+     "detail": {
+      "baseSize": 51,
+      "rescueRankInBase": 13,
+      "beamSize": 10,
+      "inBeam": []
+     }
     },
     "strong": {
      "nodeLimit": 3000,
@@ -43,7 +49,24 @@
       "y": 3
      },
      "saved": false,
-     "cause": "time"
+     "cause": "time",
+     "detail": {
+      "baseSize": 74,
+      "rescueRankInBase": 13,
+      "beamSize": 20,
+      "inBeam": [
+       "8,5"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 8,
+        "y": 5,
+        "score": 286.45
+       }
+      ]
+     }
     }
    }
   },
@@ -91,7 +114,30 @@
       "y": 2
      },
      "saved": false,
-     "cause": "time"
+     "cause": "time",
+     "detail": {
+      "baseSize": 62,
+      "rescueRankInBase": 8,
+      "beamSize": 12,
+      "inBeam": [
+       "3,6",
+       "2,6"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 3,
+        "y": 6,
+        "score": 20.25
+       },
+       {
+        "x": 2,
+        "y": 6,
+        "score": 49.44999999999999
+       }
+      ]
+     }
     },
     "strong": {
      "nodeLimit": 3000,
@@ -100,7 +146,30 @@
       "y": 2
      },
      "saved": false,
-     "cause": "time"
+     "cause": "time",
+     "detail": {
+      "baseSize": 92,
+      "rescueRankInBase": 8,
+      "beamSize": 20,
+      "inBeam": [
+       "3,6",
+       "2,6"
+      ],
+      "completedDepth": 2,
+      "stopReason": "node-limit",
+      "scored": [
+       {
+        "x": 3,
+        "y": 6,
+        "score": 20.25
+       },
+       {
+        "x": 2,
+        "y": 6,
+        "score": 49.44999999999999
+       }
+      ]
+     }
     }
    }
   }
