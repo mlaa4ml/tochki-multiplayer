@@ -1,0 +1,163 @@
+{
+ "format": "tochki-prefork-regression",
+ "version": 1,
+ "positions": [
+  {
+   "id": "issue52-r01-g0",
+   "file": "issue52-replays01.json",
+   "index": 0,
+   "split": "regression",
+   "ply": 46,
+   "botSeat": 2,
+   "captureAt": 53,
+   "captured": 12,
+   "played": {
+    "x": 5,
+    "y": 7
+   },
+   "playedLoss": 11,
+   "playedMeasure": "forkLoss4",
+   "minLoss": 1,
+   "rescue": [
+    {
+     "x": 9,
+     "y": 5,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 8,
+     "y": 6,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 8,
+     "y": 7,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 10,
+     "y": 5,
+     "loss": 1,
+     "measure": "twoMove"
+    }
+   ],
+   "levels": {
+    "normal": {
+     "nodeLimit": 300,
+     "move": {
+      "x": 2,
+      "y": 4
+     },
+     "saved": false,
+     "cause": "width"
+    },
+    "strong": {
+     "nodeLimit": 3000,
+     "move": {
+      "x": 7,
+      "y": 3
+     },
+     "saved": false,
+     "cause": "not-in-candidates"
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g1",
+   "file": "issue52-replays02.json",
+   "index": 1,
+   "split": "regression",
+   "ply": 60,
+   "botSeat": 2,
+   "captureAt": 65,
+   "captured": 14,
+   "played": {
+    "x": 9,
+    "y": 2
+   },
+   "playedLoss": 12,
+   "playedMeasure": "forkLoss4",
+   "minLoss": 1,
+   "rescue": [
+    {
+     "x": 10,
+     "y": 3,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 11,
+     "y": 3,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 10,
+     "y": 4,
+     "loss": 1,
+     "measure": "twoMove"
+    },
+    {
+     "x": 11,
+     "y": 4,
+     "loss": 1,
+     "measure": "twoMove"
+    }
+   ],
+   "levels": {
+    "normal": {
+     "nodeLimit": 300,
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "saved": false,
+     "cause": "time"
+    },
+    "strong": {
+     "nodeLimit": 3000,
+     "move": {
+      "x": 8,
+      "y": 4
+     },
+     "saved": false,
+     "cause": "not-in-candidates"
+    }
+   }
+  }
+ ],
+ "description": "Позиции «до вилки» (issue #57): последний ход бота перед взятием, после которого спасение ещё существовало. rescue — спасающие ходы (loss <= minLoss+1), levels — ход текущего поиска при фиксированном nodeLimit и причина ошибки. Генерируется: node tools/bench/replay-blunders.js --prefork",
+ "params": {
+  "split": "regression",
+  "maxBack": 5,
+  "radius": 2,
+  "minLoss": 4,
+  "forkCap": 40,
+  "nodeLimits": {
+   "normal": 300,
+   "strong": 3000
+  }
+ },
+ "baseline": {
+  "normal": {
+   "positions": 2,
+   "saved": 0,
+   "rate": 0,
+   "causes": {
+    "width": 1,
+    "time": 1
+   }
+  },
+  "strong": {
+   "positions": 2,
+   "saved": 0,
+   "rate": 0,
+   "causes": {
+    "not-in-candidates": 2
+   }
+  }
+ }
+}
