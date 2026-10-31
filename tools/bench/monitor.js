@@ -166,6 +166,40 @@ function groupsOf(P){
   return groups;
 }
 
+// Порог стоимости, ниже которого считается локальный twoMoveThreat (задан до прогона).
+const LOCAL_COST = 3;
+
+function capCount(gained){
+  let c = 0;
+  for (const g of gained || []) if (g.kind === 'captured') c++;
+  return c;
+}
+
+// Локальный twoMoveThreat: лучший захват противника opp двумя ходами подряд
+// только по клеткам cells (индексы y*cols+x). Узел не меняется (клон).
+function localTwoMove(node, opp, cells, cols){
+  if (node.gameOver || !cells.length) return 0;
+  const n = E.cloneSearchNode(node);
+  n.current = opp;
+  let best = 0;
+  for (const v of cells){
+    const t = E.applyTransition(n, opp, v % cols, (v / cols) | 0);
+    if (!t || !t.ok) continue;
+    const c1 = capCount(t.result.gained);
+    if (c1 > best) best = c1;
+    if (t.node.gameOver) continue;
+    t.node.current = opp;
+    for (const w of cells){
+      if (w === v) continue;
+      const u = E.applyTransition(t.node, opp, w % cols, (w / cols) | 0);
+      if (!u || !u.ok) continue;
+      const c2 = c1 + capCount(u.result.gained);
+      if (c2 > best) best = c2;
+    }
+  }
+  return best;
+}
+
 // Признаки всех групп игрока p в узле node. Узел не меняется.
 // opts.twoMove (по умолчанию true) — считать twoMoveThreat; opts.maxCost.
 function monitorPosition(node, p, opts){
