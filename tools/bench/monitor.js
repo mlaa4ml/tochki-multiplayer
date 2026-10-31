@@ -328,4 +328,4 @@ function alarmOf(res, ruleName){
   return out;
 }
 
-module.exports = { monitorPosition, alarmOf, RULES, MAX_COST };
+module.exports = { monitorPosition, alarmOf, RULES, NEEDS_TWOMOVE, MAX_COST, LOCAL_COST };
