@@ -308,8 +308,16 @@ const RULES = {
   forced:   { kind: 'group', desc: 'стоимость с учётом вилок (forcedCost) <= 1', test: g => g.forcedCost !== undefined && g.forcedCost <= 1 },
   costLocal:{ kind: 'group', desc: 'cost <= 2 и (localTwo >= 1 или costDrop >= 1)', test: g => g.cost <= 2 && ((g.localTwo || 0) >= 1 || (g.costDrop || 0) >= 1) }
 };
+  // Итерация 3: кандидаты, выбранные ПОСЛЕ просмотра dev (раунд 6). На текущем
+  // holdout их результаты тоже уже видны, поэтому честно проверить их можно
+  // только на НОВЫХ партиях. Пороги зафиксированы в issue #59 до этой проверки.
+  cand1:    { kind: 'mixed', desc: '(cost <= 2 и ringProgress >= 0.5) или twoMoveThreat >= 1',
+              test: g => g.cost <= 2 && g.ringProgress >= 0.5, pos: r => (r.twoMove || 0) >= 1 },
+  cand2:    { kind: 'mixed', desc: '(cost <= 2 и prevCost <= 3) или twoMoveThreat >= 2',
+              test: g => g.cost <= 2 && g.prevCost !== null && g.prevCost !== undefined && g.prevCost <= 3, pos: r => (r.twoMove || 0) >= 2 }
+});
 // Правила, которым нужен полный twoMoveThreat (при --no-twomove пропускаются).
-const NEEDS_TWOMOVE = new Set(['twoMove', 'combined']);
+const NEEDS_TWOMOVE = new Set(['twoMove', 'combined', 'cand1', 'cand2']);
 
 // Тревоги позиции по правилу: { on, all, stones:Set('x,y') }.
 function alarmOf(res, ruleName){
