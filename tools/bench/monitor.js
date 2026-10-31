@@ -263,6 +263,22 @@ function monitorPosition(node, p, opts){
     g.localTwo = localTwoMove(node, opp, [...cells], P.cols);
   }
   const msLocal = nowMs() - tL0;
+  // Замена 3: стоимость окружения с учётом вынуждающих ходов противника.
+  // Ход противника в пустую клетку, общую для разрезов двух групп бота с
+  // cost <= LOCAL_COST, — вилка: одним ходом он сокращает обе стоимости, а
+  // бот за свой ход защищает только одну. Для такой группы forcedCost =
+  // cost - 1 (противник выигрывает темп), иначе forcedCost = cost.
+  const cutOwners = new Map();
+  for (const g of groups){
+    if (g.cost === Infinity || g.cost > LOCAL_COST) continue;
+    for (const c of g.cut){ const k = c.x + ',' + c.y; cutOwners.set(k, (cutOwners.get(k) || 0) + 1); }
+  }
+  for (const g of groups){
+    g.fork = false;
+    if (g.cost !== Infinity && g.cost <= LOCAL_COST)
+      for (const c of g.cut) if (cutOwners.get(c.x + ',' + c.y) > 1){ g.fork = true; break; }
+    g.forcedCost = g.fork ? g.cost - 1 : g.cost;
+  }
   const t1 = nowMs();
   let twoMove = null, msTwoMove = 0;
   if (opts.twoMove !== false && !node.gameOver){
@@ -271,7 +287,8 @@ function monitorPosition(node, p, opts){
   }
   let minCost = Infinity;
   for (const g of groups) if (g.cost < minCost) minCost = g.cost;
-  return { player: p, tempo: node.current === p ? 'own' : 'opp', groups, minCost, twoMove, msCheap: t1 - t0, msTwoMove };
+  // msCheap включает msLocal (локальный twoMoveThreat) — это всё, кроме полного twoMoveThreat.
+  return { player: p, tempo: node.current === p ? 'own' : 'opp', groups, minCost, twoMove, msCheap: t1 - t0, msLocal, msTwoMove };
 }
 
 // Правила тревоги. ЗАДАНЫ ДО ПРОГОНА ПО КОРПУСУ и по партиям не подбираются
