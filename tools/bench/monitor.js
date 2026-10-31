@@ -306,8 +306,7 @@ const RULES = {
   drop:     { kind: 'group', desc: 'costDrop >= 2 и cost <= 3', test: g => (g.costDrop || 0) >= 2 && g.cost <= 3 },
   localTwo: { kind: 'group', desc: 'локальный twoMoveThreat >= 2', test: g => (g.localTwo || 0) >= 2 },
   forced:   { kind: 'group', desc: 'стоимость с учётом вилок (forcedCost) <= 1', test: g => g.forcedCost !== undefined && g.forcedCost <= 1 },
-  costLocal:{ kind: 'group', desc: 'cost <= 2 и (localTwo >= 1 или costDrop >= 1)', test: g => g.cost <= 2 && ((g.localTwo || 0) >= 1 || (g.costDrop || 0) >= 1) }
-};
+  costLocal:{ kind: 'group', desc: 'cost <= 2 и (localTwo >= 1 или costDrop >= 1)', test: g => g.cost <= 2 && ((g.localTwo || 0) >= 1 || (g.costDrop || 0) >= 1) },
   // Итерация 3: кандидаты, выбранные ПОСЛЕ просмотра dev (раунд 6). На текущем
   // holdout их результаты тоже уже видны, поэтому честно проверить их можно
   // только на НОВЫХ партиях. Пороги зафиксированы в issue #59 до этой проверки.
