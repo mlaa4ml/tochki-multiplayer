@@ -1,0 +1,432 @@
+{
+  "split": "holdout",
+  "games": [
+    {
+      "id": "issue52-r02-g3",
+      "size": "medium",
+      "botSeat": 2,
+      "botMoves": 53,
+      "losses": 12
+    }
+  ],
+  "params": {
+    "minLoss": 1,
+    "lead": 5,
+    "horizon": 10
+  },
+  "botMoves": 53,
+  "losses": 12,
+  "ms": {
+    "cheapMean": 0.41,
+    "cheapP95": 1.4,
+    "twoMoveMean": 33.81,
+    "twoMoveP95": 51.57
+  },
+  "rules": {
+    "cost": {
+      "desc": "стоимость окружения <= 2",
+      "warned": 5,
+      "warnedShare": 0.42,
+      "alarms": 44,
+      "falses": 8,
+      "falseRate": 1.51,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "issue52-r02-g3",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 10
+            },
+            {
+              "ply": 29,
+              "n": 1,
+              "lead": 11
+            },
+            {
+              "ply": 33,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 43,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 51,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 8,
+              "lead": 6
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 91,
+              "n": 5,
+              "lead": 2
+            },
+            {
+              "ply": 93,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 105,
+              "n": 3,
+              "lead": 2
+            }
+          ],
+          "alarms": 44,
+          "falses": 8
+        }
+      ]
+    },
+    "ring": {
+      "desc": "прогресс кольца >= 0.75",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 20,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "issue52-r02-g3",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 29,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 33,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 43,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 51,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 8,
+              "lead": 3
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 5,
+              "lead": 2
+            },
+            {
+              "ply": 93,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 105,
+              "n": 3,
+              "lead": 2
+            }
+          ],
+          "alarms": 20,
+          "falses": 0
+        }
+      ]
+    },
+    "exits": {
+      "desc": "группа >= 2 точек и выходов <= 1",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 1,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "issue52-r02-g3",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 29,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 43,
+              "n": 6,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 6,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 5,
+              "lead": 0
+            },
+            {
+              "ply": 93,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 105,
+              "n": 3,
+              "lead": 0
+            }
+          ],
+          "alarms": 1,
+          "falses": 0
+        }
+      ]
+    },
+    "twoMove": {
+      "desc": "twoMoveThreat >= 2",
+      "warned": 3,
+      "warnedShare": 0.25,
+      "alarms": 27,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "issue52-r02-g3",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 10
+            },
+            {
+              "ply": 29,
+              "n": 1,
+              "lead": 12
+            },
+            {
+              "ply": 33,
+              "n": 1,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 51,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 8,
+              "lead": 3
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 5,
+              "lead": 2
+            },
+            {
+              "ply": 93,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 105,
+              "n": 3,
+              "lead": 2
+            }
+          ],
+          "alarms": 27,
+          "falses": 0
+        }
+      ]
+    },
+    "combined": {
+      "desc": "cost <= 2 или twoMoveThreat >= 2",
+      "warned": 6,
+      "warnedShare": 0.5,
+      "alarms": 44,
+      "falses": 8,
+      "falseRate": 1.51,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "issue52-r02-g3",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 10
+            },
+            {
+              "ply": 29,
+              "n": 1,
+              "lead": 12
+            },
+            {
+              "ply": 33,
+              "n": 1,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 51,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 8,
+              "lead": 6
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 91,
+              "n": 5,
+              "lead": 2
+            },
+            {
+              "ply": 93,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 105,
+              "n": 3,
+              "lead": 2
+            }
+          ],
+          "alarms": 44,
+          "falses": 8
+        }
+      ]
+    }
+  }
+}
