@@ -162,7 +162,7 @@ function main(){
       twoMoveMean: r2(two.reduce((a, b) => a + b, 0) / (two.length || 1)), twoMoveP95: r2(pct(two, 0.95)) },
     rules: {} };
   for (const rule of Object.keys(M.RULES)){
-    if (!opts.twoMove && M.RULES[rule].kind !== 'group') continue;
+    if (!opts.twoMove && M.NEEDS_TWOMOVE.has(rule)) continue;
     let warned = 0, alarms = 0, falses = 0;
     const perGame = [];
     for (const G of runs){
