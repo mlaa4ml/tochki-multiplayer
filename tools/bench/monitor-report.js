@@ -159,7 +159,8 @@ function main(){
     params: { minLoss: opts.minLoss, lead: opts.lead, horizon: opts.horizon },
     botMoves, losses: nLoss,
     ms: { cheapMean: r2(cheap.reduce((a, b) => a + b, 0) / (cheap.length || 1)), cheapP95: r2(pct(cheap, 0.95)),
-      twoMoveMean: r2(two.reduce((a, b) => a + b, 0) / (two.length || 1)), twoMoveP95: r2(pct(two, 0.95)) },
+            twoMoveMean: r2(two.reduce((a, b) => a + b, 0) / (two.length || 1)), twoMoveP95: r2(pct(two, 0.95)),
+      localMean: r2(local.reduce((a, b) => a + b, 0) / (local.length || 1)), localP95: r2(pct(local, 0.95)) },
     rules: {} };
   for (const rule of Object.keys(M.RULES)){
     if (!opts.twoMove && M.NEEDS_TWOMOVE.has(rule)) continue;
