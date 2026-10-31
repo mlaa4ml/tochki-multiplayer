@@ -62,6 +62,7 @@
       "file": "tochki-replay-2026-10-29T10-16-05-704Z.json",
       "index": 0,
       "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
       "split": "holdout",
       "note": "новая партия владельца из issue #59 — непросмотренный holdout для проверки замен признаков монитора S5"
     },
@@ -70,6 +71,7 @@
       "file": "tochki-replay-2026-10-29T10-47-41-629Z.json",
       "index": 0,
       "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
       "split": "holdout",
       "note": "новая партия владельца из issue #59 — непросмотренный holdout для проверки замен признаков монитора S5"
     },
@@ -78,6 +80,7 @@
       "file": "tochki-replay-2026-10-29T10-57-30-984Z.json",
       "index": 0,
       "board": "small",
+      "rules": { "fill": 64, "startPosition": "cross", "firstPlayer": 2 },
       "split": "holdout",
       "note": "новая партия владельца из issue #59 — непросмотренный holdout для проверки замен признаков монитора S5"
     }
