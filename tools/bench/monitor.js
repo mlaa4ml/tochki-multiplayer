@@ -195,6 +195,40 @@ function monitorPosition(node, p, opts){
       cut: finite ? best.cut.map(toXY) : []
     };
   });
+  // --- Признаки на замену (S5, раунд 4). Пороги заданы ДО прогона. ---
+  // Замена 1: падение стоимости окружения с прошлой позиции (после
+  // предыдущего хода бота, т.е. за ход противника + ход бота). opts.prev —
+  // результат monitorPosition на прошлом ходу бота. Группа сопоставляется по
+  // общим точкам; если раньше разреза не было (cost = Infinity), а теперь
+  // есть, падение = MAX_COST + 1 - cost.
+  const prevCost = new Map();
+  if (opts.prev) for (const g of opts.prev.groups) for (const s of g.stones) prevCost.set(s.x + ',' + s.y, g.cost);
+  for (const g of groups){
+    if (!opts.prev){ g.prevCost = null; g.costDrop = 0; continue; }
+    let pc = Infinity;
+    for (const s of g.stones){ const c = prevCost.get(s.x + ',' + s.y); if (c !== undefined && c < pc) pc = c; }
+    g.prevCost = pc;
+    if (g.cost === Infinity) g.costDrop = 0;
+    else if (pc === Infinity) g.costDrop = maxCost + 1 - g.cost;
+    else g.costDrop = pc - g.cost;
+  }
+  // Замена 2: локальный twoMoveThreat — два хода противника подряд только по
+  // клеткам разреза группы и их 8-соседям (пустым). Считается для групп с
+  // cost <= LOCAL_COST, иначе 0.
+  const tL0 = nowMs();
+  for (const g of groups){
+    g.localTwo = 0;
+    if (g.cost === Infinity || g.cost > LOCAL_COST) continue;
+    const cells = new Set();
+    for (const c of g.cut) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+      const nx = c.x + dx, ny = c.y + dy;
+      if (nx < 0 || ny < 0 || nx >= P.cols || ny >= P.rows) continue;
+      const u = ny * P.cols + nx;
+      if (P.kind[u] === 1) cells.add(u);
+    }
+    g.localTwo = localTwoMove(node, opp, [...cells], P.cols);
+  }
+  const msLocal = nowMs() - tL0;
   const t1 = nowMs();
   let twoMove = null, msTwoMove = 0;
   if (opts.twoMove !== false && !node.gameOver){
