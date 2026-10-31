@@ -150,8 +150,9 @@ function main(){
   const games = loadGames(opts);
   if (!games.length){ console.error('нет партий для выбранной части'); process.exit(1); }
   const runs = games.map(g => runGame(g, opts));
-  const cheap = [], two = [];
-  for (const G of runs) for (const pt of G.points){ cheap.push(pt.res.msCheap); if (opts.twoMove) two.push(pt.res.msTwoMove); }
+  const cheap = [], two = [], local = [];
+  for (const G of runs) for (const pt of G.points){ cheap.push(pt.res.msCheap); local.push(pt.res.msLocal || 0); if (opts.twoMove) two.push(pt.res.msTwoMove); }
+  console.log(`время локального twoMoveThreat (входит в «без twoMove»): ср ${r2(local.reduce((a, b) => a + b, 0) / (local.length || 1))} мс, p95 ${r2(pct(local, 0.95))} мс`);
   const botMoves = runs.reduce((s, G) => s + G.botMoves, 0);
   const nLoss = runs.reduce((s, G) => s + G.losses.length, 0);
   const report = { split: opts.split, games: runs.map(G => ({ id: G.id, size: G.size, botSeat: G.botSeat, botMoves: G.botMoves, losses: G.losses.length })),
