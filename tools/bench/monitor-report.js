@@ -101,7 +101,8 @@ function runGame(g, opts){
       botIdx++;
       if (node.gameOver) break;
       const before = JSON.stringify(node.state);
-      const res = M.monitorPosition(node, botSeat, { twoMove: opts.twoMove });
+            const prev = points.length ? points[points.length - 1].res : null;
+      const res = M.monitorPosition(node, botSeat, { twoMove: opts.twoMove, prev });
       if (JSON.stringify(node.state) !== before) throw new Error('монитор изменил узел');
       points.push({ ply: i, botIdx, res });
     }
