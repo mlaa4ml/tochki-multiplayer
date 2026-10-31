@@ -77,6 +77,47 @@ const groupAt = (res, x, y) => res.groups.find(g => g.stones.some(s => s.x === x
   assert.strictEqual(g.capture, 2);
 }
 
+// 7. Вилка (замена 3, forcedCost): две группы бота, (2,3) и (4,3), не связаны
+// по 8 соседям. Каждая окружена тремя стенами противника, и у обеих разрез —
+// одна и та же клетка (3,3). Один ход противника туда сокращает обе стоимости,
+// поэтому для обеих forcedCost = cost - 1. Одиночное полукольцо из теста 3
+// вилкой не является.
+{
+  const node = mk(7, [[2, 3, 2], [4, 3, 2],
+    [1, 3, 1], [2, 2, 1], [2, 4, 1],
+    [5, 3, 1], [4, 2, 1], [4, 4, 1]], 1);
+  const before = JSON.stringify(node);
+  const res = M.monitorPosition(node, 2, { twoMove: false });
+  assert.strictEqual(JSON.stringify(node), before, 'монитор не меняет узел');
+  assert.strictEqual(res.groups.length, 2, 'две отдельные группы');
+  for (const [x, y] of [[2, 3], [4, 3]]){
+    const g = groupAt(res, x, y);
+    assert.strictEqual(g.cost, 1, `(${x},${y}): стоимость 1`);
+    assert.deepStrictEqual(g.cut, [{ x: 3, y: 3 }], `(${x},${y}): разрез (3,3)`);
+    assert.strictEqual(g.fork, true, `(${x},${y}): вилка`);
+    assert.strictEqual(g.forcedCost, 0, `(${x},${y}): forcedCost = cost - 1`);
+  }
+  const a = M.alarmOf(res, 'forced');
+  assert.ok(a.on && a.stones.has('2,3') && a.stones.has('4,3'), 'правило forced поднимает тревогу на обеих группах');
+
+  const single = M.monitorPosition(mk(7, [[3, 3, 2], [2, 3, 1], [4, 3, 1], [3, 2, 1]], 1), 2, { twoMove: false });
+  assert.strictEqual(single.groups[0].fork, false, 'одна группа — не вилка');
+  assert.strictEqual(single.groups[0].forcedCost, single.groups[0].cost, 'без вилки forcedCost = cost');
+  assert.strictEqual(single.groups[0].costDrop, 0, 'без opts.prev падения нет');
+}
+
+// 8. Падение стоимости (замена 1): та же точка до и после хода противника.
+{
+  const prev = M.monitorPosition(mk(7, [[3, 3, 2], [2, 3, 1]], 2), 2, { twoMove: false });
+  const cur = M.monitorPosition(mk(7, [[3, 3, 2], [2, 3, 1], [4, 3, 1], [3, 2, 1]], 2), 2, { twoMove: false, prev });
+  const g = cur.groups[0];
+  assert.strictEqual(prev.groups[0].cost, 3);
+  assert.strictEqual(g.prevCost, 3);
+  assert.strictEqual(g.cost, 1);
+  assert.strictEqual(g.costDrop, 2, 'падение 3 -> 1');
+  assert.ok(M.alarmOf(cur, 'drop').on, 'правило drop поднимает тревогу');
+}
+
 // 6. Пустое поле: групп нет, тревог нет.
 {
   const res = M.monitorPosition(mk(7, []), 2);
