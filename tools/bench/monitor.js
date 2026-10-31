@@ -314,7 +314,7 @@ const RULES = {
               test: g => g.cost <= 2 && g.ringProgress >= 0.5, pos: r => (r.twoMove || 0) >= 1 },
   cand2:    { kind: 'mixed', desc: '(cost <= 2 и prevCost <= 3) или twoMoveThreat >= 2',
               test: g => g.cost <= 2 && g.prevCost !== null && g.prevCost !== undefined && g.prevCost <= 3, pos: r => (r.twoMove || 0) >= 2 }
-});
+};
 // Правила, которым нужен полный twoMoveThreat (при --no-twomove пропускаются).
 const NEEDS_TWOMOVE = new Set(['twoMove', 'combined', 'cand1', 'cand2']);
 
