@@ -301,8 +301,15 @@ const RULES = {
   ring:     { kind: 'group', desc: 'прогресс кольца >= 0.75', test: g => g.cost !== Infinity && g.ringProgress >= 0.75 },
   exits:    { kind: 'group', desc: 'группа >= 2 точек и выходов <= 1', test: g => g.size >= 2 && g.exits <= 1 },
   twoMove:  { kind: 'position', desc: 'twoMoveThreat >= 2', test: r => (r.twoMove || 0) >= 2 },
-  combined: { kind: 'mixed', desc: 'cost <= 2 или twoMoveThreat >= 2', test: g => g.cost <= 2, pos: r => (r.twoMove || 0) >= 2 }
+  combined: { kind: 'mixed', desc: 'cost <= 2 или twoMoveThreat >= 2', test: g => g.cost <= 2, pos: r => (r.twoMove || 0) >= 2 },
+  // Замены (раунд 4–5). Пороги записаны в issue #59 ДО прогона по dev.
+  drop:     { kind: 'group', desc: 'costDrop >= 2 и cost <= 3', test: g => (g.costDrop || 0) >= 2 && g.cost <= 3 },
+  localTwo: { kind: 'group', desc: 'локальный twoMoveThreat >= 2', test: g => (g.localTwo || 0) >= 2 },
+  forced:   { kind: 'group', desc: 'стоимость с учётом вилок (forcedCost) <= 1', test: g => g.forcedCost !== undefined && g.forcedCost <= 1 },
+  costLocal:{ kind: 'group', desc: 'cost <= 2 и (localTwo >= 1 или costDrop >= 1)', test: g => g.cost <= 2 && ((g.localTwo || 0) >= 1 || (g.costDrop || 0) >= 1) }
 };
+// Правила, которым нужен полный twoMoveThreat (при --no-twomove пропускаются).
+const NEEDS_TWOMOVE = new Set(['twoMove', 'combined']);
 
 // Тревоги позиции по правилу: { on, all, stones:Set('x,y') }.
 function alarmOf(res, ruleName){
