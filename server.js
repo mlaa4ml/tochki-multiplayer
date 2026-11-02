@@ -813,7 +813,13 @@ function sanitizeRoomOptions(raw){
   // одиночный сценарий, смотреть там особо не на что, а претендовать на
   // место 2 всё равно нельзя (см. freeSeat).
   const isPublic = !vsBot && raw.isPublic === true;
-  return { matchOptions, vsBot, botDifficulty, isPublic };
+  // S7 (#61): арбитр бота за флагом monitor (по умолчанию false) и верхний
+  // предел времени хода при тревоге (секунды, настраивается в интерфейсе,
+  // потому что время зависит от устройства). Ограничен 1–60 с.
+  const botMonitor = vsBot && raw.botMonitor === true;
+  const lim = Number(raw.botAlarmLimitSec);
+  const botAlarmLimitSec = Number.isFinite(lim) ? Math.max(1, Math.min(60, Math.floor(lim))) : 20;
+  return { matchOptions, vsBot, botDifficulty, isPublic, botMonitor, botAlarmLimitSec };
 }
 
 // Матчмейкинг сводит только игроков с ОДИНАКОВЫМИ настройками партии —
