@@ -383,12 +383,24 @@ const RULES = {
 const NEEDS_TWOMOVE = new Set(['twoMove', 'combined', 'cand1', 'cand2']);
 
 // Тревоги позиции по правилу: { on, all, stones:Set('x,y') }.
-function alarmOf(res, ruleName){
+// Какие клетки угрожает взять позиционная часть правила (для строгой метрики):
+// twoMoveThreat >= 2 -> twoCells2, twoMoveThreat >= 1 -> twoCells1. У 'always'
+// клеток нет: в строгой метрике она ничего не предупреждает и всегда ложна.
+const POS_CELLS = { twoMove: 'twoCells2', combined: 'twoCells2', cand2: 'twoCells2', cand1: 'twoCells1' };
+
+// strict (по умолчанию true): позиционная тревога предупреждает только взятие
+// тех клеток, которыми угрожала. strict=false — старый расчёт (тревога на всю
+// позицию, флаг all), оставлен для сравнения (--legacy-metric).
+function alarmOf(res, ruleName, strict){
   const R = RULES[ruleName];
   const out = { on: false, all: false, stones: new Set() };
   if (R.kind === 'position' || R.kind === 'mixed'){
     const posTest = R.kind === 'position' ? R.test : R.pos;
-    if (posTest(res)){ out.on = true; out.all = true; }
+    if (posTest(res)){
+      out.on = true;
+      if (strict === false) out.all = true;
+      else { const cs = POS_CELLS[ruleName] && res[POS_CELLS[ruleName]]; if (cs) for (const c of cs) out.stones.add(c); }
+    }
   }
   if (R.kind === 'group' || R.kind === 'mixed'){
     for (const g of res.groups) if (R.test(g)){
