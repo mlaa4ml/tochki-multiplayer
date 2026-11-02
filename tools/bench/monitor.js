@@ -342,6 +342,19 @@ function monitorPosition(node, p, opts){
   }
   let minCost = Infinity;
   for (const g of groups) if (g.cost < minCost) minCost = g.cost;
+  // Потенциал окружения групп СОПЕРНИКА (по просьбе владельца в #59): те же
+  // признаки стоимости и прогресса кольца, но для групп противника — сколько
+  // ходов нужно боту, чтобы замкнуть группу. Только наблюдение; использовать
+  // его в ходах будут S6/S7. Внутренний вызов без twoMove и без рекурсии.
+  let oppGroups = null, msOpp = 0, oppMinCost = Infinity;
+  if (opts.withOpp !== false && !opts._inner){
+    const tO = nowMs();
+    const inner = monitorPosition(node, opp, { twoMove: false, maxCost, _inner: true });
+    oppGroups = inner.groups.map(g => ({ id: g.id, size: g.size, stones: g.stones, exits: g.exits,
+      cost: g.cost, ringProgress: g.ringProgress, capture: g.capture, cut: g.cut }));
+    oppMinCost = inner.minCost;
+    msOpp = nowMs() - tO;
+  }
   // msCheap включает msLocal (локальный twoMoveThreat) — это всё, кроме полного twoMoveThreat.
   return { player: p, tempo: node.current === p ? 'own' : 'opp', groups, minCost, twoMove, twoCells1, twoCells2, msCheap: t1 - t0, msLocal, msTwoMove };
 }
