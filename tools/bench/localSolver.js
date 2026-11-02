@@ -243,7 +243,7 @@ function solveGroup(node, def, target, opts){
     if (r.v !== base) break;
     const vl = verify(r.t.node, verifyDepth, ctx);
     if (vl !== base) continue;
-    if (!ctx.netCells) ctx.netCells = ctx.region.slice(0, opts.netCells || 12);
+    if (!ctx.netCells) ctx.netCells = ctx.region.slice(0, opts.netCells || ctx.region.length);
     const fk = opts.forkCheck === false ? 0 : forkCheck(r.t.node, ctx);
     r.fork = fk;
     if (fk === 0){ res = { saved: true, move: { x: r.x, y: r.y }, loss: 0, verified: vl - base, fork: fk }; break; }
