@@ -123,7 +123,23 @@ const groupAt = (res, x, y) => res.groups.find(g => g.stones.some(s => s.x === x
   const res = M.monitorPosition(mk(7, []), 2);
   assert.strictEqual(res.groups.length, 0);
   assert.strictEqual(res.minCost, Infinity);
-  for (const r of Object.keys(M.RULES)) assert.strictEqual(M.alarmOf(res, r).on, false);
+  // 'always' — диагностическое правило (тревога на каждом ходу), его пропускаем.
+  for (const r of Object.keys(M.RULES)) if (r !== 'always') assert.strictEqual(M.alarmOf(res, r).on, false);
+}
+
+// 9. Строгая метрика: позиционная тревога предупреждает только клетки, которыми
+// угрожала; старый расчёт (strict=false) — тревога на всю позицию (флаг all).
+{
+  const res = { groups: [], twoMove: 2, twoCells1: new Set(['1,1', '2,2']), twoCells2: new Set(['2,2']) };
+  const s = M.alarmOf(res, 'twoMove');
+  assert.ok(s.on && !s.all, 'строгая: тревога не на всю позицию');
+  assert.deepStrictEqual([...s.stones], ['2,2'], 'строгая: twoMove >= 2 -> twoCells2');
+  const c1 = M.alarmOf(res, 'cand1');
+  assert.ok(c1.stones.has('1,1') && c1.stones.has('2,2'), 'строгая: cand1 -> twoCells1');
+  const legacy = M.alarmOf(res, 'twoMove', false);
+  assert.ok(legacy.on && legacy.all, 'старый расчёт: флаг all');
+  const al = M.alarmOf(res, 'always');
+  assert.ok(al.on && !al.all && al.stones.size === 0, 'строгая: always ничего не предупреждает');
 }
 
 console.log('monitor: OK');
