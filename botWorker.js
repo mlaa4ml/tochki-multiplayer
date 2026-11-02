@@ -52,7 +52,19 @@
       if (num(so.nodeLimit) > 0) opts.nodeLimit = num(so.nodeLimit);
       if (num(so.timeLimit) !== undefined) opts.timeLimit = num(so.timeLimit);
       if (num(so.emergencyTimeLimit) > 0) opts.emergencyTimeLimit = num(so.emergencyTimeLimit);
-      const r = E.searchMove({ stone: s.stone, dead: s.dead, territory: s.territory },
+      // S7 (#61): арбитр за флагом monitor:false. Только в Node (монитор и
+      // решатель — модули tools/bench); при monitor:false — ровно searchMove.
+      let search = E.searchMove;
+      if (so.monitor === true && isNode){
+        const A = require('./arbiter.js');
+        opts.monitor = true;
+        const ao = {};
+        if (num(so.alarmTimeLimit) !== undefined) ao.alarmTimeLimit = num(so.alarmTimeLimit);
+        if (num(so.maxAlarmTimeLimit) !== undefined) ao.maxAlarmTimeLimit = num(so.maxAlarmTimeLimit);
+        opts.arbiter = ao;
+        search = A.arbiterMove;
+      }
+      const r = search({ stone: s.stone, dead: s.dead, territory: s.territory },
         s.rows, s.cols, s.current, diff, msg.weights || null, opts);
       return Object.assign({ type: 'result' }, base, { move: r.move, trace: r.trace });
     } catch (err){
