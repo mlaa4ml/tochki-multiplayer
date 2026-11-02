@@ -1051,7 +1051,13 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     const degraded = t.attempts > BOT_RETRY_LIMIT;
     const msg = { snapshot: room.match.getSnapshot(), difficulty, weights,
       gameId: t.gameId, revision: t.revision };
-    if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
+        if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
+    else if (room.botMonitor){
+      // S7 (#61): арбитр включён для комнаты. Верхний предел локального поиска
+      // при тревоге — из настроек интерфейса (секунды -> мс).
+      const capMs = (room.botAlarmLimitSec || 20) * 1000;
+      msg.searchOpts = { monitor: true, maxAlarmTimeLimit: capMs, alarmTimeLimit: Math.min(10000, capMs) };
+    }
     botPool.search(msg, { key: t.key })
       .then((r) => {
         if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
