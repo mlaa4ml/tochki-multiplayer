@@ -114,7 +114,9 @@ function runGame(g, opts){
 
 // Оценка одного правила на одной партии.
 function evalRule(G, rule, opts){
-  const al = G.points.map(pt => M.alarmOf(pt.res, rule));
+    // Строгая метрика по умолчанию: позиционная тревога засчитывается только за
+  // взятие клеток, которыми угрожала; --legacy-metric — старый расчёт.
+  const al = G.points.map(pt => M.alarmOf(pt.res, rule, !opts.legacy));
   const leads = G.losses.map(L => {
     // позиции до взятия: points с botIdx <= L.botIdx, идём назад
     let lead = 0;
