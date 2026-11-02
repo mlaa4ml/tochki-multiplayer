@@ -158,6 +158,9 @@ function main(){
   const cheap = [], two = [], local = [];
   for (const G of runs) for (const pt of G.points){ cheap.push(pt.res.msCheap); local.push(pt.res.msLocal || 0); if (opts.twoMove) two.push(pt.res.msTwoMove); }
   console.log(`время локального twoMoveThreat (входит в «без twoMove»): ср ${r2(local.reduce((a, b) => a + b, 0) / (local.length || 1))} мс, p95 ${r2(pct(local, 0.95))} мс`);
+    const oppMs = [];
+  for (const G of runs) for (const pt of G.points) oppMs.push(pt.res.msOpp || 0);
+  console.log(`время потенциала окружения групп соперника (msOpp): ср ${r2(oppMs.reduce((a, b) => a + b, 0) / (oppMs.length || 1))} мс, p95 ${r2(pct(oppMs, 0.95))} мс`);
   const botMoves = runs.reduce((s, G) => s + G.botMoves, 0);
   const nLoss = runs.reduce((s, G) => s + G.losses.length, 0);
   const report = { split: opts.split, games: runs.map(G => ({ id: G.id, size: G.size, botSeat: G.botSeat, botMoves: G.botMoves, losses: G.losses.length })),
