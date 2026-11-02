@@ -171,7 +171,9 @@ function main(){
     const perGame = [];
     for (const G of runs){
       const e = evalRule(G, rule, opts);
-      warned += e.leads.filter(l => l.lead >= opts.lead).length;
+            // Уточнённый критерий (согласован с владельцем в #59): взятия от bigMin точек
+      // требуют lead >= --lead, мелкие (1..bigMin-1) — lead >= --small-lead.
+      warned += e.leads.filter(l => l.lead >= (l.n >= opts.bigMin ? opts.lead : opts.smallLead)).length;
       alarms += e.alarms; falses += e.falses;
       perGame.push({ id: G.id, leads: e.leads, alarms: e.alarms, falses: e.falses });
     }
