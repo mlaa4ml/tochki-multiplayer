@@ -253,12 +253,8 @@ function solveGroup(node, def, target, opts){
   const maxDepth = opts.maxDepth || 10, verifyDepth = opts.verifyDepth == null ? 1 : opts.verifyDepth;
   const base = lossOf(node, target, ctx.att);
   const threatened = hasThreat(node, ctx);
-  let roots = [];
-  for (const c of ctx.region){
-    if (roots.length >= ctx.maxCand) break;
-    const t = tryMove(node, def, c);
-    if (t) roots.push({ x: c.x, y: c.y, t, v: Infinity });
-  }
+  // Корневые ходы защитника — тоже только выходы и снимающие угрозу.
+  let roots = defMoves(node, ctx).map(m => ({ x: m.x, y: m.y, t: m.t, exit: m.exit, v: Infinity }));
   let depthDone = 0;
   for (let d = 2; d <= maxDepth; d += 2){
     ctx.aborted = false;
