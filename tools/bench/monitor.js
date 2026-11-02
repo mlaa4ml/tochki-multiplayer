@@ -333,7 +333,7 @@ function monitorPosition(node, p, opts){
     g.forcedCost = g.fork ? g.cost - 1 : g.cost;
   }
   const t1 = nowMs();
-  let twoMove = null, msTwoMove = 0;
+  let twoMove = null, msTwoMove = 0, twoCells1 = null, twoCells2 = null;
   if (opts.twoMove !== false && !node.gameOver){
     const tc = twoMoveThreatCells(node, opp);
     twoMove = tc.best;
