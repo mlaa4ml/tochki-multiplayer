@@ -1,0 +1,48 @@
+{
+ "format": "tochki-s6-solver-regression",
+ "opts": {
+  "maxDepth": 10
+ },
+ "rows": [
+  {
+   "id": "issue52-r01-g0",
+   "ply": 42,
+   "targetSize": 9,
+   "rescueExists": true,
+   "saved": true,
+   "move": {
+    "x": 8,
+    "y": 5
+   },
+   "loss": 0,
+   "inRescueList": true,
+   "forkLoss4OfMove": 0,
+   "minLoss": 0,
+   "depth": 10,
+   "nodes": 50,
+   "verifyNodes": 362,
+   "ms": 248.4,
+   "threatened": false
+  },
+  {
+   "id": "issue52-r02-g1",
+   "ply": 24,
+   "targetSize": 5,
+   "rescueExists": true,
+   "saved": true,
+   "move": {
+    "x": 2,
+    "y": 6
+   },
+   "loss": 0,
+   "inRescueList": true,
+   "forkLoss4OfMove": 0,
+   "minLoss": 0,
+   "depth": 10,
+   "nodes": 50,
+   "verifyNodes": 319,
+   "ms": 113.8,
+   "threatened": false
+  }
+ ]
+}
