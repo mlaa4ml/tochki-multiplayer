@@ -40,7 +40,8 @@ function parseArgs(argv){
     else if (a === '--min-loss') o.minLoss = Number(argv[++i]) || 1;
     else if (a === '--lead') o.lead = Number(argv[++i]) || 5;
     else if (a === '--horizon') o.horizon = Number(argv[++i]) || 10;
-    else if (a === '--no-twomove') o.twoMove = false;
+        else if (a === '--no-twomove') o.twoMove = false;
+    else if (a === '--legacy-metric') o.legacy = true;
     else if (a === '--game') o.game = argv[++i];
     else if (a === '--manifest') o.manifest = argv[++i];
     else throw new Error('неизвестный аргумент ' + a);
