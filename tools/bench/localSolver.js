@@ -135,12 +135,9 @@ function search(node, depth, alpha, beta, ctx){
   if (ctx.nodes > ctx.nodeLimit){ ctx.aborted = true; return base; }
   if (node.current === ctx.def){
     let best = Infinity, cnt = 0;
-    for (const c of ctx.region){
-      if (cnt >= ctx.maxCand) break;
-      const t = tryMove(node, ctx.def, c);
-      if (!t) continue;
+    for (const t of defMoves(node, ctx)){
       cnt++;
-      const v = search(t.node, depth - 1, alpha, Math.min(beta, best), ctx);
+      const v = search(t.t.node, depth - 1, alpha, Math.min(beta, best), ctx);
       if (v < best) best = v;
       if (best <= alpha) break;
     }
