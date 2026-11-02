@@ -343,7 +343,7 @@ function monitorPosition(node, p, opts){
   let minCost = Infinity;
   for (const g of groups) if (g.cost < minCost) minCost = g.cost;
   // msCheap включает msLocal (локальный twoMoveThreat) — это всё, кроме полного twoMoveThreat.
-  return { player: p, tempo: node.current === p ? 'own' : 'opp', groups, minCost, twoMove, msCheap: t1 - t0, msLocal, msTwoMove };
+  return { player: p, tempo: node.current === p ? 'own' : 'opp', groups, minCost, twoMove, twoCells1, twoCells2, msCheap: t1 - t0, msLocal, msTwoMove };
 }
 
 // Правила тревоги. ЗАДАНЫ ДО ПРОГОНА ПО КОРПУСУ и по партиям не подбираются
