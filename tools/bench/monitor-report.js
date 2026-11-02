@@ -30,7 +30,7 @@ const CORPUS_DIR = path.join(__dirname, 'corpus', 'human');
 const SPLITS = ['dev', 'regression', 'holdout'];
 
 function parseArgs(argv){
-  const o = { split: null, json: null, timeline: false, minLoss: 1, lead: 5, horizon: 10, twoMove: true, game: null,
+  const o = { split: null, json: null, timeline: false, minLoss: 1, lead: 5, smallLead: 2, bigMin: 3, horizon: 10, twoMove: true, game: null,
     manifest: path.join(CORPUS_DIR, 'manifest.json') };
   for (let i = 0; i < argv.length; i++){
     const a = argv[i];
