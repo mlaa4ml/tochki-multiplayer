@@ -13,7 +13,10 @@
 //              snapshot,            // match.getSnapshot()
 //              difficulty,          // 'normal' | 'strong' | ...
 //              weights,             // необязательно, иначе BOT_WEIGHTS
-//              searchOpts }         // { nodeLimit, timeLimit, emergencyTimeLimit }
+//              searchOpts }         // { nodeLimit, timeLimit, emergencyTimeLimit,
+//                                   //   monitor, alarmTimeLimit, maxAlarmTimeLimit }
+//              monitor:true (S7, #61, только Node) — ход через arbiter.js;
+//              иначе ровно searchMove.
 //   Ответ:   { type:'result', requestId, gameId, revision, move, trace }
 //            move — {x,y} или null (gameOver / нет легальных ходов);
 //            trace — диагностика searchMove (move, candidates, nodes,
