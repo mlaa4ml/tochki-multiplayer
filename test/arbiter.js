@@ -54,4 +54,31 @@ for (const c of cases){
 }
 ok('monitor:true: решение арбитра записано, спасения из списка #57');
 
+// 4. Ограничение ущерба: даже без кандидатов общего поиска (cands = [])
+// находится легальный ход вне потерянной группы (перебор всего поля).
+for (const c of cases){
+  const n = c.node, p = c.pos.botSeat;
+  const alt = A.avoidLostMove(n, p, null, [], [c.target]);
+  assert.ok(alt, c.pos.id + ': есть ход вне группы');
+  assert.strictEqual(alt.source, 'all-legal');
+  assert.ok(E.isTransitionLegal(n, alt.x, alt.y), c.pos.id + ': ход вне группы легален');
+  const near = c.target.some(s => Math.abs(s.x - alt.x) <= 1 && Math.abs(s.y - alt.y) <= 1);
+  if (near){
+    const t = E.applyTransition(n, p, alt.x, alt.y);
+    assert.ok(t.result.gained.some(q => q.kind === 'captured'), c.pos.id + ': ход рядом с группой только со взятием');
+  }
+  // С кандидатами — берётся лучший кандидат вне группы.
+  const far = { x: alt.x, y: alt.y, score: 1 };
+  const inG = c.target.map(s => ({ x: s.x, y: s.y }));
+  const adj = [];
+  for (const s of c.target) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+    const x = s.x + dx, y = s.y + dy;
+    if (x >= 0 && y >= 0 && x < n.cols && y < n.rows && E.isTransitionLegal(n, x, y)) adj.push({ x, y, score: 100 });
+  }
+  void inG;
+  const alt2 = A.avoidLostMove(n, p, null, adj.concat([far]), [c.target]);
+  assert.ok(alt2 && E.isTransitionLegal(n, alt2.x, alt2.y), c.pos.id + ': ход с кандидатами легален');
+}
+ok('ограничение ущерба: ход вне потерянной группы находится и без кандидатов общего поиска');
+
 console.log('\n' + passed + ' passed');
