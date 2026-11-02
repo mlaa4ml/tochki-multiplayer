@@ -234,6 +234,7 @@
 
   vsBotCheckbox.addEventListener('change', () => {
     botDifficultySel.style.display = vsBotCheckbox.checked ? 'inline-block' : 'none';
+    if (botMonitorRow) botMonitorRow.style.display = vsBotCheckbox.checked ? 'flex' : 'none';
   });
 
   const canvas = document.getElementById('board');
