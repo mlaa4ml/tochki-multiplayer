@@ -138,6 +138,15 @@
           <option value="strong">Бот: сильный</option>
         </select>
       </div>
+      <div class="row" id="botMonitorRow" style="display:none;">
+        <label style="flex:1 1 200px; display:flex; align-items:center; gap:6px;" title="S7 (#61): монитор опасных групп и локальный решатель. По умолчанию выключен.">
+          <input id="botMonitorCheckbox" type="checkbox"> Монитор групп (экспериментально)
+        </label>
+        <label style="display:flex; align-items:center; gap:6px;" title="Верхний предел времени хода бота при тревоге: дополнительное время идёт только на локальный поиск. Зависит от устройства.">
+          Предел при тревоге, с
+          <input id="botAlarmLimitInput" type="number" min="1" max="60" step="1" value="20" style="width:4em;">
+        </label>
+      </div>
       <div class="row">
         <label style="flex:1 1 200px; display:flex; align-items:center; gap:6px;">
           <input id="isPublicCheckbox" type="checkbox"> Показывать комнату в лобби (другие смогут войти или посмотреть)
