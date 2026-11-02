@@ -1148,11 +1148,13 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
 
       if (msg.type === 'create-room'){
         if (ws.roomCode) return send(ws, { type:'error', reason:'already-in-room' });
-        const { matchOptions, vsBot, botDifficulty, isPublic } = sanitizeRoomOptions(msg.options);
+        const { matchOptions, vsBot, botDifficulty, isPublic, botMonitor, botAlarmLimitSec } = sanitizeRoomOptions(msg.options);
         const room = createRoom(matchOptions);
         room.vsBot = vsBot;
         room.botSeat = vsBot ? 2 : null;
         room.botDifficulty = vsBot ? botDifficulty : null;
+        room.botMonitor = !!botMonitor;
+        room.botAlarmLimitSec = botAlarmLimitSec;
         room.isPublic = isPublic;
         if (vsBot) room.playerNames[2] = botDifficulty === 'strong' ? 'Бот (сильный)' : 'Бот (обычный)';
         const token = seatWithToken(room, 1, ws, resolvePlayer(msg.authToken));
