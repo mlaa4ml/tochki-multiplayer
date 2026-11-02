@@ -313,7 +313,16 @@ const RULES = {
   cand1:    { kind: 'mixed', desc: '(cost <= 2 и ringProgress >= 0.5) или twoMoveThreat >= 1',
               test: g => g.cost <= 2 && g.ringProgress >= 0.5, pos: r => (r.twoMove || 0) >= 1 },
   cand2:    { kind: 'mixed', desc: '(cost <= 2 и prevCost <= 3) или twoMoveThreat >= 2',
-              test: g => g.cost <= 2 && g.prevCost !== null && g.prevCost !== undefined && g.prevCost <= 3, pos: r => (r.twoMove || 0) >= 2 }
+              test: g => g.cost <= 2 && g.prevCost !== null && g.prevCost !== undefined && g.prevCost <= 3, pos: r => (r.twoMove || 0) >= 2 },
+  // ДИАГНОСТИКА (раунд 8), не кандидаты и не подбор порогов. Проверка метрики:
+  // тревога уровня позиции (all) засчитывается как предупреждение ЛЮБОГО взятия и
+  // ложна, только если за horizon ходов бота нет ни одного взятия. При частых
+  // взятиях это вознаграждает почти постоянную тревогу.
+  always:   { kind: 'position', desc: 'ДИАГН.: тревога на каждом ходу', test: () => true },
+  cand1g:   { kind: 'group', desc: 'ДИАГН.: групповая часть cand1 (cost <= 2 и ringProgress >= 0.5)',
+              test: g => g.cost <= 2 && g.ringProgress >= 0.5 },
+  cand1L:   { kind: 'group', desc: 'ДИАГН.: cand1 с localTwo вместо полного twoMove, по группам',
+              test: g => (g.cost <= 2 && g.ringProgress >= 0.5) || (g.localTwo || 0) >= 1 }
 };
 // Правила, которым нужен полный twoMoveThreat (при --no-twomove пропускаются).
 const NEEDS_TWOMOVE = new Set(['twoMove', 'combined', 'cand1', 'cand2']);
