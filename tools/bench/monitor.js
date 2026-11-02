@@ -200,6 +200,59 @@ function localTwoMove(node, opp, cells, cols){
   return best;
 }
 
+// Копия nearOccupied из gameEngine.js (не экспортируется).
+function nearOcc(state, rows, cols, x, y){
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+    if (!dx && !dy) continue;
+    const nx = x + dx, ny = y + dy;
+    if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+    if (state.stone[ny][nx] !== 0 || state.territory[ny][nx] !== 0) return true;
+  }
+  return false;
+}
+function capCells(gained){
+  const out = [];
+  for (const g of gained || []) if (g.kind === 'captured') out.push(g.x + ',' + g.y);
+  return out;
+}
+
+// Тот же перебор, что E.twoMoveThreat (#55): лучший захват противника p двумя
+// ходами подряд. Дополнительно возвращает КЛЕТКИ, которые он берёт:
+// cells1 — объединение клеток всех линий со счётом >= 1, cells2 — со счётом >= 2.
+// Нужны метрике: позиционная тревога засчитывается только за взятие клеток,
+// которым она реально угрожала (исправление ошибки оценки, итерация 3).
+function twoMoveThreatCells(node, p){
+  const res = { best: 0, cells1: new Set(), cells2: new Set() };
+  if (node.gameOver) return res;
+  const n = E.cloneSearchNode(node);
+  n.current = p;
+  const { rows, cols } = n;
+  const note = (v, cells) => {
+    if (v > res.best) res.best = v;
+    if (v >= 1) for (const c of cells) res.cells1.add(c);
+    if (v >= 2) for (const c of cells) res.cells2.add(c);
+  };
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++){
+    if (!nearOcc(n.state, rows, cols, x, y) || !E.isTransitionLegal(n, x, y)) continue;
+    const t = E.applyTransition(n, p, x, y);
+    if (!t || !t.ok) continue;
+    const a = capCells(t.result.gained);
+    note(a.length, a);
+    if (t.node.gameOver) continue;
+    t.node.current = p;
+    const s = t.node.state;
+    for (let y2 = 0; y2 < rows; y2++) for (let x2 = 0; x2 < cols; x2++){
+      if (!nearOcc(s, rows, cols, x2, y2) || !E.isTransitionLegal(t.node, x2, y2)) continue;
+      const u = E.applyTransition(t.node, p, x2, y2);
+      if (!u || !u.ok) continue;
+      const b = capCells(u.result.gained);
+      if (!b.length) { if (a.length) note(a.length, a); continue; }
+      note(a.length + b.length, a.concat(b));
+    }
+  }
+  return res;
+}
+
 // Признаки всех групп игрока p в узле node. Узел не меняется.
 // opts.twoMove (по умолчанию true) — считать twoMoveThreat; opts.maxCost.
 function monitorPosition(node, p, opts){
