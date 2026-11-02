@@ -335,7 +335,9 @@ function monitorPosition(node, p, opts){
   const t1 = nowMs();
   let twoMove = null, msTwoMove = 0;
   if (opts.twoMove !== false && !node.gameOver){
-    twoMove = E.twoMoveThreat(E.cloneSearchNode(node), opp);
+    const tc = twoMoveThreatCells(node, opp);
+    twoMove = tc.best;
+    twoCells1 = tc.cells1; twoCells2 = tc.cells2;
     msTwoMove = nowMs() - t1;
   }
   let minCost = Infinity;
