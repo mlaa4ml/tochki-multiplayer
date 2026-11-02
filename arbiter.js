@@ -142,12 +142,39 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   if (lost.length){
     const bad = mv => lost.some(g => nearGroup(mv, g.stones)) && !capturesAny(node, mover, mv);
     if (bad(base.move)){
-      const alt = cands.slice().sort((a, b) => b.score - a.score)
-        .find(c => !bad(c) && E.isTransitionLegal(node, c.x, c.y));
-      if (alt) return pick(alt, 'avoid-lost');
+      const alt = avoidLostMove(node, mover, weights, cands, lost.map(g => g.stones));
+      if (alt){
+        info.avoidSource = alt.source;
+        return pick(alt, 'avoid-lost');
+      }
+      info.avoidSource = 'none'; // вне групп легальных ходов нет вовсе
     }
   }
   return base;
 }
 
-module.exports = { arbiterMove, alarmBudget, ARBITER_DEFAULTS };
+// Ход вне потерянных групп (ограничение ущерба). Сначала — лучший по оценке
+// общего поиска кандидат из trace.candidates. Если такого нет, перебираются
+// ВСЕ легальные ходы поля, и берётся лучший по статической оценке позиции
+// после хода. Ход «рядом с группой» допустим, только если он что-то берёт.
+// Возвращает {x, y, source} или null, если вне групп нет ни одного легального хода.
+function avoidLostMove(node, mover, weights, cands, lostStones){
+  const bad = mv => lostStones.some(st => nearGroup(mv, st)) && !capturesAny(node, mover, mv);
+  const alt = (cands || []).slice().sort((a, b) => b.score - a.score)
+    .find(c => E.isTransitionLegal(node, c.x, c.y) && !bad(c));
+  if (alt) return { x: alt.x, y: alt.y, source: 'candidates' };
+  let best = null, bestV = -Infinity;
+  for (let y = 0; y < node.rows; y++) for (let x = 0; x < node.cols; x++){
+    if (!E.isTransitionLegal(node, x, y)) continue;
+    const mv = { x, y };
+    if (bad(mv)) continue;
+    const t = E.applyTransition(node, mover, x, y);
+    if (!t.ok) continue;
+    let v = E.evaluateStatic(t.node.state, node.rows, node.cols, mover, weights || E.BOT_WEIGHTS, t.node);
+    if (!Number.isFinite(v)) v = -1e15;
+    if (best === null || v > bestV){ best = mv; bestV = v; }
+  }
+  return best ? { x: best.x, y: best.y, source: 'all-legal' } : null;
+}
+
+module.exports = { arbiterMove, alarmBudget, avoidLostMove, ARBITER_DEFAULTS };
