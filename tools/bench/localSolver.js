@@ -133,7 +133,7 @@ function search(node, depth, alpha, beta, ctx){
   ctx.nodes++;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
-  if (ctx.nodes > ctx.nodeLimit){ ctx.aborted = true; return base; }
+  if (ctx.nodes > ctx.nodeLimit || ((ctx.nodes & 127) === 0 && nowMs() > ctx.deadline)){ ctx.aborted = true; return base; }
   if (node.current === ctx.def){
     let best = Infinity, cnt = 0;
     for (const t of defMoves(node, ctx)){
