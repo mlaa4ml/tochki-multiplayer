@@ -161,7 +161,7 @@ function main(){
   const botMoves = runs.reduce((s, G) => s + G.botMoves, 0);
   const nLoss = runs.reduce((s, G) => s + G.losses.length, 0);
   const report = { split: opts.split, games: runs.map(G => ({ id: G.id, size: G.size, botSeat: G.botSeat, botMoves: G.botMoves, losses: G.losses.length })),
-    params: { minLoss: opts.minLoss, lead: opts.lead, horizon: opts.horizon },
+    params: { minLoss: opts.minLoss, lead: opts.lead, smallLead: opts.smallLead, bigMin: opts.bigMin, horizon: opts.horizon },
     botMoves, losses: nLoss,
     ms: { cheapMean: r2(cheap.reduce((a, b) => a + b, 0) / (cheap.length || 1)), cheapP95: r2(pct(cheap, 0.95)),
             twoMoveMean: r2(two.reduce((a, b) => a + b, 0) / (two.length || 1)), twoMoveP95: r2(pct(two, 0.95)),
