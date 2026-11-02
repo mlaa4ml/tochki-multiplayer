@@ -463,7 +463,12 @@
     if (startPositionSel && startPositionSel.value === 'cross') opts.startPosition = 'cross';
     if (vsBotCheckbox.checked){
       opts.vsBot = true;
-      opts.botDifficulty = botDifficultySel.value;
+            opts.botDifficulty = botDifficultySel.value;
+      // S7 (#61): арбитр за флагом (по умолчанию выключен) и верхний предел
+      // времени хода при тревоге в секундах (сервер ограничивает 1–60).
+      if (botMonitorCheckbox && botMonitorCheckbox.checked) opts.botMonitor = true;
+      const lim = botAlarmLimitInput ? parseInt(botAlarmLimitInput.value, 10) : NaN;
+      if (Number.isFinite(lim)) opts.botAlarmLimitSec = Math.max(1, Math.min(60, lim));
     } else if (isPublicCheckbox.checked){
       // isPublic не имеет смысла для комнаты с ботом (сервер бы всё равно
       // его проигнорировал) — не отправляем, чтобы не путать намерение.
