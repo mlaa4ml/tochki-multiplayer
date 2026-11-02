@@ -1,0 +1,1195 @@
+{
+  "format": "tochki-replay",
+  "version": 1,
+  "engineVersion": "tochki-rules-1",
+  "board": {
+    "sizeKey": "small",
+    "rows": 10,
+    "cols": 12
+  },
+  "rules": {
+    "targetScore": 0,
+    "targetFillPercent": 64,
+    "scoreRuleActive": false,
+    "fillRuleActive": true,
+    "totalCells": 120,
+    "extraTurnOnCapture": false,
+    "firstPlayer": 2,
+    "undoAllowed": true,
+    "startPosition": "cross"
+  },
+  "metadata": {
+    "botVersion": "tochki-ab-1",
+    "weightsVersion": "tochki-weights-1",
+    "seed": null,
+    "budgets": null,
+    "weights": null
+  },
+  "events": [
+    {
+      "type": "move",
+      "player": 2,
+      "x": 7,
+      "y": 4,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 7,
+      "y": 6
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 5,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 6,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 7,
+      "y": 5,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 6,
+      "y": 6
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 5,
+      "y": 7,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 4,
+      "y": 3
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 6,
+      "y": 8,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 5,
+      "y": 8
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 8,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 7,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 7,
+      "y": 8,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 8,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 9,
+      "y": 7,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 8,
+      "y": 8
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 9,
+      "y": 8,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 8,
+      "y": 9
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 9,
+      "y": 9,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 9,
+      "y": 6
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 4,
+      "y": 8,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 5,
+      "y": 9
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 8,
+      "y": 5,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 9,
+      "y": 5
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 8,
+      "y": 4,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 9,
+      "y": 4
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 8,
+      "y": 3,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 9,
+      "y": 2
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 4,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 8,
+      "y": 2
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 6,
+      "y": 3,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 5,
+      "y": 2
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 4,
+      "y": 9,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 6,
+      "y": 9
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 9,
+      "y": 3,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 10,
+      "y": 3
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 6,
+      "y": 2,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 6,
+      "y": 1
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 7,
+      "y": 2,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 7,
+      "y": 1
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 7,
+      "y": 9,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 3,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 3,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 4,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 2,
+      "y": 7,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 3,
+      "y": 8
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 2,
+      "y": 8,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 3,
+      "y": 9
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 2,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 2,
+      "y": 9
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 10,
+      "y": 7,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 1,
+      "y": 8
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 1,
+      "y": 9,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 1,
+      "y": 7
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 1,
+      "y": 6,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 0,
+      "y": 6
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 3,
+      "y": 5,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 1,
+      "y": 5
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 3,
+      "y": 4,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 3,
+      "y": 3
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 2,
+      "y": 4,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 1,
+      "y": 3
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 1,
+      "y": 4,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 0,
+      "y": 5
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 10,
+      "y": 2,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 0,
+      "y": 4
+    },
+    {
+      "type": "move",
+      "player": 2,
+      "x": 2,
+      "y": 3,
+      "decision": {
+        "botVersion": "tochki-ab-1",
+        "weightsVersion": "tochki-weights-1",
+        "seed": null,
+        "budgets": {
+          "radius": 4,
+          "candidateCap": 20,
+          "timeLimit": 2000,
+          "maxDepth": 6,
+          "branchWide": 8,
+          "branchMid": 6,
+          "branchNarrow": 5,
+          "quiescenceExt": 3
+        },
+        "weights": {
+          "potential": 6,
+          "cohesion": 1.2,
+          "stones": 0.15,
+          "liberty": 5
+        },
+        "difficulty": "strong"
+      }
+    },
+    {
+      "type": "move",
+      "player": 1,
+      "x": 2,
+      "y": 2
+    },
+    {
+      "type": "end",
+      "reason": "rule",
+      "winner": 1,
+      "scores": {
+        "1": 25,
+        "2": 0
+      }
+    }
+  ]
+}

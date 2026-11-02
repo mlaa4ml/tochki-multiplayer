@@ -1,0 +1,898 @@
+{
+  "split": "holdout",
+  "games": [
+    {
+      "id": "replay-2026-10-29T10-16",
+      "size": "small",
+      "botSeat": 2,
+      "botMoves": 36,
+      "losses": 6
+    },
+    {
+      "id": "replay-2026-10-29T10-47",
+      "size": "small",
+      "botSeat": 2,
+      "botMoves": 34,
+      "losses": 2
+    },
+    {
+      "id": "replay-2026-10-29T10-57",
+      "size": "small",
+      "botSeat": 2,
+      "botMoves": 34,
+      "losses": 4
+    }
+  ],
+  "params": {
+    "minLoss": 1,
+    "lead": 5,
+    "horizon": 10
+  },
+  "botMoves": 104,
+  "losses": 12,
+  "ms": {
+    "cheapMean": 1.1,
+    "cheapP95": 2.25,
+    "twoMoveMean": 8.39,
+    "twoMoveP95": 15.82,
+    "localMean": 0.8,
+    "localP95": 1.85
+  },
+  "rules": {
+    "cost": {
+      "desc": "стоимость окружения <= 2",
+      "warned": 5,
+      "warnedShare": 0.42,
+      "alarms": 88,
+      "falses": 25,
+      "falseRate": 2.4,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 8
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 2
+            }
+          ],
+          "alarms": 35,
+          "falses": 7
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 13
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 5
+            }
+          ],
+          "alarms": 20,
+          "falses": 5
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 22
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 33,
+          "falses": 13
+        }
+      ]
+    },
+    "ring": {
+      "desc": "прогресс кольца >= 0.75",
+      "warned": 1,
+      "warnedShare": 0.08,
+      "alarms": 43,
+      "falses": 2,
+      "falseRate": 0.19,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 4
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 1
+            }
+          ],
+          "alarms": 15,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 3
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 7
+            }
+          ],
+          "alarms": 11,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 3
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 17,
+          "falses": 2
+        }
+      ]
+    },
+    "exits": {
+      "desc": "группа >= 2 точек и выходов <= 1",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 1,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 1
+            }
+          ],
+          "alarms": 1,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 0
+            }
+          ],
+          "alarms": 0,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 0,
+          "falses": 0
+        }
+      ]
+    },
+    "twoMove": {
+      "desc": "twoMoveThreat >= 2",
+      "warned": 4,
+      "warnedShare": 0.33,
+      "alarms": 59,
+      "falses": 4,
+      "falseRate": 0.38,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 11
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 4
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 1
+            }
+          ],
+          "alarms": 25,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 12
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 5
+            }
+          ],
+          "alarms": 17,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 17,
+          "falses": 0
+        }
+      ]
+    },
+    "combined": {
+      "desc": "cost <= 2 или twoMoveThreat >= 2",
+      "warned": 7,
+      "warnedShare": 0.58,
+      "alarms": 88,
+      "falses": 20,
+      "falseRate": 1.92,
+      "pass": {
+        "lead": true,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 11
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 8
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 2
+            }
+          ],
+          "alarms": 35,
+          "falses": 5
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 13
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 5
+            }
+          ],
+          "alarms": 20,
+          "falses": 5
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 22
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 3
+            }
+          ],
+          "alarms": 33,
+          "falses": 10
+        }
+      ]
+    },
+    "drop": {
+      "desc": "costDrop >= 2 и cost <= 3",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 11,
+      "falses": 4,
+      "falseRate": 0.38,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 0
+            }
+          ],
+          "alarms": 6,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 0
+            }
+          ],
+          "alarms": 1,
+          "falses": 1
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 4,
+          "falses": 1
+        }
+      ]
+    },
+    "localTwo": {
+      "desc": "локальный twoMoveThreat >= 2",
+      "warned": 2,
+      "warnedShare": 0.17,
+      "alarms": 56,
+      "falses": 9,
+      "falseRate": 0.87,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 4
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 1
+            }
+          ],
+          "alarms": 24,
+          "falses": 4
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 9
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 5
+            }
+          ],
+          "alarms": 16,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 16,
+          "falses": 3
+        }
+      ]
+    },
+    "forced": {
+      "desc": "стоимость с учётом вилок (forcedCost) <= 1",
+      "warned": 1,
+      "warnedShare": 0.08,
+      "alarms": 21,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 1
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 1
+            }
+          ],
+          "alarms": 11,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 3
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 1
+            }
+          ],
+          "alarms": 5,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 5,
+          "falses": 0
+        }
+      ]
+    },
+    "costLocal": {
+      "desc": "cost <= 2 и (localTwo >= 1 или costDrop >= 1)",
+      "warned": 5,
+      "warnedShare": 0.42,
+      "alarms": 88,
+      "falses": 25,
+      "falseRate": 2.4,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-10-29T10-16",
+          "leads": [
+            {
+              "ply": 25,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 47,
+              "n": 6,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 2,
+              "lead": 8
+            },
+            {
+              "ply": 61,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 2,
+              "lead": 2
+            }
+          ],
+          "alarms": 35,
+          "falses": 7
+        },
+        {
+          "id": "replay-2026-10-29T10-47",
+          "leads": [
+            {
+              "ply": 39,
+              "n": 11,
+              "lead": 13
+            },
+            {
+              "ply": 67,
+              "n": 14,
+              "lead": 5
+            }
+          ],
+          "alarms": 20,
+          "falses": 5
+        },
+        {
+          "id": "replay-2026-10-29T10-57",
+          "leads": [
+            {
+              "ply": 21,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 47,
+              "n": 17,
+              "lead": 22
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 67,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 33,
+          "falses": 13
+        }
+      ]
+    }
+  }
+}

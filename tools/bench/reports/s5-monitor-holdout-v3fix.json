@@ -1,0 +1,3193 @@
+{
+  "split": "holdout",
+  "games": [
+    {
+      "id": "replay-2026-11-02T07-20",
+      "size": "medium",
+      "botSeat": 2,
+      "botMoves": 54,
+      "losses": 13
+    },
+    {
+      "id": "replay-2026-11-02T07-27",
+      "size": "medium",
+      "botSeat": 2,
+      "botMoves": 54,
+      "losses": 13
+    },
+    {
+      "id": "replay-2026-11-02T07-33",
+      "size": "medium",
+      "botSeat": 2,
+      "botMoves": 55,
+      "losses": 12
+    }
+  ],
+  "params": {
+    "minLoss": 1,
+    "lead": 5,
+    "horizon": 10
+  },
+  "botMoves": 163,
+  "losses": 38,
+  "ms": {
+    "cheapMean": 2.67,
+    "cheapP95": 5.88,
+    "twoMoveMean": 18.95,
+    "twoMoveP95": 31.02,
+    "localMean": 2.31,
+    "localP95": 5.72
+  },
+  "rules": {
+    "cost": {
+      "desc": "стоимость окружения <= 2",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    },
+    "ring": {
+      "desc": "прогресс кольца >= 0.75",
+      "warned": 2,
+      "warnedShare": 0.05,
+      "alarms": 72,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 7
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 3
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 25,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 1
+            }
+          ],
+          "alarms": 20,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 8
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 1
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 4
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 1
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 27,
+          "falses": 0
+        }
+      ]
+    },
+    "exits": {
+      "desc": "группа >= 2 точек и выходов <= 1",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 4,
+      "falses": 2,
+      "falseRate": 0.12,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 2,
+          "falses": 1
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 1
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 0
+            }
+          ],
+          "alarms": 2,
+          "falses": 1
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 0
+            }
+          ],
+          "alarms": 0,
+          "falses": 0
+        }
+      ]
+    },
+    "twoMove": {
+      "desc": "twoMoveThreat >= 2",
+      "warned": 3,
+      "warnedShare": 0.08,
+      "alarms": 75,
+      "falses": 12,
+      "falseRate": 0.74,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 7
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 25,
+          "falses": 7
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 3
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 20,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 6
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 5
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 30,
+          "falses": 3
+        }
+      ]
+    },
+    "combined": {
+      "desc": "cost <= 2 или twoMoveThreat >= 2",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    },
+    "drop": {
+      "desc": "costDrop >= 2 и cost <= 3",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 35,
+      "falses": 13,
+      "falseRate": 0.8,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 9,
+          "falses": 3
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 0
+            }
+          ],
+          "alarms": 17,
+          "falses": 5
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 0
+            }
+          ],
+          "alarms": 9,
+          "falses": 5
+        }
+      ]
+    },
+    "localTwo": {
+      "desc": "локальный twoMoveThreat >= 2",
+      "warned": 2,
+      "warnedShare": 0.05,
+      "alarms": 64,
+      "falses": 7,
+      "falseRate": 0.43,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 8
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 23,
+          "falses": 4
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 3
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 17,
+          "falses": 2
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 1
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 5
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 24,
+          "falses": 1
+        }
+      ]
+    },
+    "forced": {
+      "desc": "стоимость с учётом вилок (forcedCost) <= 1",
+      "warned": 1,
+      "warnedShare": 0.03,
+      "alarms": 53,
+      "falses": 0,
+      "falseRate": 0,
+      "pass": {
+        "lead": false,
+        "falseAlarms": true
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 1
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 1
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 14,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 1
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 1
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 18,
+          "falses": 0
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 8
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 1
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 1
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 1
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 1
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 2
+            }
+          ],
+          "alarms": 21,
+          "falses": 0
+        }
+      ]
+    },
+    "costLocal": {
+      "desc": "cost <= 2 и (localTwo >= 1 или costDrop >= 1)",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    },
+    "cand1": {
+      "desc": "(cost <= 2 и ringProgress >= 0.5) или twoMoveThreat >= 1",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    },
+    "cand2": {
+      "desc": "(cost <= 2 и prevCost <= 3) или twoMoveThreat >= 2",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 131,
+      "falses": 33,
+      "falseRate": 2.02,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 5
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 42,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 3
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 5
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 44,
+          "falses": 18
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 7
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 45,
+          "falses": 7
+        }
+      ]
+    },
+    "always": {
+      "desc": "ДИАГН.: тревога на каждом ходу",
+      "warned": 0,
+      "warnedShare": 0,
+      "alarms": 162,
+      "falses": 162,
+      "falseRate": 9.94,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 0
+            }
+          ],
+          "alarms": 53,
+          "falses": 53
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 0
+            }
+          ],
+          "alarms": 54,
+          "falses": 54
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 0
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 0
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 0
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 0
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 0
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 0
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 0
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 0
+            }
+          ],
+          "alarms": 55,
+          "falses": 55
+        }
+      ]
+    },
+    "cand1g": {
+      "desc": "ДИАГН.: групповая часть cand1 (cost <= 2 и ringProgress >= 0.5)",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    },
+    "cand1L": {
+      "desc": "ДИАГН.: cand1 с localTwo вместо полного twoMove, по группам",
+      "warned": 9,
+      "warnedShare": 0.24,
+      "alarms": 138,
+      "falses": 30,
+      "falseRate": 1.84,
+      "pass": {
+        "lead": false,
+        "falseAlarms": false
+      },
+      "perGame": [
+        {
+          "id": "replay-2026-11-02T07-20",
+          "leads": [
+            {
+              "ply": 17,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 33,
+              "n": 7,
+              "lead": 16
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 6
+            },
+            {
+              "ply": 53,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 65,
+              "n": 8,
+              "lead": 2
+            },
+            {
+              "ply": 69,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 85,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 6
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 99,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 101,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 103,
+              "n": 1,
+              "lead": 1
+            }
+          ],
+          "alarms": 45,
+          "falses": 8
+        },
+        {
+          "id": "replay-2026-11-02T07-27",
+          "leads": [
+            {
+              "ply": 15,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 23,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 4
+            },
+            {
+              "ply": 45,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 51,
+              "n": 7,
+              "lead": 2
+            },
+            {
+              "ply": 57,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 65,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 71,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 77,
+              "n": 4,
+              "lead": 2
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 4
+            },
+            {
+              "ply": 85,
+              "n": 2,
+              "lead": 6
+            },
+            {
+              "ply": 89,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 99,
+              "n": 3,
+              "lead": 3
+            }
+          ],
+          "alarms": 47,
+          "falses": 15
+        },
+        {
+          "id": "replay-2026-11-02T07-33",
+          "leads": [
+            {
+              "ply": 13,
+              "n": 1,
+              "lead": 2
+            },
+            {
+              "ply": 35,
+              "n": 8,
+              "lead": 14
+            },
+            {
+              "ply": 43,
+              "n": 4,
+              "lead": 3
+            },
+            {
+              "ply": 57,
+              "n": 7,
+              "lead": 3
+            },
+            {
+              "ply": 59,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 67,
+              "n": 3,
+              "lead": 3
+            },
+            {
+              "ply": 79,
+              "n": 5,
+              "lead": 7
+            },
+            {
+              "ply": 83,
+              "n": 1,
+              "lead": 8
+            },
+            {
+              "ply": 85,
+              "n": 1,
+              "lead": 1
+            },
+            {
+              "ply": 91,
+              "n": 2,
+              "lead": 2
+            },
+            {
+              "ply": 95,
+              "n": 1,
+              "lead": 3
+            },
+            {
+              "ply": 107,
+              "n": 6,
+              "lead": 3
+            }
+          ],
+          "alarms": 46,
+          "falses": 7
+        }
+      ]
+    }
+  }
+}
