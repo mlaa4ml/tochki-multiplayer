@@ -86,6 +86,47 @@ function hasThreat(node, ctx){
   return false;
 }
 
+// Лучшее немедленное взятие точек группы атакующим (как если бы ходил он).
+function bestGain(node, ctx){
+  const n = Object.assign({}, node, { current: ctx.att });
+  const base = lossOf(node, ctx.target, ctx.att);
+  let g = 0;
+  for (const c of ctx.region){
+    const t = tryMove(n, ctx.att, c);
+    if (!t) continue;
+    const v = lossOf(t.node, ctx.target, ctx.att) - base;
+    if (v > g) g = v;
+  }
+  return g;
+}
+
+// Выход: пустая клетка, соседняя (8 соседей) с ещё не пленённой точкой группы.
+function isExit(node, ctx, c){
+  const d = node.state.dead;
+  for (const p of ctx.target){
+    if (d[p.y][p.x]) continue;
+    if (Math.abs(p.x - c.x) <= 1 && Math.abs(p.y - c.y) <= 1) return true;
+  }
+  return false;
+}
+
+// Ходы защитника (issue #60): ТОЛЬКО выходы и ходы, снимающие угрозу
+// (после хода немедленное взятие точек группы атакующим строго меньше,
+// чем без хода). Не больше ctx.maxCand. Возвращает [{x,y,t}].
+function defMoves(node, ctx){
+  const g0 = bestGain(node, ctx), out = [];
+  for (const c of ctx.region){
+    if (out.length >= ctx.maxCand) break;
+    const exit = isExit(node, ctx, c);
+    if (!exit && g0 === 0) continue;
+    const t = tryMove(node, ctx.def, c);
+    if (!t) continue;
+    if (!exit && !t.node.gameOver && t.node.current !== ctx.def && bestGain(t.node, ctx) >= g0) continue;
+    out.push({ x: c.x, y: c.y, t, exit });
+  }
+  return out;
+}
+
 // Ограниченный поиск решателя. Возвращает потерю (атакующий max, защитник min).
 function search(node, depth, alpha, beta, ctx){
   ctx.nodes++;
