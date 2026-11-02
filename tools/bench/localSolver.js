@@ -148,6 +148,61 @@ function verify(node, depth, ctx){
   return best;
 }
 
+// Сеть за 2 хода: атакующий ходит дважды подряд в ближней части региона;
+// возвращает прирост пленённых точек группы.
+function netThreat(node, ctx){
+  const base = lossOf(node, ctx.target, ctx.att), cells = ctx.netCells;
+  const n = Object.assign({}, node, { current: ctx.att });
+  let best = 0;
+  for (const c1 of cells){
+    const t1 = tryMove(n, ctx.att, c1);
+    if (!t1) continue;
+    const g1 = lossOf(t1.node, ctx.target, ctx.att) - base;
+    if (g1 > best) best = g1;
+    if (t1.node.gameOver || best >= ctx.target.length - base) continue;
+    const n2 = Object.assign({}, t1.node, { current: ctx.att });
+    for (const c2 of cells){
+      const t2 = tryMove(n2, ctx.att, c2);
+      if (!t2) continue;
+      const g = lossOf(t2.node, ctx.target, ctx.att) - base;
+      if (g > best) best = g;
+    }
+  }
+  return best;
+}
+
+// Проверка на вилку (структура forkLoss4, но по региону и только для группы):
+// после хода защитника атакующий отвечает ходом региона, защитник защищается
+// ходом региона, затем атакующий ходит дважды. Возвращает гарантированную потерю.
+function forkCheck(node, ctx){
+  const base = lossOf(node, ctx.target, ctx.att);
+  if (node.gameOver || node.current !== ctx.att) return 0;
+  let worst = 0;
+  for (const a of ctx.region){
+    const t = tryMove(node, ctx.att, a);
+    if (!t) continue;
+    ctx.vnodes++;
+    const imm = lossOf(t.node, ctx.target, ctx.att) - base;
+    if (t.node.gameOver){ continue; }
+    if (t.node.current === ctx.att){ worst = Math.max(worst, imm + netThreat(t.node, ctx)); continue; }
+    if (imm + netThreat(t.node, ctx) <= worst) continue;
+    let bestDef = Infinity, cnt = 0;
+    for (const d of ctx.region){
+      if (cnt >= ctx.maxCand || bestDef === 0) break;
+      const u = tryMove(t.node, ctx.def, d);
+      if (!u) continue;
+      cnt++;
+      ctx.vnodes++;
+      const g = u.node.gameOver || u.node.current === ctx.def ? 0 : netThreat(u.node, ctx);
+      if (g < bestDef) bestDef = g;
+    }
+    if (!Number.isFinite(bestDef)) bestDef = netThreat(t.node, ctx);
+    worst = Math.max(worst, imm + bestDef);
+    if (worst >= ctx.target.length - base) break;
+  }
+  return worst;
+}
+
 function solveGroup(node, def, target, opts){
   opts = opts || {};
   const t0 = nowMs();
