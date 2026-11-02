@@ -142,4 +142,23 @@ const groupAt = (res, x, y) => res.groups.find(g => g.stones.some(s => s.x === x
   assert.ok(al.on && !al.all && al.stones.size === 0, 'строгая: always ничего не предупреждает');
 }
 
+// 10. Потенциал окружения групп соперника: точка противника (1) в полукольце
+// из точек бота (2) — боту остаётся один ход, чтобы её замкнуть.
+{
+  const node = mk(7, [[3, 3, 1], [2, 3, 2], [4, 3, 2], [3, 2, 2]], 2);
+  const before = JSON.stringify(node);
+  const res = M.monitorPosition(node, 2, { twoMove: false });
+  assert.strictEqual(JSON.stringify(node), before, 'монитор не меняет узел');
+  assert.ok(Array.isArray(res.oppGroups), 'есть группы соперника');
+  const og = res.oppGroups.find(g => g.stones.some(s => s.x === 3 && s.y === 3));
+  assert.ok(og, 'группа соперника (3,3) найдена');
+  assert.strictEqual(og.cost, 1, 'боту нужен 1 ход для окружения');
+  assert.deepStrictEqual(og.cut, [{ x: 3, y: 4 }]);
+  assert.strictEqual(og.ringProgress, 0.75);
+  assert.strictEqual(res.oppMinCost, 1);
+  assert.ok(typeof res.msOpp === 'number');
+  const off = M.monitorPosition(node, 2, { twoMove: false, withOpp: false });
+  assert.strictEqual(off.oppGroups, null, 'withOpp: false отключает расчёт');
+}
+
 console.log('monitor: OK');
