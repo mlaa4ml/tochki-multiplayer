@@ -249,6 +249,14 @@ function solveGroup(node, def, target, opts){
     if (fk === 0){ res = { saved: true, move: { x: r.x, y: r.y }, loss: 0, verified: vl - base, fork: fk }; break; }
   }
   if (!res){
+    // Все кандидаты с потерей base отвергнуты проверкой: потеря — лучшая по вилке.
+    const forked = roots.filter(r => r.v === base && Number.isFinite(r.fork));
+    if (forked.length){
+      forked.sort((a, b) => a.fork - b.fork);
+      const r = forked[0];
+      return Object.assign({ saved: false, move: { x: r.x, y: r.y }, loss: r.fork }, { threatened, depth: depthDone,
+        nodes: ctx.nodes, verifyNodes: ctx.vnodes, region: ctx.region.length, ms: +(nowMs() - t0).toFixed(1) });
+    }
     const r = roots[0];
     res = r ? { saved: false, move: { x: r.x, y: r.y }, loss: (Number.isFinite(r.v) ? r.v : target.length) - base }
             : { saved: false, move: null, loss: target.length - base };
