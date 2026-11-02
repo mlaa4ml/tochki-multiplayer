@@ -38,7 +38,9 @@ function parseArgs(argv){
     else if (a === '--json') o.json = argv[++i];
     else if (a === '--timeline') o.timeline = true;
     else if (a === '--min-loss') o.minLoss = Number(argv[++i]) || 1;
-    else if (a === '--lead') o.lead = Number(argv[++i]) || 5;
+        else if (a === '--lead') o.lead = Number(argv[++i]) || 5;
+    else if (a === '--small-lead') o.smallLead = Number(argv[++i]) || 2;
+    else if (a === '--big-min') o.bigMin = Number(argv[++i]) || 3;
     else if (a === '--horizon') o.horizon = Number(argv[++i]) || 10;
         else if (a === '--no-twomove') o.twoMove = false;
     else if (a === '--legacy-metric') o.legacy = true;
