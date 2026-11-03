@@ -813,7 +813,13 @@ function sanitizeRoomOptions(raw){
   // одиночный сценарий, смотреть там особо не на что, а претендовать на
   // место 2 всё равно нельзя (см. freeSeat).
   const isPublic = !vsBot && raw.isPublic === true;
-  return { matchOptions, vsBot, botDifficulty, isPublic };
+  // S7 (#61): арбитр бота за флагом monitor (по умолчанию false) и верхний
+  // предел времени хода при тревоге (секунды, настраивается в интерфейсе,
+  // потому что время зависит от устройства). Ограничен 1–60 с.
+  const botMonitor = vsBot && raw.botMonitor === true;
+  const lim = Number(raw.botAlarmLimitSec);
+  const botAlarmLimitSec = Number.isFinite(lim) ? Math.max(1, Math.min(60, Math.floor(lim))) : 20;
+  return { matchOptions, vsBot, botDifficulty, isPublic, botMonitor, botAlarmLimitSec };
 }
 
 // Матчмейкинг сводит только игроков с ОДИНАКОВЫМИ настройками партии —
@@ -1045,8 +1051,22 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
     const degraded = t.attempts > BOT_RETRY_LIMIT;
     const msg = { snapshot: room.match.getSnapshot(), difficulty, weights,
       gameId: t.gameId, revision: t.revision };
-    if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
-    botPool.search(msg, { key: t.key })
+        if (degraded) msg.searchOpts = BOT_FALLBACK_OPTS;
+    else if (room.botMonitor){
+      // S7 (#61): арбитр включён для комнаты. Верхний предел локального поиска
+      // при тревоге — из настроек интерфейса (секунды -> мс).
+      const capMs = (room.botAlarmLimitSec || 20) * 1000;
+      msg.searchOpts = { monitor: true, maxAlarmTimeLimit: capMs, alarmTimeLimit: Math.min(10000, capMs) };
+    }
+        // S7 (#61): при включённом мониторе жёсткий таймаут запроса расширяется на
+    // верхний предел тревоги из настроек комнаты: общий поиск (таймаут пула) +
+    // локальный поиск решателя (до botAlarmLimitSec). Иначе пул убил бы поток
+    // на BOT_TIMEOUT_MS (10 с), и предел 10–20 с из интерфейса не работал бы.
+    const searchMeta = { key: t.key };
+    if (!degraded && room.botMonitor){
+      searchMeta.timeoutMs = botPool.timeoutMs + (room.botAlarmLimitSec || 20) * 1000;
+    }
+    botPool.search(msg, searchMeta)
       .then((r) => {
         if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
         applyBotResult(room, t, r.move, weights);
@@ -1142,11 +1162,13 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
 
       if (msg.type === 'create-room'){
         if (ws.roomCode) return send(ws, { type:'error', reason:'already-in-room' });
-        const { matchOptions, vsBot, botDifficulty, isPublic } = sanitizeRoomOptions(msg.options);
+        const { matchOptions, vsBot, botDifficulty, isPublic, botMonitor, botAlarmLimitSec } = sanitizeRoomOptions(msg.options);
         const room = createRoom(matchOptions);
         room.vsBot = vsBot;
         room.botSeat = vsBot ? 2 : null;
         room.botDifficulty = vsBot ? botDifficulty : null;
+        room.botMonitor = !!botMonitor;
+        room.botAlarmLimitSec = botAlarmLimitSec;
         room.isPublic = isPublic;
         if (vsBot) room.playerNames[2] = botDifficulty === 'strong' ? 'Бот (сильный)' : 'Бот (обычный)';
         const token = seatWithToken(room, 1, ws, resolvePlayer(msg.authToken));

@@ -138,6 +138,15 @@
           <option value="strong">Бот: сильный</option>
         </select>
       </div>
+      <div class="row" id="botMonitorRow" style="display:none;">
+        <label style="flex:1 1 200px; display:flex; align-items:center; gap:6px;" title="S7 (#61): монитор опасных групп и локальный решатель. По умолчанию выключен.">
+          <input id="botMonitorCheckbox" type="checkbox"> Монитор групп (экспериментально)
+        </label>
+        <label style="display:flex; align-items:center; gap:6px;" title="Верхний предел времени хода бота при тревоге: дополнительное время идёт только на локальный поиск. Зависит от устройства.">
+          Предел при тревоге, с
+          <input id="botAlarmLimitInput" type="number" min="1" max="60" step="1" value="20" style="width:4em;">
+        </label>
+      </div>
       <div class="row">
         <label style="flex:1 1 200px; display:flex; align-items:center; gap:6px;">
           <input id="isPublicCheckbox" type="checkbox"> Показывать комнату в лобби (другие смогут войти или посмотреть)
@@ -208,6 +217,9 @@
   const targetFillInput = document.getElementById('targetFill');
   const vsBotCheckbox = document.getElementById('vsBotCheckbox');
   const botDifficultySel = document.getElementById('botDifficultySel');
+  const botMonitorRow = document.getElementById('botMonitorRow');
+  const botMonitorCheckbox = document.getElementById('botMonitorCheckbox');
+  const botAlarmLimitInput = document.getElementById('botAlarmLimitInput');
   const isPublicCheckbox = document.getElementById('isPublicCheckbox');
   const extraTurnCheckbox = document.getElementById('extraTurnCheckbox');
   const firstMoveSel = document.getElementById('firstMoveSel');
@@ -222,6 +234,7 @@
 
   vsBotCheckbox.addEventListener('change', () => {
     botDifficultySel.style.display = vsBotCheckbox.checked ? 'inline-block' : 'none';
+    if (botMonitorRow) botMonitorRow.style.display = vsBotCheckbox.checked ? 'flex' : 'none';
   });
 
   const canvas = document.getElementById('board');
@@ -450,7 +463,12 @@
     if (startPositionSel && startPositionSel.value === 'cross') opts.startPosition = 'cross';
     if (vsBotCheckbox.checked){
       opts.vsBot = true;
-      opts.botDifficulty = botDifficultySel.value;
+            opts.botDifficulty = botDifficultySel.value;
+      // S7 (#61): арбитр за флагом (по умолчанию выключен) и верхний предел
+      // времени хода при тревоге в секундах (сервер ограничивает 1–60).
+      if (botMonitorCheckbox && botMonitorCheckbox.checked) opts.botMonitor = true;
+      const lim = botAlarmLimitInput ? parseInt(botAlarmLimitInput.value, 10) : NaN;
+      if (Number.isFinite(lim)) opts.botAlarmLimitSec = Math.max(1, Math.min(60, lim));
     } else if (isPublicCheckbox.checked){
       // isPublic не имеет смысла для комнаты с ботом (сервер бы всё равно
       // его проигнорировал) — не отправляем, чтобы не путать намерение.
