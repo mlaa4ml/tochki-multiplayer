@@ -95,11 +95,14 @@ function createBotPool(options = {}){
     if (busy.size > counters.maxBusySeen) counters.maxBusySeen = busy.size;
     w.ref();
     task.startedAt = Date.now();
+    // S7 (#61): запрос может расширить жёсткий таймаут (meta.timeoutMs) —
+    // например, арбитр с бюджетом тревоги до 60 с. Иначе — таймаут пула.
+    const limitMs = task.timeoutMs > 0 ? task.timeoutMs : timeoutMs;
     task.timer = setTimeout(() => {
       if (busy.get(w) !== task) return;
       counters.timeouts += 1;
-      kill(w, poolError('timeout', `bot search exceeded ${timeoutMs} ms`));
-    }, timeoutMs);
+      kill(w, poolError('timeout', `bot search exceeded ${limitMs} ms`));
+    }, limitMs);
     w.postMessage(Object.assign({}, task.msg, { type: 'search', requestId: task.id }));
   }
 
