@@ -1058,7 +1058,15 @@ gameLog.recordTransition(room, moveIndex, seat, x, y, result);
       const capMs = (room.botAlarmLimitSec || 20) * 1000;
       msg.searchOpts = { monitor: true, maxAlarmTimeLimit: capMs, alarmTimeLimit: Math.min(10000, capMs) };
     }
-    botPool.search(msg, { key: t.key })
+        // S7 (#61): при включённом мониторе жёсткий таймаут запроса расширяется на
+    // верхний предел тревоги из настроек комнаты: общий поиск (таймаут пула) +
+    // локальный поиск решателя (до botAlarmLimitSec). Иначе пул убил бы поток
+    // на BOT_TIMEOUT_MS (10 с), и предел 10–20 с из интерфейса не работал бы.
+    const searchMeta = { key: t.key };
+    if (!degraded && room.botMonitor){
+      searchMeta.timeoutMs = botPool.timeoutMs + (room.botAlarmLimitSec || 20) * 1000;
+    }
+    botPool.search(msg, searchMeta)
       .then((r) => {
         if (!botTicketValid(room, t)) return; // устаревший ответ — игнорируем
         applyBotResult(room, t, r.move, weights);
