@@ -77,7 +77,7 @@ function loadWeights(side){
   return side;
 }
 
-function sideLabel(s){ return `${s.difficulty}/${s.nodeLimit}${s.weightsFile ? ':' + path.basename(s.weightsFile) : ''}`; }
+function sideLabel(s){ return `${s.difficulty}/${s.nodeLimit}${s.weightsFile ? ':' + path.basename(s.weightsFile) : ''}${s.flags && s.flags.length ? '+' + s.flags.join('+') : ''}`; }
 
 function parseArgs(argv){
   const o = { candidate: null, base: null, sensitivity: false, pairs: 50, minPly: 4, plyStep: 4, from: 0, to: Infinity,
