@@ -41,7 +41,8 @@ const ARBITER_DEFAULTS = Object.freeze({
   threshold: 2,              // допустимое ухудшение глобальной оценки спасающего хода
   minRescueSize: 2,          // спасать без глобальной оценки — от 2 точек
   maxGroups: 3,              // не больше 3 тревожных групп за ход
-  solverNodeLimit: 200000    // лимит узлов решателя на группу
+  solverNodeLimit: 200000,   // лимит узлов решателя на группу
+  solver: true               // false — абляция S8 «монитор без решателя» (#62)
 });
 
 function nowMs(){ const t = process.hrtime(); return t[0] * 1e3 + t[1] / 1e6; }
