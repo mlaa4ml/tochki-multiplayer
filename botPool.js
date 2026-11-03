@@ -144,7 +144,8 @@ function createBotPool(options = {}){
       if (closed) return reject(poolError('pool-closed'));
       counters.submitted += 1;
       const task = { id: ++seq, key: meta.key ?? null, msg: msg || {}, resolve, reject,
-        timer: null, enqueuedAt: Date.now(), startedAt: 0 };
+        timer: null, enqueuedAt: Date.now(), startedAt: 0,
+        timeoutMs: Number(meta.timeoutMs) > 0 ? Number(meta.timeoutMs) : 0 };
       queue.push(task);
       dispatch();
       if (queue.length > maxQueue){
