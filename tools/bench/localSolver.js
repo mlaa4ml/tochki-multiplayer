@@ -247,6 +247,17 @@ function forkCheck(node, ctx){
 }
 
 function solveGroup(node, def, target, opts){
+  const previous = activeDeadline, start = nowMs();
+  activeDeadline = opts && Number(opts.timeLimit) > 0 ? start + Number(opts.timeLimit) : Infinity;
+  try { return solveGroupInner(node, def, target, opts); }
+  catch (err){
+    if (err !== TIMEOUT) throw err;
+    return { saved: false, move: null, loss: null, aborted: true, stopReason: 'time',
+      ms: +(nowMs() - start).toFixed(1) };
+  } finally { activeDeadline = previous; }
+}
+
+function solveGroupInner(node, def, target, opts){
   opts = opts || {};
   const t0 = nowMs();
   const ctx = {
