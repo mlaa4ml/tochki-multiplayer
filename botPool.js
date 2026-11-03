@@ -98,8 +98,8 @@ function createBotPool(options = {}){
     task.timer = setTimeout(() => {
       if (busy.get(w) !== task) return;
       counters.timeouts += 1;
-      kill(w, poolError('timeout', `bot search exceeded ${timeoutMs} ms`));
-    }, timeoutMs);
+      kill(w, poolError('timeout', `bot search exceeded ${task.timeoutMs} ms`));
+    }, task.timeoutMs);
     w.postMessage(Object.assign({}, task.msg, { type: 'search', requestId: task.id }));
   }
 
