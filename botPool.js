@@ -141,6 +141,7 @@ function createBotPool(options = {}){
       if (closed) return reject(poolError('pool-closed'));
       counters.submitted += 1;
       const task = { id: ++seq, key: meta.key ?? null, msg: msg || {}, resolve, reject,
+        timeoutMs: Number(meta.timeoutMs) > 0 ? Number(meta.timeoutMs) : timeoutMs,
         timer: null, enqueuedAt: Date.now(), startedAt: 0 };
       queue.push(task);
       dispatch();
