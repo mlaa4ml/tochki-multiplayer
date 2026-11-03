@@ -39,12 +39,35 @@ const MATCH_RULES = { targetScore: 0, targetFillPercent: 64, startPosition: 'cro
 const PLAY_SPLITS = ['dev', 'regression'];
 const SENSITIVITY = { candidate: { difficulty: 'strong', nodeLimit: 3000 }, base: { difficulty: 'normal', nodeLimit: 300 } };
 
+// S8 (#62): флаги стороны для абляций — через «+» после описания стороны:
+//   strong:3000[:weights.json]+monitor+safety2
+//   monitor     — ход выбирает арбитр (arbiter.js, opts.monitor:true);
+//   no-solver   — арбитр без локального решателя (только вместе с monitor);
+//   safety2 / no-safety2, antiFork / no-antiFork — переопределить поля уровня.
+const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork'];
+
 function parseSide(s){
-  const parts = String(s).split(':');
+  const segs = String(s).split('+');
+  const parts = segs[0].split(':');
   const side = { difficulty: parts[0], nodeLimit: Number(parts[1]) || 0 };
   if (!E.DIFFICULTY[side.difficulty]) throw new Error('неизвестный уровень: ' + side.difficulty);
   if (parts[2]) side.weightsFile = parts.slice(2).join(':');
+  const flags = segs.slice(1).filter(Boolean);
+  for (const f of flags) if (!SIDE_FLAGS.includes(f)) throw new Error('неизвестный флаг стороны: ' + f);
+  if (flags.includes('no-solver') && !flags.includes('monitor')) throw new Error('флаг no-solver имеет смысл только с monitor');
+  if (flags.length) side.flags = flags;
   return side;
+}
+
+// Уровень стороны с учётом флагов safety2/antiFork (копия, DIFFICULTY не меняется).
+function sideDiff(side){
+  const d = Object.assign({}, E.DIFFICULTY[side.difficulty]);
+  const f = side.flags || [];
+  if (f.includes('safety2')) d.safety2 = true;
+  if (f.includes('no-safety2')) d.safety2 = false;
+  if (f.includes('antiFork')) d.antiFork = true;
+  if (f.includes('no-antiFork')) d.antiFork = false;
+  return d;
 }
 
 function loadWeights(side){
