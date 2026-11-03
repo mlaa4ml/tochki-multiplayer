@@ -311,5 +311,5 @@ function main(){
 }
 
 if (require.main === module) main();
-module.exports = { PAIRED_VERSION, MATCH_RULES, PLAY_SPLITS, SENSITIVITY, parseArgs, parseSide, buildOpenings, playPair,
-  tacticalMetric, summarize, run, merge };
+module.exports = { PAIRED_VERSION, MATCH_RULES, PLAY_SPLITS, SENSITIVITY, SIDE_FLAGS, parseArgs, parseSide, sideDiff, sideLabel,
+  makePlayer, buildOpenings, playPair, tacticalMetric, summarize, run, merge, printSummary };
