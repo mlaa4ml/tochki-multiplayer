@@ -136,8 +136,30 @@ function buildOpenings(opts){
   return out;
 }
 
+// Без флагов — ровно прежний игрок (Runner.makeSearchPlayer). С флагами —
+// тот же контракт chooseMove(snap), но уровень с переопределёнными полями и,
+// при monitor, выбор хода через arbiterMove (arbiter.js, S7).
 function makePlayer(side){
-  return Runner.makeSearchPlayer(E, { difficulty: side.difficulty, nodeLimit: side.nodeLimit, weights: side.weights });
+  const flags = side.flags || [];
+  if (!flags.length) return Runner.makeSearchPlayer(E, { difficulty: side.difficulty, nodeLimit: side.nodeLimit, weights: side.weights });
+  const diff = sideDiff(side);
+  const useMonitor = flags.includes('monitor');
+  const A = useMonitor ? require('../../arbiter.js') : null;
+  return function chooseMove(snap){
+    const state = { stone: snap.stone, dead: snap.dead, territory: snap.territory };
+    const opts = Object.assign({}, snap);
+    if (side.nodeLimit > 0) opts.nodeLimit = side.nodeLimit;
+    const w = side.weights || E.BOT_WEIGHTS;
+    let r;
+    if (useMonitor){
+      opts.monitor = true;
+      if (flags.includes('no-solver')) opts.arbiter = Object.assign({}, opts.arbiter || {}, { solver: false });
+      r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
+    } else {
+      r = E.searchMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
+    }
+    return { move: r.move, trace: r.trace };
+  };
 }
 
 function playOne(o, cand, base, candSeat, opts){
