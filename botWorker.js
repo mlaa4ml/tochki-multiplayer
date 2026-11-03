@@ -52,7 +52,14 @@
       if (num(so.nodeLimit) > 0) opts.nodeLimit = num(so.nodeLimit);
       if (num(so.timeLimit) !== undefined) opts.timeLimit = num(so.timeLimit);
       if (num(so.emergencyTimeLimit) > 0) opts.emergencyTimeLimit = num(so.emergencyTimeLimit);
-      const r = E.searchMove({ stone: s.stone, dead: s.dead, territory: s.territory },
+            const search = isNode && so.monitor === true ? require('./arbiter').arbiterMove : E.searchMove;
+      if (isNode && so.monitor === true){
+        opts.monitor = true;
+        opts.alarmTimeLimit = num(so.alarmTimeLimit);
+        opts.maxAlarmTimeLimit = num(so.maxAlarmTimeLimit);
+        opts.threshold = num(so.threshold);
+      }
+      const r = search({ stone: s.stone, dead: s.dead, territory: s.territory },
         s.rows, s.cols, s.current, diff, msg.weights || null, opts);
       return Object.assign({ type: 'result' }, base, { move: r.move, trace: r.trace });
     } catch (err){
