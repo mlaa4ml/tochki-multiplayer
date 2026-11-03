@@ -70,7 +70,11 @@ function regionOf(node, target, R, maxCells){
   return [...m.values()].sort((a, b) => a.d - b.d || b.adj - a.adj || a.y - b.y || a.x - b.x).slice(0, maxCells);
 }
 
+// Synchronous solver: all expensive branches pass through tryMove.
+let activeDeadline = Infinity;
+const TIMEOUT = Symbol('solver-timeout');
 function tryMove(node, p, c){
+  if (nowMs() >= activeDeadline) throw TIMEOUT;
   if (!E.isTransitionLegal(node, c.x, c.y)) return null;
   const t = E.applyTransition(node, p, c.x, c.y);
   return t.ok ? t : null;
