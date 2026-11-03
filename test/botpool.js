@@ -103,6 +103,22 @@ async function expectCode(p, code, label){
     console.log('OK: повторный close() дожидается завершения всех потоков');
   }
 
+    // 6c. S7 (#61): запрос может расширить жёсткий таймаут через meta.timeoutMs
+  // (арбитр с бюджетом тревоги). Без него действует таймаут пула, как раньше.
+  {
+    const slow = "const { parentPort } = require('worker_threads');" +
+      "parentPort.on('message', (m) => setTimeout(() => parentPort.postMessage(" +
+      "{ type: 'result', requestId: m.requestId, move: { x: 1, y: 2 } }), 600));";
+    const pool = createBotPool({ size: 1, maxQueue: 4, timeoutMs: 300, workerPath: slow, workerOptions: { eval: true } });
+    await expectCode(pool.search({}, { key: 'p' }), 'timeout', 'таймаут пула без meta.timeoutMs');
+    const r = await pool.search({}, { key: 'q', timeoutMs: 3000 });
+    assert.deepStrictEqual(r.move, { x: 1, y: 2 }, 'запрос с расширенным таймаутом дождался ответа');
+    assert.ok(r.searchMs >= 500, 'расчёт длился дольше таймаута пула');
+    assert.strictEqual(pool.stats().timeouts, 1, 'таймаут только у запроса без расширения');
+    await pool.close();
+    console.log('OK: meta.timeoutMs расширяет жёсткий таймаут отдельного запроса');
+  }
+
   // 7. Падение потока: отклоняется только текущий запрос, пул живёт дальше.
   {
     const pool = createBotPool({ size: 1, maxQueue: 4, timeoutMs: 2000, workerPath: crash, workerOptions: { eval: true } });
