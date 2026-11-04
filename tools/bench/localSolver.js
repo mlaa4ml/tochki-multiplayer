@@ -289,7 +289,7 @@ function solveGroupUnchecked(node, def, target, opts){
     // opts.timeLimit (мс, S7 #61): жёсткий предел времени поиска; при срабатывании
     // итеративное углубление возвращает последнюю завершённую глубину.
     deadline: Number(opts.timeLimit) > 0 ? t0 + Number(opts.timeLimit) : Infinity,
-    nodes: 0, vnodes: 0, aborted: false
+    nodes: 0, vnodes: 0, work: 0, aborted: false
   };
   const maxDepth = opts.maxDepth || 10, verifyDepth = opts.verifyDepth == null ? 1 : opts.verifyDepth;
   const base = lossOf(node, target, ctx.att);
