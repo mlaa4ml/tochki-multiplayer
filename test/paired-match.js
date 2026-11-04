@@ -35,4 +35,20 @@ assert.ok('msP95' in rep.summary.timing.candidate && 'nodesP95' in rep.summary.t
 const s = PM.parseSide('strong:3000');
 assert.deepStrictEqual(s, { difficulty: 'strong', nodeLimit: 3000 });
 assert.throws(() => PM.parseSide('bogus:1'));
+// Per-game arbiter counters survive the paired-match boundary; without a
+// solver, alarms must not silently turn into damage-limiting overrides.
+const monitored = PM.run(PM.parseArgs(['--candidate', 'strong:300+monitor+no-solver+safety2',
+  '--base', 'strong:300', '--pairs', '1', '--no-tactics', '--quiet', '--max-moves', '6']));
+for (const g of monitored.pairs[0].games){
+  const a = g.cand.arbiter;
+  assert.ok(a);
+  assert.deepStrictEqual(Object.keys(a.decisions).sort(), ['base', 'limit', 'rescue']);
+  assert.strictEqual(a.decisions.base, g.cand.ms.length);
+  assert.strictEqual(a.decisions.rescue, 0);
+  assert.strictEqual(a.decisions.limit, 0);
+  assert.strictEqual(a.overridden, 0);
+  assert.strictEqual(a.localMs.length, g.cand.ms.length);
+  assert.strictEqual(a.budgetMs.length, g.cand.ms.length);
+  assert.strictEqual(g.base.arbiter, undefined);
+}
 console.log('paired-match: ok');
