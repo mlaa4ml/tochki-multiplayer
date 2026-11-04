@@ -1,0 +1,217 @@
+{
+ "format": "tochki-s8-ablation",
+ "botVersion": "tochki-ab-1",
+ "engineVersion": "tochki-rules-1",
+ "weightsVersion": "tochki-weights-1",
+ "date": "2026-11-04T10:36:05.530Z",
+ "rows": [
+  {
+   "config": "base",
+   "note": "база (контроль: база против самой себя)",
+   "side": "strong:3000",
+   "pairs": 10,
+   "score": 0.5,
+   "ci95": {
+    "lo": 0.5,
+    "hi": 0.5,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": 0,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 958,
+   "nodesP95": 3000,
+   "nodesMean": 2847,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "full",
+   "note": "полная версия (monitor:true)",
+   "side": "strong:3000+monitor+safety2",
+   "pairs": 10,
+   "score": 0.075,
+   "ci95": {
+    "lo": 0,
+    "hi": 0.175,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": -6.4,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 27561,
+   "nodesP95": 3000,
+   "nodesMean": 2859,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "no-monitor",
+   "note": "без монитора",
+   "side": "strong:3000+safety2",
+   "pairs": 10,
+   "score": 0.75,
+   "ci95": {
+    "lo": 0.55,
+    "hi": 0.95,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": true,
+   "scoreDiff": 2.95,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 1202,
+   "nodesP95": 3000,
+   "nodesMean": 2840,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "no-solver",
+   "note": "монитор без решателя",
+   "side": "strong:3000+monitor+no-solver+safety2",
+   "pairs": 10,
+   "score": 0,
+   "ci95": {
+    "lo": 0,
+    "hi": 0,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": -14.2,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 1036,
+   "nodesP95": 3000,
+   "nodesMean": 2829,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "safety2-on",
+   "note": "с фильтром safety2 (#55)",
+   "side": "strong:3000+safety2",
+   "pairs": 20,
+   "score": 0.688,
+   "ci95": {
+    "lo": 0.563,
+    "hi": 0.813,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": true,
+   "scoreDiff": 2.875,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 1087,
+   "nodesP95": 3000,
+   "nodesMean": 2841,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "safety2-off",
+   "note": "без фильтра safety2",
+   "side": "strong:3000+no-safety2",
+   "pairs": 10,
+   "score": 0.5,
+   "ci95": {
+    "lo": 0.5,
+    "hi": 0.5,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": 0,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 1015,
+   "nodesP95": 3000,
+   "nodesMean": 2847,
+   "botVersion": "tochki-ab-1",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  }
+ ],
+ "decisions": {
+  "nodes": [
+   {
+    "node": "монитор + решатель",
+    "with": "full",
+    "without": "no-monitor",
+    "gain": -0.675,
+    "keep": false,
+    "verdict": "удалить/не включать (с узлом доказанно хуже базы)"
+   },
+   {
+    "node": "решатель",
+    "with": "full",
+    "without": "no-solver",
+    "gain": 0.075,
+    "keep": false,
+    "verdict": "удалить/не включать (с узлом доказанно хуже базы)"
+   },
+   {
+    "node": "safety2",
+    "with": "safety2-on",
+    "without": "safety2-off",
+    "gain": 0.188,
+    "keep": true,
+    "verdict": "оставить (прирост есть)"
+   }
+  ],
+  "flags": [
+   {
+    "config": "full",
+    "status": "reject",
+    "enableByDefault": false,
+    "reason": "ci95.hi 0.175 < 0.5 — доказанно хуже базы, отбросить"
+   },
+   {
+    "config": "no-monitor",
+    "status": "confirm",
+    "enableByDefault": false,
+    "reason": "кандидат: ci95.lo 0.55 > 0.5 на 10 парах, нужно подтверждение на 20 парах"
+   },
+   {
+    "config": "no-solver",
+    "status": "reject",
+    "enableByDefault": false,
+    "reason": "ci95.hi 0 < 0.5 — доказанно хуже базы, отбросить"
+   },
+   {
+    "config": "safety2-on",
+    "status": "enable",
+    "enableByDefault": true,
+    "reason": "ci95.lo 0.563 > 0.5 на 20 парах (>= 20)"
+   },
+   {
+    "config": "safety2-off",
+    "status": "neutral",
+    "enableByDefault": false,
+    "reason": "ci95.lo 0.5 <= 0.5 — прироста нет"
+   }
+  ],
+  "protocol": {
+   "screenPairs": 10,
+   "confirmPairs": 20
+  }
+ }
+}

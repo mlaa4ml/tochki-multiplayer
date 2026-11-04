@@ -41,7 +41,8 @@ const ARBITER_DEFAULTS = Object.freeze({
   threshold: 2,              // допустимое ухудшение глобальной оценки спасающего хода
   minRescueSize: 2,          // спасать без глобальной оценки — от 2 точек
   maxGroups: 3,              // не больше 3 тревожных групп за ход
-  solverNodeLimit: 200000    // лимит узлов решателя на группу
+  solverNodeLimit: 200000,   // лимит узлов решателя на группу
+  solver: true               // false — абляция S8 «монитор без решателя» (#62)
 });
 
 function nowMs(){ const t = process.hrtime(); return t[0] * 1e3 + t[1] / 1e6; }
@@ -97,7 +98,12 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     if (nowMs() - tLocal >= info.budgetMs) { info.timeout = true; break; }
     // Каждый вызов решателя ограничен ОСТАВШИМСЯ бюджетом тревоги (timeLimit).
     const remain = Math.max(1, info.budgetMs - (nowMs() - tLocal));
-    const r = S.solveGroup(node, mover, g.stones, { nodeLimit: ao.solverNodeLimit, timeLimit: remain });
+    // S8 (#62), абляция «без решателя»: arbiter.solver:false — решатель не
+    // вызывается, тревожная группа считается потерянной (работает только
+    // ограничение ущерба). По умолчанию solver:true — поведение S7.
+    const r = ao.solver === false
+      ? { saved: false, move: null, loss: g.size, depth: 0, ms: 0, skipped: 'no-solver' }
+      : S.solveGroup(node, mover, g.stones, { nodeLimit: ao.solverNodeLimit, timeLimit: remain });
     const gi = { size: g.size, cost: g.cost, saved: r.saved, move: r.move, loss: r.loss, depth: r.depth, ms: r.ms };
     info.groups.push(gi);
     if (r.saved && r.move){

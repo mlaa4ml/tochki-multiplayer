@@ -39,12 +39,35 @@ const MATCH_RULES = { targetScore: 0, targetFillPercent: 64, startPosition: 'cro
 const PLAY_SPLITS = ['dev', 'regression'];
 const SENSITIVITY = { candidate: { difficulty: 'strong', nodeLimit: 3000 }, base: { difficulty: 'normal', nodeLimit: 300 } };
 
+// S8 (#62): флаги стороны для абляций — через «+» после описания стороны:
+//   strong:3000[:weights.json]+monitor+safety2
+//   monitor     — ход выбирает арбитр (arbiter.js, opts.monitor:true);
+//   no-solver   — арбитр без локального решателя (только вместе с monitor);
+//   safety2 / no-safety2, antiFork / no-antiFork — переопределить поля уровня.
+const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork'];
+
 function parseSide(s){
-  const parts = String(s).split(':');
+  const segs = String(s).split('+');
+  const parts = segs[0].split(':');
   const side = { difficulty: parts[0], nodeLimit: Number(parts[1]) || 0 };
   if (!E.DIFFICULTY[side.difficulty]) throw new Error('неизвестный уровень: ' + side.difficulty);
   if (parts[2]) side.weightsFile = parts.slice(2).join(':');
+  const flags = segs.slice(1).filter(Boolean);
+  for (const f of flags) if (!SIDE_FLAGS.includes(f)) throw new Error('неизвестный флаг стороны: ' + f);
+  if (flags.includes('no-solver') && !flags.includes('monitor')) throw new Error('флаг no-solver имеет смысл только с monitor');
+  if (flags.length) side.flags = flags;
   return side;
+}
+
+// Уровень стороны с учётом флагов safety2/antiFork (копия, DIFFICULTY не меняется).
+function sideDiff(side){
+  const d = Object.assign({}, E.DIFFICULTY[side.difficulty]);
+  const f = side.flags || [];
+  if (f.includes('safety2')) d.safety2 = true;
+  if (f.includes('no-safety2')) d.safety2 = false;
+  if (f.includes('antiFork')) d.antiFork = true;
+  if (f.includes('no-antiFork')) d.antiFork = false;
+  return d;
 }
 
 function loadWeights(side){
@@ -54,7 +77,7 @@ function loadWeights(side){
   return side;
 }
 
-function sideLabel(s){ return `${s.difficulty}/${s.nodeLimit}${s.weightsFile ? ':' + path.basename(s.weightsFile) : ''}`; }
+function sideLabel(s){ return `${s.difficulty}/${s.nodeLimit}${s.weightsFile ? ':' + path.basename(s.weightsFile) : ''}${s.flags && s.flags.length ? '+' + s.flags.join('+') : ''}`; }
 
 function parseArgs(argv){
   const o = { candidate: null, base: null, sensitivity: false, pairs: 50, minPly: 4, plyStep: 4, from: 0, to: Infinity,
@@ -113,8 +136,30 @@ function buildOpenings(opts){
   return out;
 }
 
+// Без флагов — ровно прежний игрок (Runner.makeSearchPlayer). С флагами —
+// тот же контракт chooseMove(snap), но уровень с переопределёнными полями и,
+// при monitor, выбор хода через arbiterMove (arbiter.js, S7).
 function makePlayer(side){
-  return Runner.makeSearchPlayer(E, { difficulty: side.difficulty, nodeLimit: side.nodeLimit, weights: side.weights });
+  const flags = side.flags || [];
+  if (!flags.length) return Runner.makeSearchPlayer(E, { difficulty: side.difficulty, nodeLimit: side.nodeLimit, weights: side.weights });
+  const diff = sideDiff(side);
+  const useMonitor = flags.includes('monitor');
+  const A = useMonitor ? require('../../arbiter.js') : null;
+  return function chooseMove(snap){
+    const state = { stone: snap.stone, dead: snap.dead, territory: snap.territory };
+    const opts = Object.assign({}, snap);
+    if (side.nodeLimit > 0) opts.nodeLimit = side.nodeLimit;
+    const w = side.weights || E.BOT_WEIGHTS;
+    let r;
+    if (useMonitor){
+      opts.monitor = true;
+      if (flags.includes('no-solver')) opts.arbiter = Object.assign({}, opts.arbiter || {}, { solver: false });
+      r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
+    } else {
+      r = E.searchMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
+    }
+    return { move: r.move, trace: r.trace };
+  };
 }
 
 function playOne(o, cand, base, candSeat, opts){
@@ -266,5 +311,5 @@ function main(){
 }
 
 if (require.main === module) main();
-module.exports = { PAIRED_VERSION, MATCH_RULES, PLAY_SPLITS, SENSITIVITY, parseArgs, parseSide, buildOpenings, playPair,
-  tacticalMetric, summarize, run, merge };
+module.exports = { PAIRED_VERSION, MATCH_RULES, PLAY_SPLITS, SENSITIVITY, SIDE_FLAGS, parseArgs, parseSide, sideDiff, sideLabel,
+  makePlayer, buildOpenings, playPair, tacticalMetric, summarize, run, merge, printSummary };
