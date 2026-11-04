@@ -145,7 +145,10 @@ function makePlayer(side){
   const diff = sideDiff(side);
   const useMonitor = flags.includes('monitor');
   const A = useMonitor ? require('../../arbiter.js') : null;
-  return function chooseMove(snap){
+  // #77: статистика решений арбитра по партии (decision=base/rescue/avoid-lost,
+  // число тревог, подмен хода, таймаутов бюджета тревоги, время монитора/решателя).
+  const stats = useMonitor ? newArbiterStats() : null;
+  function chooseMove(snap){
     const state = { stone: snap.stone, dead: snap.dead, territory: snap.territory };
     const opts = Object.assign({}, snap);
     if (side.nodeLimit > 0) opts.nodeLimit = side.nodeLimit;
@@ -155,11 +158,33 @@ function makePlayer(side){
       opts.monitor = true;
       if (flags.includes('no-solver')) opts.arbiter = Object.assign({}, opts.arbiter || {}, { solver: false });
       r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
+      recordArbiter(stats, r.trace && r.trace.arbiter);
     } else {
       r = E.searchMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
     }
     return { move: r.move, trace: r.trace };
-  };
+  }
+  if (stats) chooseMove.arbiterStats = stats;
+  return chooseMove;
+}
+
+function newArbiterStats(){
+  return { moves: 0, alarms: 0, overridden: 0, timeouts: 0, decisions: {}, localMsMax: 0, localMsSum: 0, monitorMsSum: 0 };
+}
+
+function recordArbiter(st, info){
+  if (!st) return;
+  st.moves++;
+  if (!info) { st.decisions.none = (st.decisions.none || 0) + 1; return; }
+  if (info.alarm) st.alarms++;
+  if (info.overridden) st.overridden++;
+  if (info.timeout) st.timeouts++;
+  const d = info.decision || 'base';
+  st.decisions[d] = (st.decisions[d] || 0) + 1;
+  const lm = Number(info.localMs) || 0;
+  st.localMsSum = +(st.localMsSum + lm).toFixed(1);
+  if (lm > st.localMsMax) st.localMsMax = lm;
+  st.monitorMsSum = +(st.monitorMsSum + (Number(info.monitorMs) || 0)).toFixed(1);
 }
 
 function playOne(o, cand, base, candSeat, opts){
