@@ -163,9 +163,31 @@ function makePlayer(side){
 }
 
 function playOne(o, cand, base, candSeat, opts){
-  const players = {}; players[candSeat] = makePlayer(cand); players[3 - candSeat] = makePlayer(base);
-  const { result, lines } = Runner.playGame(E, { rules: o.rules, prefix: o.prefix, players, maxMoves: opts.maxMoves });
+  const players = {};
   const per = { 1: { ms: [], nodes: [] }, 2: { ms: [], nodes: [] } };
+  for (const seat of [1, 2]){
+    const side = seat === candSeat ? cand : base;
+    const choose = makePlayer(side);
+    if ((side.flags || []).includes('monitor')){
+      per[seat].arbiter = { alarms: 0, overridden: 0, timeouts: 0,
+        decisions: { base: 0, rescue: 0, limit: 0 }, localMs: [], budgetMs: [] };
+    }
+    players[seat] = snap => {
+      const out = choose(snap);
+      const a = out.trace && out.trace.arbiter, st = per[seat].arbiter;
+      if (a && st){
+        st.alarms += +!!a.alarm;
+        st.overridden += +!!a.overridden;
+        st.timeouts += +!!a.timeout;
+        const decision = a.decision === 'avoid-lost' ? 'limit' : a.decision;
+        st.decisions[decision] = (st.decisions[decision] || 0) + 1;
+        st.localMs.push(a.localMs || 0);
+        st.budgetMs.push(a.budgetMs);
+      }
+      return out;
+    };
+  }
+  const { result, lines } = Runner.playGame(E, { rules: o.rules, prefix: o.prefix, players, maxMoves: opts.maxMoves });
   for (const l of lines){
     const r = JSON.parse(l);
     if (r.type !== 'move') continue;
