@@ -3,7 +3,7 @@
  "botVersion": "tochki-ab-1",
  "engineVersion": "tochki-rules-1",
  "weightsVersion": "tochki-weights-1",
- "date": "2026-11-04T10:04:46.445Z",
+ "date": "2026-11-04T10:36:05.530Z",
  "rows": [
   {
    "config": "base",
@@ -105,22 +105,22 @@
    "config": "safety2-on",
    "note": "с фильтром safety2 (#55)",
    "side": "strong:3000+safety2",
-   "pairs": 10,
-   "score": 0.75,
+   "pairs": 20,
+   "score": 0.688,
    "ci95": {
-    "lo": 0.55,
-    "hi": 0.95,
+    "lo": 0.563,
+    "hi": 0.813,
     "resamples": 2000,
     "unit": "pair"
    },
    "better": true,
-   "scoreDiff": 2.95,
+   "scoreDiff": 2.875,
    "nonZero": 1,
    "prefork": "0/2",
    "preforkRate": 0,
-   "msP95": 1248,
+   "msP95": 1087,
    "nodesP95": 3000,
-   "nodesMean": 2840,
+   "nodesMean": 2841,
    "botVersion": "tochki-ab-1",
    "engineVersion": "tochki-rules-1",
    "weightsVersion": "tochki-weights-1"
@@ -172,7 +172,7 @@
     "node": "safety2",
     "with": "safety2-on",
     "without": "safety2-off",
-    "gain": 0.25,
+    "gain": 0.188,
     "keep": true,
     "verdict": "оставить (прирост есть)"
    }
@@ -198,9 +198,9 @@
    },
    {
     "config": "safety2-on",
-    "status": "confirm",
-    "enableByDefault": false,
-    "reason": "кандидат: ci95.lo 0.55 > 0.5 на 10 парах, нужно подтверждение на 20 парах"
+    "status": "enable",
+    "enableByDefault": true,
+    "reason": "ci95.lo 0.563 > 0.5 на 20 парах (>= 20)"
    },
    {
     "config": "safety2-off",
