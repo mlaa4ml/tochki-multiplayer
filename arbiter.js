@@ -72,7 +72,10 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   if (opts.monitor !== true) return base; // monitor:false — ровно база
   const ao = Object.assign({}, ARBITER_DEFAULTS, opts.arbiter || {});
   const trace = base.trace;
-  const info = { alarm: false, groups: [], decision: 'base', budgetMs: alarmBudget(ao) };
+    const budgetMs = opts.nodeLimit > 0
+    ? Math.min(alarmBudget(ao), Math.max(0, num(ao.alarmTimeLimitNodes, ARBITER_DEFAULTS.alarmTimeLimitNodes)))
+    : alarmBudget(ao);
+  const info = { alarm: false, groups: [], decision: 'base', budgetMs };
   trace.arbiter = info;
   if (!base.move) return base;
 
