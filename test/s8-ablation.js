@@ -20,7 +20,7 @@ const A = require('../arbiter.js');
   const d = PM.sideDiff(PM.parseSide('strong:3000+safety2+antiFork'));
   assert.strictEqual(d.safety2, true);
   assert.strictEqual(d.antiFork, true);
-  assert.strictEqual(E.DIFFICULTY.strong.safety2, false, 'DIFFICULTY не должен меняться');
+  assert.strictEqual(E.DIFFICULTY.strong.safety2, true, 'DIFFICULTY не должен меняться (safety2:true в strong с tochki-ab-2, #62)');
   assert.strictEqual(PM.sideDiff(PM.parseSide('strong:3000+no-safety2')).safety2, false);
 }
 
