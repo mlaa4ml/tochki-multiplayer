@@ -147,6 +147,8 @@ function defMoves(node, ctx){
 
 // Ограниченный поиск решателя. Возвращает потерю (атакующий max, защитник min).
 function search(node, depth, alpha, beta, ctx){
+  checkBudget(ctx, true);
+  const tryMove = budgetedMove(ctx);
   ctx.nodes++;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
