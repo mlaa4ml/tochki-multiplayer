@@ -162,6 +162,11 @@ function search(node, depth, alpha, beta, ctx){
 // Проверка: атакующий — любой легальный ход поля, защитник — регион.
 function verify(node, depth, ctx){
   ctx.vnodes++;
+  // #77: проверка тоже подчиняется timeLimit (раньше дедлайн проверялся
+  // только в search, и verify/forkCheck по всему полю тянули ход до 12–15 с
+  // при бюджете тревоги 3 с). Infinity — кандидат отвергается как непроверенный.
+  if ((ctx.vnodes & 31) === 0 && nowMs() > ctx.deadline) ctx.timedOut = true;
+  if (ctx.timedOut) return Infinity;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
   if (node.current === ctx.def){
