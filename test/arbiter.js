@@ -81,4 +81,49 @@ for (const c of cases){
 }
 ok('ограничение ущерба: ход вне потерянной группы находится и без кандидатов общего поиска');
 
+// An alarm alone (no solver or interrupted solver) must not ban defence.
+// Artificial root bounds must not affect the static rescue comparison.
+{
+  const M = require('../tools/bench/monitor.js');
+  const original = { search: E.searchMove, monitor: M.monitorPosition, solve: S.solveGroup };
+  const c = cases[0], n = c.node, p = c.pos.botSeat;
+  const moves = [];
+  for (let y = 0; y < n.rows && moves.length < 2; y++)
+    for (let x = 0; x < n.cols && moves.length < 2; x++)
+      if (E.isTransitionLegal(n, x, y)) moves.push({ x, y });
+  try {
+    E.searchMove = () => ({ move: moves[0], trace: { nodes: 3000,
+      candidates: [{ ...moves[0], score: 1e9 }, { ...moves[1], score: -1e9 }] } });
+    M.monitorPosition = () => ({ groups: [{ size: 2, cost: 1, stones: c.target }] });
+    S.solveGroup = () => { throw new Error('no-solver must not call solver'); };
+    const run = arbiter => A.arbiterMove(so(n), n.rows, n.cols, p, diff, null,
+      { monitor: true, nodeLimit: 3000, arbiter });
+    const no = run({ solver: false });
+    assert.deepStrictEqual(no.move, moves[0]);
+    assert.strictEqual(no.trace.arbiter.decision, 'base');
+    assert.strictEqual(no.trace.nodes, 3000);
+    assert.strictEqual(no.trace.arbiter.budgetMs, 1500);
+    S.solveGroup = () => ({ saved: false, incomplete: true, loss: 2, depth: 10 });
+    assert.deepStrictEqual(run({}).move, moves[0]);
+    S.solveGroup = () => ({ saved: true, move: moves[1], loss: 0, depth: 2 });
+    const rescue = run({ threshold: 1e6 });
+    assert.deepStrictEqual(rescue.move, moves[1]);
+    assert.strictEqual(rescue.trace.arbiter.decision, 'rescue');
+    assert.ok(Number.isFinite(rescue.trace.arbiter.groups[0].staticScore));
+    assert.strictEqual(run({ maxAlarmTimeLimit: 0 }).trace.arbiter.budgetMs, 0);
+  } finally {
+    E.searchMove = original.search; M.monitorPosition = original.monitor; S.solveGroup = original.solve;
+  }
+}
+ok('alarm is not loss; root bounds ignored; main node budget unchanged');
+
+for (const c of cases){
+  const r = S.solveGroup(c.node, c.pos.botSeat, c.target, { timeLimit: 1, nodeLimit: 200000 });
+  assert.ok(r.ms < 250, 'deadline includes generation and verification');
+  assert.ok(r.incomplete && !r.saved && r.loss === null);
+  const limited = S.solveGroup(c.node, c.pos.botSeat, c.target, { nodeLimit: 1 });
+  assert.ok(limited.incomplete && !limited.saved);
+}
+ok('all solver phases share deadline/node budget; exhaustion is unknown');
+
 console.log('\n' + passed + ' passed');
