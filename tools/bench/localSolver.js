@@ -92,6 +92,7 @@ function budgetedMove(ctx){
 
 // Есть ли у атакующего немедленное взятие точек группы (как если бы ходил он).
 function hasThreat(node, ctx){
+  const tryMove = budgetedMove(ctx);
   const n = Object.assign({}, node, { current: ctx.att });
   const base = lossOf(node, ctx.target, ctx.att);
   for (const c of ctx.region){
