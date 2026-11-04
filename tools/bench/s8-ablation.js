@@ -125,20 +125,41 @@ function row(name, rep){
     engineVersion: rep.engineVersion, weightsVersion: rep.weightsVersion };
 }
 
-function decide(rows){
+// Ступенчатый протокол (решение владельца в #62, вместо 50 пар на всё):
+//   * отбор: каждая конфигурация — SCREEN_PAIRS (10) пар против базы.
+//     ci95.hi < 0.5 — конфигурация доказанно хуже базы, отбрасывается;
+//     ci95.lo > 0.5 — кандидат, идёт на подтверждение;
+//   * подтверждение: только кандидаты дотягиваются до CONFIRM_PAIRS (20) пар.
+//     Флаг включается по умолчанию, только если и на CONFIRM_PAIRS парах
+//     ci95.lo > 0.5.
+const SCREEN_PAIRS = 10;
+const CONFIRM_PAIRS = 20;
+
+function flagStatus(r, screen, confirm){
+  if (r.pairs < screen) return { status: 'insufficient', enableByDefault: false, reason: `пар ${r.pairs} < ${screen} (отбор не завершён)` };
+  if (r.ci95.hi < 0.5) return { status: 'reject', enableByDefault: false, reason: `ci95.hi ${r.ci95.hi} < 0.5 — доказанно хуже базы, отбросить` };
+  if (r.better && r.pairs >= confirm) return { status: 'enable', enableByDefault: true, reason: `ci95.lo ${r.ci95.lo} > 0.5 на ${r.pairs} парах (>= ${confirm})` };
+  if (r.better) return { status: 'confirm', enableByDefault: false, reason: `кандидат: ci95.lo ${r.ci95.lo} > 0.5 на ${r.pairs} парах, нужно подтверждение на ${confirm} парах` };
+  return { status: 'neutral', enableByDefault: false, reason: `ci95.lo ${r.ci95.lo} <= 0.5 — прироста нет` };
+}
+
+function decide(rows, opts){
+  const screen = (opts && opts.screenPairs) || SCREEN_PAIRS;
+  const confirm = (opts && opts.confirmPairs) || CONFIRM_PAIRS;
   const by = Object.fromEntries(rows.map(r => [r.config, r]));
   const nodes = NODES.map(n => {
     const a = by[n.with], b = by[n.without];
     if (!a || !b) return { node: n.node, verdict: 'нет данных', keep: null };
     const gain = +(a.score - b.score).toFixed(3);
-    const keep = a.better && gain > 0;
+    const keep = !!a.better && gain > 0;
+    const worse = a.ci95 && a.ci95.hi < 0.5;
     return { node: n.node, with: n.with, without: n.without, gain, keep,
-      verdict: keep ? 'оставить (прирост есть)' : 'удалить/не включать (прироста не доказано)' };
+      verdict: keep ? 'оставить (прирост есть)'
+        : worse ? 'удалить/не включать (с узлом доказанно хуже базы)'
+        : 'удалить/не включать (прироста не доказано)' };
   });
-  const flags = rows.filter(r => r.config !== 'base').map(r => ({ config: r.config,
-    enableByDefault: !!r.better && r.pairs >= 50,
-    reason: r.pairs < 50 ? `пар ${r.pairs} < 50` : (r.better ? `ci95.lo ${r.ci95.lo} > 0.5` : `ci95.lo ${r.ci95.lo} <= 0.5`) }));
-  return { nodes, flags };
+  const flags = rows.filter(r => r.config !== 'base').map(r => Object.assign({ config: r.config }, flagStatus(r, screen, confirm)));
+  return { nodes, flags, protocol: { screenPairs: screen, confirmPairs: confirm } };
 }
 
 function markdown(rows, dec){
