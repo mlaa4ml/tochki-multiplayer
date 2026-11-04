@@ -131,6 +131,7 @@ function isExit(node, ctx, c){
 // (после хода немедленное взятие точек группы атакующим строго меньше,
 // чем без хода). Не больше ctx.maxCand. Возвращает [{x,y,t}].
 function defMoves(node, ctx){
+  const tryMove = budgetedMove(ctx);
   const g0 = bestGain(node, ctx), out = [];
   for (const c of ctx.region){
     if (out.length >= ctx.maxCand) break;
