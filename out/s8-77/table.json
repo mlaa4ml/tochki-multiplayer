@@ -1,0 +1,97 @@
+{
+ "format": "tochki-s8-ablation",
+ "botVersion": "tochki-ab-2",
+ "engineVersion": "tochki-rules-1",
+ "weightsVersion": "tochki-weights-1",
+ "date": "2026-11-04T12:46:18.442Z",
+ "rows": [
+  {
+   "config": "full",
+   "note": "полная версия (monitor:true)",
+   "side": "strong:3000+monitor+safety2",
+   "pairs": 10,
+   "score": 0.55,
+   "ci95": {
+    "lo": 0.35,
+    "hi": 0.75,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": -0.8,
+   "nonZero": 1,
+   "prefork": null,
+   "preforkRate": null,
+   "msP95": 2155,
+   "nodesP95": 3000,
+   "nodesMean": 2848,
+   "botVersion": "tochki-ab-2",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  },
+  {
+   "config": "no-solver",
+   "note": "монитор без решателя",
+   "side": "strong:3000+monitor+no-solver+safety2",
+   "pairs": 10,
+   "score": 0.5,
+   "ci95": {
+    "lo": 0.5,
+    "hi": 0.5,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": 0,
+   "nonZero": 0.9,
+   "prefork": null,
+   "preforkRate": null,
+   "msP95": 963,
+   "nodesP95": 3000,
+   "nodesMean": 2844,
+   "botVersion": "tochki-ab-2",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  }
+ ],
+ "decisions": {
+  "nodes": [
+   {
+    "node": "монитор + решатель",
+    "verdict": "нет данных",
+    "keep": null
+   },
+   {
+    "node": "решатель",
+    "with": "full",
+    "without": "no-solver",
+    "gain": 0.05,
+    "keep": false,
+    "verdict": "удалить/не включать (прироста не доказано)"
+   },
+   {
+    "node": "safety2",
+    "verdict": "нет данных",
+    "keep": null
+   }
+  ],
+  "flags": [
+   {
+    "config": "full",
+    "status": "neutral",
+    "enableByDefault": false,
+    "reason": "ci95.lo 0.35 <= 0.5 — прироста нет"
+   },
+   {
+    "config": "no-solver",
+    "status": "neutral",
+    "enableByDefault": false,
+    "reason": "ci95.lo 0.5 <= 0.5 — прироста нет"
+   }
+  ],
+  "protocol": {
+   "screenPairs": 10,
+   "confirmPairs": 20
+  }
+ }
+}
