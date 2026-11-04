@@ -104,6 +104,7 @@ function hasThreat(node, ctx){
 
 // Лучшее немедленное взятие точек группы атакующим (как если бы ходил он).
 function bestGain(node, ctx){
+  const tryMove = budgetedMove(ctx);
   const n = Object.assign({}, node, { current: ctx.att });
   const base = lossOf(node, ctx.target, ctx.att);
   let g = 0;
