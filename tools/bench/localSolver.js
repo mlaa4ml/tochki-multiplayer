@@ -309,7 +309,7 @@ function solveGroup(node, def, target, opts){
             : { saved: false, move: null, loss: target.length - base };
   }
   return Object.assign(res, { threatened, depth: depthDone, nodes: ctx.nodes, verifyNodes: ctx.vnodes,
-    region: ctx.region.length, ms: +(nowMs() - t0).toFixed(1) });
+    region: ctx.region.length, timedOut: !!ctx.timedOut, ms: +(nowMs() - t0).toFixed(1) });
 }
 
 // ---------- прогон по regression (#57) ----------
