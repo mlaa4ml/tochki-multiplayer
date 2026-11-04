@@ -219,10 +219,14 @@ function netThreat(node, ctx){
 // после хода защитника атакующий отвечает ходом региона, защитник защищается
 // ходом региона, затем атакующий ходит дважды. Возвращает гарантированную потерю.
 function forkCheck(node, ctx){
+  // #77: дедлайн timeLimit. Infinity — проверка вилки не завершена, кандидат
+  // не принимается как спасение (и не попадает в «лучший по вилке»).
+  if (ctx.timedOut || nowMs() > ctx.deadline){ ctx.timedOut = true; return Infinity; }
   const base = lossOf(node, ctx.target, ctx.att);
   if (node.gameOver || node.current !== ctx.att) return 0;
   let worst = 0;
   for (const a of ctx.region){
+    if (nowMs() > ctx.deadline){ ctx.timedOut = true; return Infinity; }
     const t = tryMove(node, ctx.att, a);
     if (!t) continue;
     ctx.vnodes++;
