@@ -11,23 +11,31 @@
 // Это нужно для парных матчей «база против монитора» (S4/S8).
 //
 // При monitor:true:
-//   1. Общий поиск searchMove с обычным лимитом (diff.timeLimit, 2–3 с).
+//   1. Общий поиск searchMove с обычным лимитом (diff.timeLimit или nodeLimit).
+//      Бюджет основного поиска арбитр не трогает: решатель работает ПОСЛЕ
+//      поиска со своим лимитом узлов (solverNodeLimit) и времени.
 //   2. Монитор monitorPosition(node, mover) без полного twoMoveThreat
 //      (единицы мс). Тревога — группа бота с cost <= alarmCost (2, фильтр из S5/S6).
 //   3. Дополнительное время идёт ТОЛЬКО на локальный решатель solveGroup по
 //      тревожным группам (крупные — первыми). Бюджет — alarmTimeLimit,
-//      ограниченный сверху maxAlarmTimeLimit (настройка интерфейса).
-//   4. Спасение найдено -> играть спасающий ход, если его глобальная оценка
-//      (score из trace.candidates общего поиска) не хуже, чем
-//      bestScore - threshold. Если общий поиск этот ход не оценил, глобальная
-//      оценка всё равно проверяется: статическая оценка позиции после хода
-//      спасения не хуже оценки после хода общего поиска минус threshold
-//      (и группа >= minRescueSize). Каждый вызов решателя ограничен
-//      оставшимся бюджетом тревоги (solveGroup opts.timeLimit).
-//   5. Группа потеряна в любом случае -> бот не добавляет в неё камни: если
-//      ход общего поиска стоит рядом (8 соседей) с точкой потерянной группы и
-//      ничего не берёт, выбирается лучший по оценке кандидат вне группы
-//      (ограничение ущерба).
+//      ограниченный сверху maxAlarmTimeLimit (настройка интерфейса). При
+//      заданном nodeLimit (матчи/бенчмарки) и без явного alarmTimeLimit
+//      бюджет по умолчанию — alarmTimeLimitNodes (#77). Дедлайн соблюдается
+//      и в проверке спасения (verify/forkCheck решателя, #77).
+//   4. Спасение найдено -> играть спасающий ход, если статическая оценка
+//      позиции после него не хуже оценки после хода общего поиска минус
+//      threshold (и группа >= minRescueSize). Оба хода оцениваются ОДНИМ
+//      способом и с точки зрения бота (#77: раньше спасение сравнивалось по
+//      trace.candidates, где у всех ходов, кроме лучшего, — граница
+//      альфа-бета, а не оценка).
+//   5. Ограничение ущерба: только если решатель ДОКАЗАЛ потерю всей группы
+//      (поиск завершил хотя бы одну глубину, не оборвался по времени,
+//      loss >= размера группы), бот не добавляет в неё камни: если ход общего
+//      поиска стоит рядом (8 соседей) с точкой потерянной группы и ничего не
+//      берёт, выбирается лучший по оценке кандидат вне группы. Без
+//      доказательства (решатель выключен, таймаут, частичная потеря) ход поиска
+//      не подменяется (#77: раньше тревога cost<=2 без решателя сразу считалась
+//      потерей, и бот запрещал себе защитные ходы — доля 0.0 в S8 no-solver).
 // Решение арбитра пишется в trace.arbiter.
 'use strict';
 const E = require('./gameEngine.js');
@@ -37,9 +45,10 @@ const S = require('./tools/bench/localSolver.js');
 const ARBITER_DEFAULTS = Object.freeze({
   alarmCost: 2,              // cost <= 2 — тревога (S5, фильтр запуска S6)
   alarmTimeLimit: 10000,     // мс на локальный поиск при тревоге
+  alarmTimeLimitNodes: 1500, // #77: бюджет тревоги по умолчанию при заданном nodeLimit
   maxAlarmTimeLimit: 20000,  // верхний предел (настраивается в интерфейсе)
-  threshold: 2,              // допустимое ухудшение глобальной оценки спасающего хода
-  minRescueSize: 2,          // спасать без глобальной оценки — от 2 точек
+  threshold: 2,              // допустимое ухудшение статической оценки спасающего хода
+  minRescueSize: 2,          // спасать — от 2 точек
   maxGroups: 3,              // не больше 3 тревожных групп за ход
   solverNodeLimit: 200000,   // лимит узлов решателя на группу
   solver: true               // false — абляция S8 «монитор без решателя» (#62)
@@ -69,7 +78,9 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   opts = opts || {};
   const base = E.searchMove(state, rows, cols, mover, diff, weights, opts);
   if (opts.monitor !== true) return base; // monitor:false — ровно база
-  const ao = Object.assign({}, ARBITER_DEFAULTS, opts.arbiter || {});
+  const user = opts.arbiter || {};
+  const ao = Object.assign({}, ARBITER_DEFAULTS, user);
+  if (opts.nodeLimit > 0 && user.alarmTimeLimit === undefined) ao.alarmTimeLimit = ao.alarmTimeLimitNodes;
   const trace = base.trace;
   const info = { alarm: false, groups: [], decision: 'base', budgetMs: alarmBudget(ao) };
   trace.arbiter = info;
@@ -89,8 +100,16 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   info.alarm = true;
 
   const cands = trace.candidates || [];
-  const bestScore = cands.reduce((m, c) => Math.max(m, c.score), -Infinity);
-  const scoreOf = mv => { const c = cands.find(q => q.x === mv.x && q.y === mv.y); return c ? c.score : undefined; };
+  // Статическая оценка позиции после хода — с точки зрения бота (mover),
+  // одна шкала для хода спасения и хода общего поиска.
+  const ev = mv => {
+    if (!E.isTransitionLegal(node, mv.x, mv.y)) return -Infinity;
+    const t = E.applyTransition(node, mover, mv.x, mv.y);
+    if (!t.ok) return -Infinity;
+    return E.evaluateStatic(t.node.state, rows, cols, mover, weights || E.BOT_WEIGHTS, t.node);
+  };
+  let sbCache;
+  const staticBase = () => (sbCache === undefined ? (sbCache = ev(base.move)) : sbCache);
   const tLocal = nowMs();
   const lost = [];
   let rescue = null;
@@ -99,37 +118,25 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     // Каждый вызов решателя ограничен ОСТАВШИМСЯ бюджетом тревоги (timeLimit).
     const remain = Math.max(1, info.budgetMs - (nowMs() - tLocal));
     // S8 (#62), абляция «без решателя»: arbiter.solver:false — решатель не
-    // вызывается, тревожная группа считается потерянной (работает только
-    // ограничение ущерба). По умолчанию solver:true — поведение S7.
+    // вызывается. Потеря группы тогда не доказана, и ход поиска не
+    // подменяется (#77).
     const r = ao.solver === false
-      ? { saved: false, move: null, loss: g.size, depth: 0, ms: 0, skipped: 'no-solver' }
+      ? { saved: false, move: null, loss: 0, depth: 0, ms: 0, skipped: 'no-solver' }
       : S.solveGroup(node, mover, g.stones, { nodeLimit: ao.solverNodeLimit, timeLimit: remain });
     const gi = { size: g.size, cost: g.cost, saved: r.saved, move: r.move, loss: r.loss, depth: r.depth, ms: r.ms };
+    if (r.timedOut) { gi.timedOut = true; info.timeout = true; }
+    if (r.skipped) gi.skipped = r.skipped;
     info.groups.push(gi);
     if (r.saved && r.move){
-      // Глобальная оценка спасающего хода проверяется ВСЕГДА: по оценке общего
-      // поиска (trace.candidates), а если поиск ход не оценил — по статической
-      // оценке позиции после хода против позиции после хода общего поиска.
-      const sc = scoreOf(r.move);
-      let ok;
-      if (sc !== undefined){
-        gi.score = sc;
-        ok = sc >= bestScore - ao.threshold;
-      } else {
-        const ev = mv => {
-          if (!E.isTransitionLegal(node, mv.x, mv.y)) return -Infinity;
-          const t = E.applyTransition(node, mover, mv.x, mv.y);
-          if (!t.ok) return -Infinity;
-          return E.evaluateStatic(t.node.state, rows, cols, mover, weights || E.BOT_WEIGHTS, t.node);
-        };
-        const sr = ev(r.move), sb = ev(base.move);
-        gi.score = null; gi.staticScore = sr; gi.staticBase = sb;
-        ok = g.size >= ao.minRescueSize && Number.isFinite(sr) && sr >= sb - ao.threshold;
-      }
+      const sr = ev(r.move), sb = staticBase();
+      gi.staticScore = sr; gi.staticBase = sb;
+      const ok = g.size >= ao.minRescueSize && Number.isFinite(sr) && sr >= sb - ao.threshold;
       gi.accepted = ok;
       if (ok && !rescue) rescue = { move: r.move, size: g.size };
     } else if (!r.saved){
-      lost.push(g);
+      const proven = !r.skipped && !r.timedOut && r.depth > 0 && Number.isFinite(r.loss) && r.loss >= g.size;
+      gi.lostProven = proven;
+      if (proven) lost.push(g);
     }
   }
   info.localMs = +(nowMs() - tLocal).toFixed(1);
@@ -144,7 +151,7 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
 
   if (rescue) return pick(rescue.move, 'rescue');
 
-  // Ограничение ущерба: не добавлять камни в потерянные группы.
+  // Ограничение ущерба: не добавлять камни в доказанно потерянные группы.
   if (lost.length){
     const bad = mv => lost.some(g => nearGroup(mv, g.stones)) && !capturesAny(node, mover, mv);
     if (bad(base.move)){
