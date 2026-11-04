@@ -268,6 +268,18 @@ function forkCheck(node, ctx){
 }
 
 function solveGroup(node, def, target, opts){
+  const t0 = nowMs();
+  try {
+    return solveGroupUnchecked(node, def, target, opts);
+  } catch (err){
+    if (err !== BUDGET_EXHAUSTED) throw err;
+    // Unknown is neither a verified rescue nor a proven loss.
+    return { saved: false, move: null, loss: null, incomplete: true,
+      depth: 0, nodes: 0, verifyNodes: 0, ms: +(nowMs() - t0).toFixed(1) };
+  }
+}
+
+function solveGroupUnchecked(node, def, target, opts){
   opts = opts || {};
   const t0 = nowMs();
   const ctx = {
