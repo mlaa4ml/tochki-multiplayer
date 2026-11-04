@@ -47,8 +47,11 @@
   };
   // safety2 (issue #52) — корневой фильтр угрозы «сети» за 2 хода соперника,
   // см. twoMoveThreat/applySafety2. antiFork — анти-вилка на 4 полухода
-  // (forkLoss/forkLoss4/applyAntiFork). Оба по умолчанию ВЫКЛЮЧЕНЫ (issue #55):
-  // по отчёту #52 ходов они не меняли, эффект проверят абляцией (S8 / #62).
+  // (forkLoss/forkLoss4/applyAntiFork). По умолчанию выключены (issue #55),
+  // кроме safety2 в strong: абляция S8 (#62, docs/S8_RESULTS.md) дала на 20
+  // парах против базы долю 0.688, ci95 [0.563, 0.813] (lo > 0.5) — включён
+  // с версии бота tochki-ab-2. В normal safety2 не проверялся и выключен,
+  // antiFork выключен. Монитор (monitor:false) по S8 хуже базы — не включаем.
   // TRAIN_DIFF их тоже не включает.
   const TRAIN_DIFF = { radius:3, candidateCap:16, timeLimit:700, maxDepth:4, branchWide:6, branchMid:6, branchNarrow:4, quiescenceExt:3 };
 
