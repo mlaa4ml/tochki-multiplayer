@@ -69,7 +69,16 @@ const A = require('../arbiter.js');
   assert.strictEqual(flag('full').enableByDefault, true);
   assert.strictEqual(flag('safety2-on').enableByDefault, false);
   const few = S8.decide([mk('full', 0.7, 0.6, 10)]);
-  assert.strictEqual(few.flags[0].enableByDefault, false, 'меньше 50 пар — не включать');
+  assert.strictEqual(few.flags[0].enableByDefault, false, '10 пар — только отбор, не включать');
+  assert.strictEqual(few.flags[0].status, 'confirm', '10 пар с ci95.lo > 0.5 — на подтверждение');
+  // Ступенчатый протокол: 10 пар — отбор, 20 пар — подтверждение.
+  const conf = S8.decide([mk('full', 0.7, 0.6, 20)]);
+  assert.strictEqual(conf.flags[0].enableByDefault, true, '20 пар и ci95.lo > 0.5 — включать');
+  const bad = S8.decide([{ config: 'full', score: 0.1, ci95: { lo: 0, hi: 0.2 }, better: false, pairs: 10 }]);
+  assert.strictEqual(bad.flags[0].status, 'reject', 'ci95.hi < 0.5 — отбросить');
+  const short = S8.decide([mk('full', 0.7, 0.6, 4)]);
+  assert.strictEqual(short.flags[0].status, 'insufficient');
+  assert.deepStrictEqual(conf.protocol, { screenPairs: 10, confirmPairs: 20 });
 }
 
 console.log('s8-ablation: ok');
