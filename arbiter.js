@@ -108,37 +108,22 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     if (nowMs() - tLocal >= info.budgetMs) { info.timeout = true; break; }
     // Каждый вызов решателя ограничен ОСТАВШИМСЯ бюджетом тревоги (timeLimit).
     const remain = Math.max(1, info.budgetMs - (nowMs() - tLocal));
-    // S8 (#62), абляция «без решателя»: arbiter.solver:false — решатель не
-    // вызывается, тревожная группа считается потерянной (работает только
-    // ограничение ущерба). По умолчанию solver:true — поведение S7.
+    // A monitor alarm is a heuristic, not proof that a group is lost.
     const r = ao.solver === false
-      ? { saved: false, move: null, loss: g.size, depth: 0, ms: 0, skipped: 'no-solver' }
+      ? { saved: false, move: null, loss: null, depth: 0, ms: 0, skipped: 'no-solver' }
       : S.solveGroup(node, mover, g.stones, { nodeLimit: ao.solverNodeLimit, timeLimit: remain });
-    const gi = { size: g.size, cost: g.cost, saved: r.saved, move: r.move, loss: r.loss, depth: r.depth, ms: r.ms };
+    const gi = { size: g.size, cost: g.cost, saved: r.saved, move: r.move, loss: r.loss,
+      depth: r.depth, ms: r.ms, incomplete: !!r.incomplete, skipped: r.skipped };
     info.groups.push(gi);
-    if (r.saved && r.move){
-      // Глобальная оценка спасающего хода проверяется ВСЕГДА: по оценке общего
-      // поиска (trace.candidates), а если поиск ход не оценил — по статической
-      // оценке позиции после хода против позиции после хода общего поиска.
+    if (r.incomplete) info.timeout = true;
+    if (r.saved && r.move && !r.incomplete){
       const sc = scoreOf(r.move);
-      let ok;
-      if (sc !== undefined){
-        gi.score = sc;
-        ok = sc >= bestScore - ao.threshold;
-      } else {
-        const ev = mv => {
-          if (!E.isTransitionLegal(node, mv.x, mv.y)) return -Infinity;
-          const t = E.applyTransition(node, mover, mv.x, mv.y);
-          if (!t.ok) return -Infinity;
-          return E.evaluateStatic(t.node.state, rows, cols, mover, weights || E.BOT_WEIGHTS, t.node);
-        };
-        const sr = ev(r.move), sb = ev(base.move);
-        gi.score = null; gi.staticScore = sr; gi.staticBase = sb;
-        ok = g.size >= ao.minRescueSize && Number.isFinite(sr) && sr >= sb - ao.threshold;
-      }
+      gi.staticScore = sc;
+      gi.staticBase = baseScore;
+      const ok = g.size >= ao.minRescueSize && Number.isFinite(sc) && sc >= baseScore - ao.threshold;
       gi.accepted = ok;
       if (ok && !rescue) rescue = { move: r.move, size: g.size };
-    } else if (!r.saved){
+    } else if (!r.incomplete && !r.skipped && r.depth > 0 && r.loss >= g.size){
       lost.push(g);
     }
   }
