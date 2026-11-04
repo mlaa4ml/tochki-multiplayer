@@ -1,0 +1,24 @@
+# S8 — результаты абляций (бот tochki-ab-1)
+
+| Конфигурация | Сторона | Пар | Доля очков | ci95 | Разность очков | «до вилки» (S3) | p95 хода, мс | Узлы p95 / ср. | Версия бота |
+|---|---|---|---|---|---|---|---|---|---|
+| base — база (контроль: база против самой себя) | `strong:3000` | 10 | 0.5 | [0.5, 0.5] | 0 | 0/2 | 958 | 3000 / 2847 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+| full — полная версия (monitor:true) | `strong:3000+monitor+safety2` | 10 | 0.075 | [0, 0.175] | -6.4 | 0/2 | 27561 | 3000 / 2859 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+| no-monitor — без монитора | `strong:3000+safety2` | 10 | 0.75 | [0.55, 0.95] | 2.95 | 0/2 | 1202 | 3000 / 2840 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+| no-solver — монитор без решателя | `strong:3000+monitor+no-solver+safety2` | 10 | 0 | [0, 0] | -14.2 | 0/2 | 1036 | 3000 / 2829 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+| safety2-on — с фильтром safety2 (#55) | `strong:3000+safety2` | 10 | 0.75 | [0.55, 0.95] | 2.95 | 0/2 | 1248 | 3000 / 2840 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+| safety2-off — без фильтра safety2 | `strong:3000+no-safety2` | 10 | 0.5 | [0.5, 0.5] | 0 | 0/2 | 1015 | 3000 / 2847 | tochki-ab-1 (engine tochki-rules-1, weights tochki-weights-1) |
+
+| Узел | С узлом / без | Прирост доли очков | Решение |
+|---|---|---|---|
+| монитор + решатель | full / no-monitor | -0.675 | удалить/не включать (прироста не доказано) |
+| решатель | full / no-solver | 0.075 | удалить/не включать (прироста не доказано) |
+| safety2 | safety2-on / safety2-off | 0.25 | оставить (прирост есть) |
+
+| Конфигурация | Включать по умолчанию | Причина |
+|---|---|---|
+| full | нет | пар 10 < 50 |
+| no-monitor | нет | пар 10 < 50 |
+| no-solver | нет | пар 10 < 50 |
+| safety2-on | нет | пар 10 < 50 |
+| safety2-off | нет | пар 10 < 50 |
