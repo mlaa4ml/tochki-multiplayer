@@ -76,6 +76,20 @@ function tryMove(node, p, c){
   return t.ok ? t : null;
 }
 
+// All phases share one deadline/node budget, including move generation and
+// verification. Aborted verification must never be reported as a saved group.
+const BUDGET_EXHAUSTED = Symbol('solver budget exhausted');
+function checkBudget(ctx, count){
+  if (count) ctx.work++;
+  if (ctx.work > ctx.nodeLimit || nowMs() >= ctx.deadline) throw BUDGET_EXHAUSTED;
+}
+function budgetedMove(ctx){
+  return (node, p, c) => {
+    checkBudget(ctx, true);
+    return tryMove(node, p, c);
+  };
+}
+
 // Есть ли у атакующего немедленное взятие точек группы (как если бы ходил он).
 function hasThreat(node, ctx){
   const n = Object.assign({}, node, { current: ctx.att });
