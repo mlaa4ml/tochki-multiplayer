@@ -237,6 +237,8 @@ function netThreat(node, ctx){
 // после хода защитника атакующий отвечает ходом региона, защитник защищается
 // ходом региона, затем атакующий ходит дважды. Возвращает гарантированную потерю.
 function forkCheck(node, ctx){
+  checkBudget(ctx, true);
+  const tryMove = budgetedMove(ctx);
   const base = lossOf(node, ctx.target, ctx.att);
   if (node.gameOver || node.current !== ctx.att) return 0;
   let worst = 0;
