@@ -198,9 +198,13 @@ function playOne(o, cand, base, candSeat, opts){
     per[r.seat].nodes.push(r.nodes || 0);
   }
   const cs = result.scores[candSeat], bs = result.scores[3 - candSeat];
-  return { candSeat, end: result.end, scores: result.scores, candScore: cs, baseScore: bs,
+  const out = { candSeat, end: result.end, scores: result.scores, candScore: cs, baseScore: bs,
     points: cs > bs ? 1 : (cs < bs ? 0 : 0.5), moves: result.moves,
     cand: per[candSeat], base: per[3 - candSeat] };
+  // #77: статистика решений арбитра по партии (только для сторон с monitor).
+  if (players[candSeat].arbiterStats) out.cand.arbiter = players[candSeat].arbiterStats;
+  if (players[3 - candSeat].arbiterStats) out.base.arbiter = players[3 - candSeat].arbiterStats;
+  return out;
 }
 
 function playPair(o, cand, base, opts){
