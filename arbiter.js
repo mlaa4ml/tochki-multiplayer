@@ -93,8 +93,14 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   info.alarm = true;
 
   const cands = trace.candidates || [];
-  const bestScore = cands.reduce((m, c) => Math.max(m, c.score), -Infinity);
-  const scoreOf = mv => { const c = cands.find(q => q.x === mv.x && q.y === mv.y); return c ? c.score : undefined; };
+  // Root alpha-beta scores can be bounds, not comparable move evaluations.
+  // Compare both positions in the same static scale, from the bot's seat.
+  const scoreOf = mv => {
+    if (!E.isTransitionLegal(node, mv.x, mv.y)) return -Infinity;
+    const t = E.applyTransition(node, mover, mv.x, mv.y);
+    return t.ok ? E.evaluateStatic(t.node.state, rows, cols, mover, weights || E.BOT_WEIGHTS, t.node) : -Infinity;
+  };
+  const baseScore = scoreOf(base.move);
   const tLocal = nowMs();
   const lost = [];
   let rescue = null;
