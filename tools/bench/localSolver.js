@@ -211,6 +211,8 @@ function verify(node, depth, ctx){
 // Сеть за 2 хода: атакующий ходит дважды подряд в ближней части региона;
 // возвращает прирост пленённых точек группы.
 function netThreat(node, ctx){
+  checkBudget(ctx, true);
+  const tryMove = budgetedMove(ctx);
   const base = lossOf(node, ctx.target, ctx.att), cells = ctx.netCells;
   const n = Object.assign({}, node, { current: ctx.att });
   let best = 0;
