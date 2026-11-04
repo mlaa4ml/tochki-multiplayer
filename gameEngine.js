@@ -1966,7 +1966,8 @@
 
   // Replay identity describes rule semantics, not the npm package version.
   const ENGINE_VERSION = 'tochki-rules-1';
-  const BOT_VERSION = 'tochki-ab-1';
+    // tochki-ab-2 (#62, S8): safety2:true в DIFFICULTY.strong.
+  const BOT_VERSION = 'tochki-ab-2';
   const WEIGHTS_VERSION = 'tochki-weights-1';
 
   // Record successful transitions at the shared engine boundary so server,
