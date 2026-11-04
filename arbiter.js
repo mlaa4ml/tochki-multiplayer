@@ -36,7 +36,8 @@ const S = require('./tools/bench/localSolver.js');
 
 const ARBITER_DEFAULTS = Object.freeze({
   alarmCost: 2,              // cost <= 2 — тревога (S5, фильтр запуска S6)
-  alarmTimeLimit: 10000,     // мс на локальный поиск при тревоге
+    alarmTimeLimit: 10000,     // мс на локальный поиск при тревоге
+  alarmTimeLimitNodes: 1500, // дополнительный бюджет при детерминированном nodeLimit
   maxAlarmTimeLimit: 20000,  // верхний предел (настраивается в интерфейсе)
   threshold: 2,              // допустимое ухудшение глобальной оценки спасающего хода
   minRescueSize: 2,          // спасать без глобальной оценки — от 2 точек
