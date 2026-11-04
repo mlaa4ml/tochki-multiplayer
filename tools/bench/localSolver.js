@@ -180,6 +180,8 @@ function search(node, depth, alpha, beta, ctx){
 
 // Проверка: атакующий — любой легальный ход поля, защитник — регион.
 function verify(node, depth, ctx){
+  checkBudget(ctx, true);
+  const tryMove = budgetedMove(ctx);
   ctx.vnodes++;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
