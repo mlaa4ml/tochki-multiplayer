@@ -65,7 +65,20 @@ function parseArgs(argv){
 function buildSet(o){
   const games = RB.selectGames(o.files, RB.loadManifest(path.join(RB.CORPUS_DIR, 'manifest.json')), null);
   const positions = [];
+  // #81: инкрементальная сборка — набор пишется после каждой партии,
+  // уже обработанные партии (doneGames) при повторном запуске пропускаются.
+  let prev = null;
+  if (fs.existsSync(o.set)) prev = JSON.parse(fs.readFileSync(o.set, 'utf8'));
+  const doneGames = new Set((prev && prev.doneGames) || []);
+  const flush = () => {
+    const ids = new Set(positions.map(p => p.id));
+    const all = positions.concat(((prev && prev.positions) || []).filter(p => !ids.has(p.id)))
+      .sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    fs.writeFileSync(o.set, JSON.stringify({ format: 'tochki-tactical-set', version: 1,
+      description: 'Тактический набор #81 (частичная сборка, см. doneGames)', doneGames: [...doneGames], positions: all }, null, 1) + '\n');
+  };
   for (const g of games){
+    if (doneGames.has(g.id)){ console.log(`${g.id}: уже в наборе`); continue; }
     const t0 = Date.now();
     let a;
     try { a = RB.analyzePreFork(g, { minLoss: o.minLoss, maxBack: o.maxBack, radius: o.radius, forkCap: o.forkCap, nodeLimit: 0 }); }
