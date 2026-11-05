@@ -78,6 +78,14 @@ function buildSet(o){
         minLoss: p.minLoss, rescue: p.rescue.map(r => ({ x: r.x, y: r.y, loss: r.loss })) });
     }
   }
+    // Слияние с уже построенным набором по id: набор можно собирать по одному
+  // файлу реплеев за запуск (forkLoss4 дорогой, лимит времени команды).
+  if (fs.existsSync(o.set)){
+    const old = JSON.parse(fs.readFileSync(o.set, 'utf8'));
+    const ids = new Set(positions.map(p => p.id));
+    for (const p of (old.positions || [])) if (!ids.has(p.id)) positions.push(p);
+    positions.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  }
   const data = { format: 'tochki-tactical-set', version: 1,
     description: 'Тактический набор #81: позиции из партий против человека, где перед крупным взятием у бота спасение ещё существовало (forkLoss4, 6 полуходов). Решено — ход бота входит в rescue. Генерируется: node tools/bench/tactical-set.js --build',
     params: { minLoss: o.minLoss, maxBack: o.maxBack, radius: o.radius, forkCap: o.forkCap, files: o.files.map(f => path.basename(f)) },
