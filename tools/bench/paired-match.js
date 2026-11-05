@@ -169,7 +169,9 @@ function makePlayer(side){
 }
 
 function newArbiterStats(){
-  return { moves: 0, alarms: 0, overridden: 0, timeouts: 0, decisions: {}, localMsMax: 0, localMsSum: 0, monitorMsSum: 0 };
+    // decisions: base — ход поиска, rescue — ход спасения, limit — ограничение
+  // ущерба (не добавлять камни в доказанно потерянную группу). Ключи всегда есть.
+  return { moves: 0, alarms: 0, overridden: 0, timeouts: 0, decisions: { base: 0, rescue: 0, limit: 0 }, localMsMax: 0, localMsSum: 0, monitorMsSum: 0 };
 }
 
 function recordArbiter(st, info){
