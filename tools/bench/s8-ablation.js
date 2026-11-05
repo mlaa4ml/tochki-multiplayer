@@ -44,7 +44,9 @@ const CONFIGS = {
   'no-monitor':  { flags: ['safety2'], note: 'без монитора' },
   'no-solver':   { flags: ['monitor', 'no-solver', 'safety2'], note: 'монитор без решателя' },
   'safety2-on':  { flags: ['safety2'], note: 'с фильтром safety2 (#55)' },
-  'safety2-off': { flags: ['no-safety2'], note: 'без фильтра safety2' }
+    'safety2-off': { flags: ['no-safety2'], note: 'без фильтра safety2' },
+  // #81: монитор с детектором спасения по forkLoss4 (arbiter.forkRescue).
+  'fork':        { flags: ['monitor', 'fork', 'safety2'], note: 'монитор + forkRescue (#81)' }
 };
 
 // Сравнения «с узлом / без узла» для правила удаления узла. Оценка вклада —
