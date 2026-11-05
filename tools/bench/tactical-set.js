@@ -90,6 +90,8 @@ function buildSet(o){
         botSeat: p.botSeat, captureAt: p.captureAt, captured: p.captured, played: p.played, playedLoss: p.playedLoss,
         minLoss: p.minLoss, rescue: p.rescue.map(r => ({ x: r.x, y: r.y, loss: r.loss })) });
     }
+    doneGames.add(g.id);
+    flush();
   }
     // Слияние с уже построенным набором по id: набор можно собирать по одному
   // файлу реплеев за запуск (forkLoss4 дорогой, лимит времени команды).
