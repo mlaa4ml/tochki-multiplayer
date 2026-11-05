@@ -148,7 +148,7 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
       const alt = avoidLostMove(node, mover, weights, cands, lost.map(g => g.stones));
       if (alt){
         info.avoidSource = alt.source;
-        return pick(alt, 'avoid-lost');
+        return pick(alt, 'limit');
       }
       info.avoidSource = 'none'; // вне групп легальных ходов нет вовсе
     }
