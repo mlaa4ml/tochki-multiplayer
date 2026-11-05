@@ -1,0 +1,277 @@
+{
+ "format": "tochki-tactical-report",
+ "version": 1,
+ "set": "tactical.v1.json",
+ "level": "strong",
+ "nodeLimit": 3000,
+ "configs": {
+  "base": {
+   "monitor": false
+  },
+  "static": {
+   "monitor": true,
+   "arbiter": {
+    "rescueMode": "static"
+   }
+  },
+  "root": {
+   "monitor": true,
+   "arbiter": {
+    "rescueMode": "root"
+   }
+  },
+  "static-large": {
+   "monitor": true,
+   "arbiter": {
+    "rescueMode": "static",
+    "alarmCostLarge": 3,
+    "largeGroupSize": 6
+   }
+  },
+  "root-large": {
+   "monitor": true,
+   "arbiter": {
+    "rescueMode": "root",
+    "alarmCostLarge": 3,
+    "largeGroupSize": 6
+   }
+  }
+ },
+ "summary": {
+  "base": {
+   "solved": 1,
+   "positions": 3,
+   "alarms": 0,
+   "solverSaved": 0,
+   "msMax": 595,
+   "rate": 0.333
+  },
+  "static": {
+   "solved": 1,
+   "positions": 3,
+   "alarms": 3,
+   "solverSaved": 1,
+   "msMax": 2157,
+   "rate": 0.333
+  },
+  "root": {
+   "solved": 1,
+   "positions": 3,
+   "alarms": 3,
+   "solverSaved": 1,
+   "msMax": 1984,
+   "rate": 0.333
+  },
+  "static-large": {
+   "solved": 1,
+   "positions": 3,
+   "alarms": 3,
+   "solverSaved": 1,
+   "msMax": 1998,
+   "rate": 0.333
+  },
+  "root-large": {
+   "solved": 1,
+   "positions": 3,
+   "alarms": 3,
+   "solverSaved": 1,
+   "msMax": 1987,
+   "rate": 0.333
+  }
+ },
+ "positions": [
+  {
+   "id": "issue52-r01-g0@42",
+   "captured": 12,
+   "rescue": [
+    "8,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 595,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 497,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "root": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 440,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "static-large": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 663,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "root-large": {
+     "move": {
+      "x": 7,
+      "y": 3
+     },
+     "ms": 888,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r01-g1@42",
+   "captured": 7,
+   "rescue": [
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 334,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 1907,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "root": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 1864,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static-large": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 1865,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "root-large": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 1877,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g0@62",
+   "captured": 22,
+   "rescue": [
+    "3,7",
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 470,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 2157,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "root": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 1984,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static-large": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 1998,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "root-large": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 1987,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    }
+   }
+  }
+ ]
+}
