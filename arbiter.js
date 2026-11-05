@@ -162,7 +162,23 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     return { move: { x: mv.x, y: mv.y }, trace };
   };
 
-  if (rescue) return pick(rescue.move, 'rescue');
+    if (ao.rescueMode === 'root'){
+    // #81 (гипотеза 1): ходы-спасения подаются в корень повторного поиска
+    // первыми кандидатами. Поиск оценивает их на полную глубину в одной
+    // шкале с остальными ходами, без подмены по одноходовой статике.
+    const rmv = info.groups.filter(gi => gi.saved && gi.move && gi.size >= ao.minRescueSize)
+      .map(gi => ({ x: gi.move.x, y: gi.move.y }));
+    if (rmv.length){
+      const o2 = Object.assign({}, opts, { rootFirst: rmv });
+      if (ao.rootNodeLimit > 0) o2.nodeLimit = ao.rootNodeLimit;
+      const r2 = E.searchMove(state, rows, cols, mover, diff, weights, o2);
+      info.rescueMode = 'root';
+      info.rootFirst = r2.trace.rootFirst || [];
+      info.rootNodes = r2.trace.nodes;
+      info.rootCompletedDepth = r2.trace.completedDepth;
+      if (r2.move) return pick(r2.move, 'rescue');
+    }
+  } else if (rescue) return pick(rescue.move, 'rescue');
 
   // Ограничение ущерба: не добавлять камни в доказанно потерянные группы.
   if (lost.length){
