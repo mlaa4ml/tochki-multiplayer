@@ -166,8 +166,12 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     // #81 (гипотеза 1): ходы-спасения подаются в корень повторного поиска
     // первыми кандидатами. Поиск оценивает их на полную глубину в одной
     // шкале с остальными ходами, без подмены по одноходовой статике.
-    const rmv = info.groups.filter(gi => gi.saved && gi.move && gi.size >= ao.minRescueSize)
-      .map(gi => ({ x: gi.move.x, y: gi.move.y }));
+    // rescuePartial: решатель не спас группу целиком, но нашёл ход, после
+    // которого потеря меньше размера группы, — это тоже кандидат «спасения»
+    // (минимизация ущерба; #81, позиция issue52-r01-g1@42: loss 6 из 14).
+    const useGi = gi => gi.move && gi.size >= ao.minRescueSize &&
+      (gi.saved || (ao.rescuePartial && !gi.timedOut && Number.isFinite(gi.loss) && gi.loss < gi.size));
+    const rmv = info.groups.filter(useGi).map(gi => ({ x: gi.move.x, y: gi.move.y }));
     if (rmv.length){
       const o2 = Object.assign({}, opts, { rootFirst: rmv });
       if (ao.rootNodeLimit > 0) o2.nodeLimit = ao.rootNodeLimit;
