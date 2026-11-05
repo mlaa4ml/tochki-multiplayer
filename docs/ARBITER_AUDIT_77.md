@@ -18,7 +18,7 @@
 
 5. **Частота тревог (п. 2).** Монитор срабатывает часто: на 12–30 ходах из ~34 за партию. Но ход подменяется редко, 0–2 раза за партию. Решения распределяются так: `base` 28–32, `rescue` 2–6. После исправления `avoid-lost` больше не встречался. Значит, частые тревоги сами по себе ход не портили. Портили неверное сравнение оценок и `avoid-lost` без доказательства потери.
 
-6. **Статистика (п. 6).** Для сторон с `monitor` в `paired-match` по каждой партии пишется `games[].cand.arbiter` / `games[].base.arbiter`. Поля: `moves`, `alarms`, `overridden`, `timeouts`, `decisions` (`base`/`rescue`/`avoid-lost`), `localMsMax`, `localMsSum`, `monitorMsSum`.
+6. **Статистика (п. 6).** Для сторон с `monitor` в `paired-match` по каждой партии пишется `games[].cand.arbiter` / `games[].base.arbiter`. Поля: `moves`, `alarms`, `overridden`, `timeouts`, `decisions` (`base`/`rescue`/`limit`; ключи всегда присутствуют, `limit` — ограничение ущерба, в `trace.arbiter.decision` раньше называлось `avoid-lost`), `localMsMax`, `localMsSum`, `monitorMsSum`.
 
 ## Проверка (`tools/bench/s8-ablation.js --config full`, 3000 узлов)
 
