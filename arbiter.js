@@ -165,7 +165,65 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     return { move: { x: mv.x, y: mv.y }, trace };
   };
 
-    if (ao.rescueMode === 'root'){
+      // #81: forkRescue — детектор спасения по forkLoss4 (6 полуходов) для крупных
+  // тревожных групп. Решатель S6 на позициях тактического набора расходится с
+  // forkLoss4 (issue52-r01-g0@42: решатель «спасает» ходом 7,3, а реально
+  // спасает 8,5; r01-g1@42: решатель не находит 4,8). Если ход общего поиска
+  // теряет по forkLoss4 >= 3 точек, а легальный ход рядом с группой теряет хотя
+  // бы на 3 меньше — играть ход с минимальной потерей (ничья — по статике).
+  // Ограничения: forkTimeLimit (мс), forkCap (вызовов forkLoss4 на ход).
+  // По умолчанию выключено (forkRescue: undefined/false).
+  if (ao.forkRescue){
+    const tF = nowMs();
+    const fBudget = Math.max(1, num(ao.forkTimeLimit, 1500));
+    const fCap = Math.max(1000, num(ao.forkCap, 50000));
+    const opp = mover === 1 ? 2 : 1;
+    const fi = { checked: 0, aborted: 0 };
+    info.fork = fi;
+    const lossOf = mv => {
+      if (!E.isTransitionLegal(node, mv.x, mv.y)) return null;
+      const t = E.applyTransition(node, mover, mv.x, mv.y);
+      if (!t.ok) return null;
+      if (t.node.gameOver) return (t.node.winner && t.node.winner !== mover) ? 1e6 : 0;
+      if (t.node.current === mover) return 0;
+      let mine = 0;
+      for (const c of t.result.gained) if (c.kind === 'captured') mine++;
+      fi.checked++;
+      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false });
+      if (!r){ fi.aborted++; return null; }
+      return Math.max(0, r.loss - mine);
+    };
+    const big = alarmed.filter(g => g.size >= num(ao.forkMinSize, ao.largeGroupSize));
+    if (big.length){
+      const bl = lossOf(base.move);
+      fi.baseLoss = bl;
+      if (bl !== null && bl >= 3){
+        const R = num(ao.forkRadius, 1);
+        const seen = new Set([base.move.y * node.cols + base.move.x]);
+        let best = null;
+        outer:
+        for (const g of big) for (const s of g.stones) for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++){
+          if (nowMs() - tF >= fBudget){ fi.timeout = true; break outer; }
+          const x = s.x + dx, y = s.y + dy;
+          if (x < 0 || y < 0 || x >= node.cols || y >= node.rows) continue;
+          const k = y * node.cols + x;
+          if (seen.has(k)) continue;
+          seen.add(k);
+          const mv = { x, y };
+          const l = lossOf(mv);
+          if (l === null) continue;
+          if (!best || l < best.loss || (l === best.loss && ev(mv) > (best.ev === undefined ? (best.ev = ev(best)) : best.ev)))
+            best = { x, y, loss: l };
+        }
+        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss }; }
+        fi.ms = +(nowMs() - tF).toFixed(1);
+        if (best && best.loss <= bl - 3) return pick({ x: best.x, y: best.y }, 'rescue');
+      }
+    }
+    fi.ms = +(nowMs() - tF).toFixed(1);
+  }
+
+  if (ao.rescueMode === 'root'){
     // #81 (гипотеза 1): ходы-спасения подаются в корень повторного поиска
     // первыми кандидатами. Поиск оценивает их на полную глубину в одной
     // шкале с остальными ходами, без подмены по одноходовой статике.
