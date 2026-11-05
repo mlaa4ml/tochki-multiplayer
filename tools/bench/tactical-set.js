@@ -35,7 +35,9 @@ const CONFIGS = {
   static: { monitor: true, arbiter: { rescueMode: 'static' } },
   root: { monitor: true, arbiter: { rescueMode: 'root' } },
   'static-large': { monitor: true, arbiter: { rescueMode: 'static', alarmCostLarge: 3, largeGroupSize: 6 } },
-  'root-large': { monitor: true, arbiter: { rescueMode: 'root', alarmCostLarge: 3, largeGroupSize: 6 } }
+    'root-large': { monitor: true, arbiter: { rescueMode: 'root', alarmCostLarge: 3, largeGroupSize: 6 } },
+  // #81: root + ранняя тревога + частичное спасение (минимизация потери).
+  'root-partial': { monitor: true, arbiter: { rescueMode: 'root', alarmCostLarge: 3, largeGroupSize: 6, rescuePartial: true } }
 };
 
 function parseArgs(argv){
