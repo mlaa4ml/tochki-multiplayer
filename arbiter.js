@@ -94,7 +94,11 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   const t0 = nowMs();
   const mon = M.monitorPosition(node, mover, { twoMove: false, withOpp: false });
   info.monitorMs = +(nowMs() - t0).toFixed(1);
-  const alarmed = mon.groups.filter(g => g.cost <= ao.alarmCost)
+    // #81 (гипотеза 2): для крупных групп тревога раньше — cost <= alarmCostLarge
+  // при size >= largeGroupSize. По умолчанию alarmCostLarge = null (как раньше).
+  const costLimit = g => (Number.isFinite(ao.alarmCostLarge) && g.size >= ao.largeGroupSize)
+    ? Math.max(ao.alarmCost, ao.alarmCostLarge) : ao.alarmCost;
+  const alarmed = mon.groups.filter(g => g.cost <= costLimit(g))
     .sort((a, b) => b.size - a.size || a.cost - b.cost).slice(0, ao.maxGroups);
   if (!alarmed.length) return base;
   info.alarm = true;
