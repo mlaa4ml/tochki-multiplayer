@@ -51,7 +51,16 @@ const ARBITER_DEFAULTS = Object.freeze({
   minRescueSize: 2,          // спасать — от 2 точек
   maxGroups: 3,              // не больше 3 тревожных групп за ход
   solverNodeLimit: 200000,   // лимит узлов решателя на группу
-  solver: true               // false — абляция S8 «монитор без решателя» (#62)
+    solver: true,              // false — абляция S8 «монитор без решателя» (#62)
+  // #81: ранняя тревога для крупных групп (гипотеза 2). null — выключено.
+  alarmCostLarge: null,      // например 3: cost <= 3 при size >= largeGroupSize
+  largeGroupSize: 6,
+  // #81 (гипотеза 1): как применять найденное спасение.
+  //   'static' — как в #77: подмена хода после поиска по evaluateStatic;
+  //   'root'   — повторный searchMove с ходами-спасениями первыми в корне
+  //              (opts.rootFirst): поиск сам сравнивает их на полную глубину.
+  rescueMode: 'static',
+  rootNodeLimit: 0           // узлы повторного поиска в режиме root (0 — как у базы)
 });
 
 function nowMs(){ const t = process.hrtime(); return t[0] * 1e3 + t[1] / 1e6; }
