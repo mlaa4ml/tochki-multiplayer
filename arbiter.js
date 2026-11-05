@@ -60,7 +60,10 @@ const ARBITER_DEFAULTS = Object.freeze({
   //   'root'   — повторный searchMove с ходами-спасениями первыми в корне
   //              (opts.rootFirst): поиск сам сравнивает их на полную глубину.
   rescueMode: 'static',
-  rootNodeLimit: 0           // узлы повторного поиска в режиме root (0 — как у базы)
+    rootNodeLimit: 0,          // узлы повторного поиска в режиме root (0 — как у базы)
+  // #81: в режиме root подавать в корень и ход решателя, который спасает
+  // группу частично (loss < size, без таймаута). false — как раньше.
+  rescuePartial: false
 });
 
 function nowMs(){ const t = process.hrtime(); return t[0] * 1e3 + t[1] / 1e6; }
