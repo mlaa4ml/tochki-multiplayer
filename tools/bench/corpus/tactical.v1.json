@@ -1,0 +1,89 @@
+{
+ "format": "tochki-tactical-set",
+ "version": 1,
+ "description": "Тактический набор #81 (частичная сборка, см. doneGames)",
+ "doneGames": [
+  "issue52-r01-g0",
+  "issue52-r01-g1",
+  "issue52-r02-g0"
+ ],
+ "positions": [
+  {
+   "id": "issue52-r01-g0@42",
+   "game": "issue52-r01-g0",
+   "file": "issue52-replays01.json",
+   "index": 0,
+   "split": "regression",
+   "ply": 42,
+   "botSeat": 2,
+   "captureAt": 53,
+   "captured": 12,
+   "played": {
+    "x": 8,
+    "y": 3
+   },
+   "playedLoss": 10,
+   "minLoss": 0,
+   "rescue": [
+    {
+     "x": 8,
+     "y": 5,
+     "loss": 0
+    }
+   ]
+  },
+  {
+   "id": "issue52-r01-g1@42",
+   "game": "issue52-r01-g1",
+   "file": "issue52-replays01.json",
+   "index": 1,
+   "split": "regression",
+   "ply": 42,
+   "botSeat": 2,
+   "captureAt": 45,
+   "captured": 7,
+   "played": {
+    "x": 9,
+    "y": 7
+   },
+   "playedLoss": 6,
+   "minLoss": 1,
+   "rescue": [
+    {
+     "x": 4,
+     "y": 8,
+     "loss": 1
+    }
+   ]
+  },
+  {
+   "id": "issue52-r02-g0@62",
+   "game": "issue52-r02-g0",
+   "file": "issue52-replays02.json",
+   "index": 0,
+   "split": "dev",
+   "ply": 62,
+   "botSeat": 2,
+   "captureAt": 67,
+   "captured": 22,
+   "played": {
+    "x": 6,
+    "y": 9
+   },
+   "playedLoss": 21,
+   "minLoss": 1,
+   "rescue": [
+    {
+     "x": 3,
+     "y": 7,
+     "loss": 1
+    },
+    {
+     "x": 4,
+     "y": 8,
+     "loss": 1
+    }
+   ]
+  }
+ ]
+}
