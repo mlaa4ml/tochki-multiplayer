@@ -158,7 +158,10 @@ function makePlayer(side){
     let r;
     if (useMonitor){
       opts.monitor = true;
-      if (flags.includes('no-solver')) opts.arbiter = Object.assign({}, opts.arbiter || {}, { solver: false });
+        if (flags.includes('no-solver')) opts.arbiter = Object.assign({}, opts.arbiter || {}, { solver: false });
+  // #81: детектор спасения по forkLoss4 (см. arbiter.js, forkRescue).
+  if (flags.includes('fork')) opts.arbiter = Object.assign({}, opts.arbiter || {},
+    { forkRescue: true, alarmCostLarge: 3, largeGroupSize: 6, forkTimeLimit: 3000 });
       r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
       recordArbiter(stats, r.trace && r.trace.arbiter);
     } else {
