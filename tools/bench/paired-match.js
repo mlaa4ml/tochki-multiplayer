@@ -44,7 +44,9 @@ const SENSITIVITY = { candidate: { difficulty: 'strong', nodeLimit: 3000 }, base
 //   monitor     — ход выбирает арбитр (arbiter.js, opts.monitor:true);
 //   no-solver   — арбитр без локального решателя (только вместе с monitor);
 //   safety2 / no-safety2, antiFork / no-antiFork — переопределить поля уровня.
-const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork'];
+//   fork        — #81: детектор спасения по forkLoss4 для крупных групп
+//                 (arbiter: forkRescue, alarmCostLarge 3; только вместе с monitor);
+const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork', 'fork'];
 
 function parseSide(s){
   const segs = String(s).split('+');
