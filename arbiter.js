@@ -51,7 +51,19 @@ const ARBITER_DEFAULTS = Object.freeze({
   minRescueSize: 2,          // спасать — от 2 точек
   maxGroups: 3,              // не больше 3 тревожных групп за ход
   solverNodeLimit: 200000,   // лимит узлов решателя на группу
-  solver: true               // false — абляция S8 «монитор без решателя» (#62)
+    solver: true,              // false — абляция S8 «монитор без решателя» (#62)
+  // #81: ранняя тревога для крупных групп (гипотеза 2). null — выключено.
+  alarmCostLarge: null,      // например 3: cost <= 3 при size >= largeGroupSize
+  largeGroupSize: 6,
+  // #81 (гипотеза 1): как применять найденное спасение.
+  //   'static' — как в #77: подмена хода после поиска по evaluateStatic;
+  //   'root'   — повторный searchMove с ходами-спасениями первыми в корне
+  //              (opts.rootFirst): поиск сам сравнивает их на полную глубину.
+  rescueMode: 'static',
+    rootNodeLimit: 0,          // узлы повторного поиска в режиме root (0 — как у базы)
+  // #81: в режиме root подавать в корень и ход решателя, который спасает
+  // группу частично (loss < size, без таймаута). false — как раньше.
+  rescuePartial: false
 });
 
 function nowMs(){ const t = process.hrtime(); return t[0] * 1e3 + t[1] / 1e6; }
@@ -94,7 +106,11 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
   const t0 = nowMs();
   const mon = M.monitorPosition(node, mover, { twoMove: false, withOpp: false });
   info.monitorMs = +(nowMs() - t0).toFixed(1);
-  const alarmed = mon.groups.filter(g => g.cost <= ao.alarmCost)
+    // #81 (гипотеза 2): для крупных групп тревога раньше — cost <= alarmCostLarge
+  // при size >= largeGroupSize. По умолчанию alarmCostLarge = null (как раньше).
+  const costLimit = g => (Number.isFinite(ao.alarmCostLarge) && g.size >= ao.largeGroupSize)
+    ? Math.max(ao.alarmCost, ao.alarmCostLarge) : ao.alarmCost;
+  const alarmed = mon.groups.filter(g => g.cost <= costLimit(g))
     .sort((a, b) => b.size - a.size || a.cost - b.cost).slice(0, ao.maxGroups);
   if (!alarmed.length) return base;
   info.alarm = true;
@@ -149,7 +165,85 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     return { move: { x: mv.x, y: mv.y }, trace };
   };
 
-  if (rescue) return pick(rescue.move, 'rescue');
+      // #81: forkRescue — детектор спасения по forkLoss4 (6 полуходов) для крупных
+  // тревожных групп. Решатель S6 на позициях тактического набора расходится с
+  // forkLoss4 (issue52-r01-g0@42: решатель «спасает» ходом 7,3, а реально
+  // спасает 8,5; r01-g1@42: решатель не находит 4,8). Если ход общего поиска
+  // теряет по forkLoss4 >= 3 точек, а легальный ход рядом с группой теряет хотя
+  // бы на 3 меньше — играть ход с минимальной потерей (ничья — по статике).
+  // Ограничения: forkTimeLimit (мс), forkCap (вызовов forkLoss4 на ход).
+  // По умолчанию выключено (forkRescue: undefined/false).
+  if (ao.forkRescue){
+    const tF = nowMs();
+    const fBudget = Math.max(1, num(ao.forkTimeLimit, 1500));
+    const fCap = Math.max(1000, num(ao.forkCap, 50000));
+    const opp = mover === 1 ? 2 : 1;
+    const fi = { checked: 0, aborted: 0 };
+    info.fork = fi;
+    const lossOf = mv => {
+      if (!E.isTransitionLegal(node, mv.x, mv.y)) return null;
+      const t = E.applyTransition(node, mover, mv.x, mv.y);
+      if (!t.ok) return null;
+      if (t.node.gameOver) return (t.node.winner && t.node.winner !== mover) ? 1e6 : 0;
+      if (t.node.current === mover) return 0;
+      let mine = 0;
+      for (const c of t.result.gained) if (c.kind === 'captured') mine++;
+      fi.checked++;
+      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false });
+      if (!r){ fi.aborted++; return null; }
+      return Math.max(0, r.loss - mine);
+    };
+    const big = alarmed.filter(g => g.size >= num(ao.forkMinSize, ao.largeGroupSize));
+    if (big.length){
+      const bl = lossOf(base.move);
+      fi.baseLoss = bl;
+      if (bl !== null && bl >= 3){
+        const R = num(ao.forkRadius, 1);
+        const seen = new Set([base.move.y * node.cols + base.move.x]);
+        let best = null;
+        outer:
+        for (const g of big) for (const s of g.stones) for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++){
+          if (nowMs() - tF >= fBudget){ fi.timeout = true; break outer; }
+          const x = s.x + dx, y = s.y + dy;
+          if (x < 0 || y < 0 || x >= node.cols || y >= node.rows) continue;
+          const k = y * node.cols + x;
+          if (seen.has(k)) continue;
+          seen.add(k);
+          const mv = { x, y };
+          const l = lossOf(mv);
+          if (l === null) continue;
+          if (!best || l < best.loss || (l === best.loss && ev(mv) > (best.ev === undefined ? (best.ev = ev(best)) : best.ev)))
+            best = { x, y, loss: l };
+        }
+        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss }; }
+        fi.ms = +(nowMs() - tF).toFixed(1);
+        if (best && best.loss <= bl - 3) return pick({ x: best.x, y: best.y }, 'rescue');
+      }
+    }
+    fi.ms = +(nowMs() - tF).toFixed(1);
+  }
+
+  if (ao.rescueMode === 'root'){
+    // #81 (гипотеза 1): ходы-спасения подаются в корень повторного поиска
+    // первыми кандидатами. Поиск оценивает их на полную глубину в одной
+    // шкале с остальными ходами, без подмены по одноходовой статике.
+    // rescuePartial: решатель не спас группу целиком, но нашёл ход, после
+    // которого потеря меньше размера группы, — это тоже кандидат «спасения»
+    // (минимизация ущерба; #81, позиция issue52-r01-g1@42: loss 6 из 14).
+    const useGi = gi => gi.move && gi.size >= ao.minRescueSize &&
+      (gi.saved || (ao.rescuePartial && !gi.timedOut && Number.isFinite(gi.loss) && gi.loss < gi.size));
+    const rmv = info.groups.filter(useGi).map(gi => ({ x: gi.move.x, y: gi.move.y }));
+    if (rmv.length){
+      const o2 = Object.assign({}, opts, { rootFirst: rmv });
+      if (ao.rootNodeLimit > 0) o2.nodeLimit = ao.rootNodeLimit;
+      const r2 = E.searchMove(state, rows, cols, mover, diff, weights, o2);
+      info.rescueMode = 'root';
+      info.rootFirst = r2.trace.rootFirst || [];
+      info.rootNodes = r2.trace.nodes;
+      info.rootCompletedDepth = r2.trace.completedDepth;
+      if (r2.move) return pick(r2.move, 'rescue');
+    }
+  } else if (rescue) return pick(rescue.move, 'rescue');
 
   // Ограничение ущерба: не добавлять камни в доказанно потерянные группы.
   if (lost.length){

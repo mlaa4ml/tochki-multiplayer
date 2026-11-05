@@ -1,0 +1,1559 @@
+{
+ "format": "tochki-tactical-report",
+ "version": 1,
+ "set": "tactical.v1.json",
+ "level": "strong",
+ "nodeLimit": 3000,
+ "configs": {
+  "base": {
+   "monitor": false
+  },
+  "static": {
+   "monitor": true,
+   "arbiter": {
+    "rescueMode": "static"
+   }
+  },
+  "fork": {
+   "monitor": true,
+   "arbiter": {
+    "alarmCostLarge": 3,
+    "largeGroupSize": 6,
+    "forkRescue": true,
+    "forkTimeLimit": 3000
+   }
+  }
+ },
+ "summary": {
+  "base": {
+   "solved": 4,
+   "positions": 35,
+   "alarms": 0,
+   "solverSaved": 0,
+   "msMax": 1071,
+   "rate": 0.114
+  },
+  "static": {
+   "solved": 7,
+   "positions": 35,
+   "alarms": 28,
+   "solverSaved": 11,
+   "msMax": 2472,
+   "rate": 0.2
+  },
+  "fork": {
+   "solved": 9,
+   "positions": 35,
+   "alarms": 35,
+   "solverSaved": 16,
+   "msMax": 11224,
+   "rate": 0.257
+  }
+ },
+ "positions": [
+  {
+   "id": "issue52-r01-g0@42",
+   "captured": 12,
+   "rescue": [
+    "8,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 645,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 591,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 8,
+      "y": 5
+     },
+     "ms": 4026,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r01-g1@42",
+   "captured": 7,
+   "rescue": [
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 413,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 1860,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 5367,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g0@62",
+   "captured": 22,
+   "rescue": [
+    "3,7",
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 684,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 1995,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 2433,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g1@24",
+   "captured": 11,
+   "rescue": [
+    "2,6",
+    "3,6",
+    "2,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "ms": 524,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "ms": 536,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "ms": 4893,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g2@54",
+   "captured": 7,
+   "rescue": [
+    "11,8",
+    "12,8",
+    "11,9",
+    "12,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 5
+     },
+     "ms": 640,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 12,
+      "y": 5
+     },
+     "ms": 499,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 12,
+      "y": 5
+     },
+     "ms": 3763,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g2@94",
+   "captured": 6,
+   "rescue": [
+    "3,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 2,
+      "y": 10
+     },
+     "ms": 882,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 1226,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 4141,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g3@46",
+   "captured": 6,
+   "rescue": [
+    "4,6",
+    "5,8",
+    "6,8",
+    "5,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 2
+     },
+     "ms": 670,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 7,
+      "y": 2
+     },
+     "ms": 493,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 7,
+      "y": 2
+     },
+     "ms": 4079,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g3@66",
+   "captured": 8,
+   "rescue": [
+    "2,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "ms": 926,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "ms": 2218,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "ms": 11224,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-16@42",
+   "captured": 6,
+   "rescue": [
+    "2,5",
+    "2,6"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 8
+     },
+     "ms": 453,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 8
+     },
+     "ms": 454,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 6,
+      "y": 8
+     },
+     "ms": 4910,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-47@32",
+   "captured": 11,
+   "rescue": [
+    "9,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 10,
+      "y": 7
+     },
+     "ms": 440,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 10,
+      "y": 7
+     },
+     "ms": 2046,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 10,
+      "y": 7
+     },
+     "ms": 5037,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-47@64",
+   "captured": 14,
+   "rescue": [
+    "2,2",
+    "2,3",
+    "0,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 4
+     },
+     "ms": 477,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static": {
+     "move": {
+      "x": 0,
+      "y": 4
+     },
+     "ms": 1638,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 0,
+      "y": 4
+     },
+     "ms": 1940,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-57@62",
+   "captured": 8,
+   "rescue": [
+    "1,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 8
+     },
+     "ms": 416,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 0,
+      "y": 8
+     },
+     "ms": 753,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 0,
+      "y": 8
+     },
+     "ms": 4376,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-20@46",
+   "captured": 7,
+   "rescue": [
+    "9,1",
+    "9,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 8,
+      "y": 4
+     },
+     "ms": 626,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 8,
+      "y": 4
+     },
+     "ms": 2046,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 8,
+      "y": 4
+     },
+     "ms": 7706,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-20@60",
+   "captured": 8,
+   "rescue": [
+    "5,6",
+    "5,7",
+    "5,8",
+    "4,6",
+    "4,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 10
+     },
+     "ms": 509,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 9,
+      "y": 10
+     },
+     "ms": 514,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 5,
+      "y": 6
+     },
+     "ms": 4775,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-20@82",
+   "captured": 4,
+   "rescue": [
+    "3,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 10
+     },
+     "ms": 585,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 9,
+      "y": 10
+     },
+     "ms": 903,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 9,
+      "y": 10
+     },
+     "ms": 1037,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-27@30",
+   "captured": 8,
+   "rescue": [
+    "4,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 4,
+      "y": 2
+     },
+     "ms": 480,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 4,
+      "y": 2
+     },
+     "ms": 1966,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 4,
+      "y": 2
+     },
+     "ms": 5001,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-27@76",
+   "captured": 4,
+   "rescue": [
+    "6,11"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 10,
+      "y": 2
+     },
+     "ms": 715,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 10,
+      "y": 2
+     },
+     "ms": 1120,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 10,
+      "y": 2
+     },
+     "ms": 1083,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-33@22",
+   "captured": 8,
+   "rescue": [
+    "9,3",
+    "10,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 744,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 2101,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 5339,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-11-02T07-33@52",
+   "captured": 7,
+   "rescue": [
+    "7,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 11,
+      "y": 8
+     },
+     "ms": 538,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 7,
+      "y": 9
+     },
+     "ms": 2046,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 7,
+      "y": 9
+     },
+     "ms": 7343,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T11-14-03-030Z#0@44",
+   "captured": 8,
+   "rescue": [
+    "4,9",
+    "7,8",
+    "7,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 798,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 794,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 4741,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@100",
+   "captured": 10,
+   "rescue": [
+    "2,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 5
+     },
+     "ms": 556,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 0,
+      "y": 5
+     },
+     "ms": 2062,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 0,
+      "y": 5
+     },
+     "ms": 6232,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@28",
+   "captured": 8,
+   "rescue": [
+    "11,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 648,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 2094,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 5337,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@42",
+   "captured": 9,
+   "rescue": [
+    "7,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 11,
+      "y": 9
+     },
+     "ms": 736,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 11,
+      "y": 9
+     },
+     "ms": 2209,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 11,
+      "y": 9
+     },
+     "ms": 2328,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@76",
+   "captured": 13,
+   "rescue": [
+    "0,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 4,
+      "y": 0
+     },
+     "ms": 1064,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 4,
+      "y": 0
+     },
+     "ms": 2286,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 4,
+      "y": 0
+     },
+     "ms": 8170,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T11-21-08-416Z#0@66",
+   "captured": 6,
+   "rescue": [
+    "9,9",
+    "10,9",
+    "9,10",
+    "10,10",
+    "11,9",
+    "12,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 2,
+      "y": 11
+     },
+     "ms": 706,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 2,
+      "y": 11
+     },
+     "ms": 2190,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 2,
+      "y": 11
+     },
+     "ms": 5440,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T11-31-34-254Z#0@28",
+   "captured": 7,
+   "rescue": [
+    "9,3",
+    "9,4",
+    "10,4",
+    "10,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 0
+     },
+     "ms": 715,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 7,
+      "y": 0
+     },
+     "ms": 935,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 7,
+      "y": 0
+     },
+     "ms": 5123,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T11-31-34-254Z#0@96",
+   "captured": 7,
+   "rescue": [
+    "2,2"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 8,
+      "y": 1
+     },
+     "ms": 563,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 13,
+      "y": 7
+     },
+     "ms": 840,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 13,
+      "y": 7
+     },
+     "ms": 4042,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@38",
+   "captured": 10,
+   "rescue": [
+    "4,4",
+    "3,5",
+    "3,7",
+    "6,7",
+    "6,9",
+    "2,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 5,
+      "y": 8
+     },
+     "ms": 756,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 5,
+      "y": 8
+     },
+     "ms": 756,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 5,
+      "y": 8
+     },
+     "ms": 7175,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@70",
+   "captured": 11,
+   "rescue": [
+    "9,2",
+    "10,2"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "ms": 1071,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "ms": 1081,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "ms": 1099,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@94",
+   "captured": 9,
+   "rescue": [
+    "13,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 14,
+      "y": 7
+     },
+     "ms": 768,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 14,
+      "y": 7
+     },
+     "ms": 2347,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 14,
+      "y": 7
+     },
+     "ms": 6601,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-27-50-407Z#0@34",
+   "captured": 9,
+   "rescue": [
+    "12,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 2
+     },
+     "ms": 963,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 9,
+      "y": 2
+     },
+     "ms": 2425,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 9,
+      "y": 2
+     },
+     "ms": 6251,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-27-50-407Z#0@68",
+   "captured": 10,
+   "rescue": [
+    "2,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 7
+     },
+     "ms": 1018,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 6,
+      "y": 7
+     },
+     "ms": 2472,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 6,
+      "y": 7
+     },
+     "ms": 5838,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-05T09-56-32-902Z#0@40",
+   "captured": 7,
+   "rescue": [
+    "7,10"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 10
+     },
+     "ms": 588,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "static": {
+     "move": {
+      "x": 7,
+      "y": 10
+     },
+     "ms": 2110,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 7,
+      "y": 10
+     },
+     "ms": 5082,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-05T09-56-32-902Z#0@52",
+   "captured": 8,
+   "rescue": [
+    "5,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 4,
+      "y": 7
+     },
+     "ms": 906,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 4,
+      "y": 7
+     },
+     "ms": 2285,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "fork": {
+     "move": {
+      "x": 4,
+      "y": 7
+     },
+     "ms": 8269,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-05T09-56-32-902Z#0@62",
+   "captured": 4,
+   "rescue": [
+    "14,10"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 9
+     },
+     "ms": 638,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "solved": false
+    },
+    "static": {
+     "move": {
+      "x": 14,
+      "y": 10
+     },
+     "ms": 794,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    },
+    "fork": {
+     "move": {
+      "x": 14,
+      "y": 10
+     },
+     "ms": 627,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "solved": true
+    }
+   }
+  }
+ ]
+}
