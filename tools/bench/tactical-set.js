@@ -104,7 +104,7 @@ function buildSet(o){
   const data = { format: 'tochki-tactical-set', version: 1,
     description: 'Тактический набор #81: позиции из партий против человека, где перед крупным взятием у бота спасение ещё существовало (forkLoss4, 6 полуходов). Решено — ход бота входит в rescue. Генерируется: node tools/bench/tactical-set.js --build',
     params: { minLoss: o.minLoss, maxBack: o.maxBack, radius: o.radius, forkCap: o.forkCap, files: o.files.map(f => path.basename(f)) },
-    positions };
+    doneGames: [...doneGames], positions };
   fs.writeFileSync(o.set, JSON.stringify(data, null, 1) + '\n');
   console.log(`набор: ${positions.length} позиций -> ${o.set}`);
   return data;
