@@ -133,7 +133,9 @@ function search(node, depth, alpha, beta, ctx){
   ctx.nodes++;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
-  if (ctx.nodes > ctx.nodeLimit || ((ctx.nodes & 127) === 0 && nowMs() > ctx.deadline)){ ctx.aborted = true; return base; }
+    // #77: дедлайн проверяется в каждом узле (раньше — раз в 128 узлов, а узел
+  // атакующего с hasThreat по региону дорогой: ход тянулся до 14 с при бюджете 1,5 с).
+  if (ctx.nodes > ctx.nodeLimit || nowMs() > ctx.deadline){ ctx.aborted = true; return base; }
   if (node.current === ctx.def){
     let best = Infinity, cnt = 0;
     for (const t of defMoves(node, ctx)){
@@ -162,6 +164,11 @@ function search(node, depth, alpha, beta, ctx){
 // Проверка: атакующий — любой легальный ход поля, защитник — регион.
 function verify(node, depth, ctx){
   ctx.vnodes++;
+  // #77: проверка тоже подчиняется timeLimit (раньше дедлайн проверялся
+  // только в search, и verify/forkCheck по всему полю тянули ход до 12–15 с
+  // при бюджете тревоги 3 с). Infinity — кандидат отвергается как непроверенный.
+  if ((ctx.vnodes & 31) === 0 && nowMs() > ctx.deadline) ctx.timedOut = true;
+  if (ctx.timedOut) return Infinity;
   const base = lossOf(node, ctx.target, ctx.att);
   if (base >= ctx.target.length || depth <= 0 || node.gameOver) return base;
   if (node.current === ctx.def){
@@ -214,10 +221,14 @@ function netThreat(node, ctx){
 // после хода защитника атакующий отвечает ходом региона, защитник защищается
 // ходом региона, затем атакующий ходит дважды. Возвращает гарантированную потерю.
 function forkCheck(node, ctx){
+  // #77: дедлайн timeLimit. Infinity — проверка вилки не завершена, кандидат
+  // не принимается как спасение (и не попадает в «лучший по вилке»).
+  if (ctx.timedOut || nowMs() > ctx.deadline){ ctx.timedOut = true; return Infinity; }
   const base = lossOf(node, ctx.target, ctx.att);
   if (node.gameOver || node.current !== ctx.att) return 0;
   let worst = 0;
   for (const a of ctx.region){
+    if (nowMs() > ctx.deadline){ ctx.timedOut = true; return Infinity; }
     const t = tryMove(node, ctx.att, a);
     if (!t) continue;
     ctx.vnodes++;
@@ -300,7 +311,7 @@ function solveGroup(node, def, target, opts){
             : { saved: false, move: null, loss: target.length - base };
   }
   return Object.assign(res, { threatened, depth: depthDone, nodes: ctx.nodes, verifyNodes: ctx.vnodes,
-    region: ctx.region.length, ms: +(nowMs() - t0).toFixed(1) });
+    region: ctx.region.length, timedOut: !!ctx.timedOut, ms: +(nowMs() - t0).toFixed(1) });
 }
 
 // ---------- прогон по regression (#57) ----------
