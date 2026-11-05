@@ -1666,7 +1666,25 @@
     // неперечислимым, чтобы не ломать сравнение trace (детерминизм, worker).
     Object.defineProperty(trace, 'genMs', { value: now() - genStart, enumerable: false, writable: true, configurable: true });
     trace.tactical = ordered.filter(c => c.tactical).length;
-    trace.tacticalOverflow = sc.tacticalOverflow || 0;
+        trace.tacticalOverflow = sc.tacticalOverflow || 0;
+    // #81: внешний код (арбитр монитора) может подать ходы — например, спасение
+    // тревожной группы — в корень первыми кандидатами. Тогда поиск обязательно
+    // исследует их на полную глубину и сравнивает в одной шкале с остальными,
+    // вместо подмены хода после поиска по одноходовой статической оценке.
+    // Без opts.rootFirst поведение не меняется (детерминизм базы сохраняется).
+    if (Array.isArray(opts.rootFirst) && opts.rootFirst.length){
+      const injected = [];
+      for (let i = opts.rootFirst.length - 1; i >= 0; i--){
+        const m = opts.rootFirst[i];
+        if (!m || !Number.isInteger(m.x) || !Number.isInteger(m.y)) continue;
+        if (!isTransitionLegal(root, m.x, m.y)) continue;
+        const idx = ordered.findIndex(o => o.x === m.x && o.y === m.y);
+        const c = idx >= 0 ? ordered.splice(idx, 1)[0] : { x: m.x, y: m.y };
+        ordered.unshift(c);
+        injected.unshift({ x: m.x, y: m.y, wasCandidate: idx >= 0 });
+      }
+      if (injected.length) trace.rootFirst = injected;
+    }
     if (!ordered.length){
       trace.fallback = 'first-legal';
       const f = firstLegalMove(root);
