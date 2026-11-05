@@ -36,6 +36,8 @@ const CONFIGS = {
   root: { monitor: true, arbiter: { rescueMode: 'root' } },
   'static-large': { monitor: true, arbiter: { rescueMode: 'static', alarmCostLarge: 3, largeGroupSize: 6 } },
     'root-large': { monitor: true, arbiter: { rescueMode: 'root', alarmCostLarge: 3, largeGroupSize: 6 } },
+    // #81: детектор спасения по forkLoss4 для крупных тревожных групп.
+  fork: { monitor: true, arbiter: { alarmCostLarge: 3, largeGroupSize: 6, forkRescue: true, forkTimeLimit: 3000 } },
   // #81: root + ранняя тревога + частичное спасение (минимизация потери).
   'root-partial': { monitor: true, arbiter: { rescueMode: 'root', alarmCostLarge: 3, largeGroupSize: 6, rescuePartial: true } }
 };
