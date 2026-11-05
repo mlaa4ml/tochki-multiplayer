@@ -145,7 +145,7 @@ function makePlayer(side){
   const diff = sideDiff(side);
   const useMonitor = flags.includes('monitor');
   const A = useMonitor ? require('../../arbiter.js') : null;
-  // #77: статистика решений арбитра по партии (decision=base/rescue/avoid-lost,
+  // #77: статистика решений арбитра по партии (decision=base/rescue/limit,
   // число тревог, подмен хода, таймаутов бюджета тревоги, время монитора/решателя).
   const stats = useMonitor ? newArbiterStats() : null;
   function chooseMove(snap){
