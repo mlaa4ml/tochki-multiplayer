@@ -1,0 +1,64 @@
+{
+ "format": "tochki-s8-ablation",
+ "botVersion": "tochki-ab-2",
+ "engineVersion": "tochki-rules-1",
+ "weightsVersion": "tochki-weights-1",
+ "date": "2026-11-05T09:50:17.627Z",
+ "rows": [
+  {
+   "config": "full",
+   "note": "полная версия (monitor:true)",
+   "side": "strong:3000+monitor+safety2",
+   "pairs": 10,
+   "score": 0.55,
+   "ci95": {
+    "lo": 0.35,
+    "hi": 0.75,
+    "resamples": 2000,
+    "unit": "pair"
+   },
+   "better": false,
+   "scoreDiff": -0.8,
+   "nonZero": 1,
+   "prefork": "0/2",
+   "preforkRate": 0,
+   "msP95": 1964,
+   "nodesP95": 3000,
+   "nodesMean": 2848,
+   "botVersion": "tochki-ab-2",
+   "engineVersion": "tochki-rules-1",
+   "weightsVersion": "tochki-weights-1"
+  }
+ ],
+ "decisions": {
+  "nodes": [
+   {
+    "node": "монитор + решатель",
+    "verdict": "нет данных",
+    "keep": null
+   },
+   {
+    "node": "решатель",
+    "verdict": "нет данных",
+    "keep": null
+   },
+   {
+    "node": "safety2",
+    "verdict": "нет данных",
+    "keep": null
+   }
+  ],
+  "flags": [
+   {
+    "config": "full",
+    "status": "neutral",
+    "enableByDefault": false,
+    "reason": "ci95.lo 0.35 <= 0.5 — прироста нет"
+   }
+  ],
+  "protocol": {
+   "screenPairs": 10,
+   "confirmPairs": 20
+  }
+ }
+}
