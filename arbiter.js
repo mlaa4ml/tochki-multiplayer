@@ -180,6 +180,9 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     const opp = mover === 1 ? 2 : 1;
     const fi = { checked: 0, aborted: 0 };
     info.fork = fi;
+    // #83: жёсткий дедлайн внутри forkLoss4 (раньше время проверялось только
+    // между вызовами, и один вызов мог занять десятки секунд).
+    const fDeadline = Date.now() + fBudget;
     const lossOf = mv => {
       if (!E.isTransitionLegal(node, mv.x, mv.y)) return null;
       const t = E.applyTransition(node, mover, mv.x, mv.y);
