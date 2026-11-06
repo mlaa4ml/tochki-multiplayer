@@ -164,6 +164,9 @@ function makePlayer(side){
   // #81: детектор спасения по forkLoss4 (см. arbiter.js, forkRescue).
   if (flags.includes('fork')) opts.arbiter = Object.assign({}, opts.arbiter || {},
     { forkRescue: true, alarmCostLarge: 3, largeGroupSize: 6, forkTimeLimit: 3000 });
+  // #83: усиленный детектор (конфигурация fork4-sc тактического набора).
+  if (flags.includes('fork4sc')) opts.arbiter = Object.assign({}, opts.arbiter || {},
+    { forkRescue: true, alarmCostLarge: 3, largeGroupSize: 4, forkMinSize: 4, maxGroups: 4, forkSearchCands: 8, forkTimeLimit: 6000 });
       r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
       recordArbiter(stats, r.trace && r.trace.arbiter);
     } else {
