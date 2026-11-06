@@ -218,7 +218,23 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
           if (!best || l < best.loss || (l === best.loss && ev(mv) > (best.ev === undefined ? (best.ev = ev(best)) : best.ev)))
             best = { x, y, loss: l };
         }
-        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss }; }
+                // #83: forkSearchCands — дополнительно проверить по forkLoss4 K лучших
+        // кандидатов общего поиска. Спасение может лежать дальше радиуса
+        // forkRadius от группы, например на цепи соперника. 0 — выключено.
+        const K = Math.max(0, num(ao.forkSearchCands, 0));
+        if (K > 0 && !fi.timeout){
+          const top = cands.slice().sort((a, b) => b.score - a.score).slice(0, K);
+          for (const c of top){
+            if (nowMs() - tF >= fBudget){ fi.timeout = true; break; }
+            const k = c.y * node.cols + c.x;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            const l = lossOf({ x: c.x, y: c.y });
+            if (l === null) continue;
+            if (!best || l < best.loss) best = { x: c.x, y: c.y, loss: l, src: 'search' };
+          }
+        }
+        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss, src: best.src || 'near' }; }
         fi.ms = +(nowMs() - tF).toFixed(1);
         if (best && best.loss <= bl - 3) return pick({ x: best.x, y: best.y }, 'rescue');
       }
