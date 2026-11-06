@@ -192,7 +192,7 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
       let mine = 0;
       for (const c of t.result.gained) if (c.kind === 'captured') mine++;
       fi.checked++;
-      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false });
+      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false, deadline: fDeadline });
       if (!r){ fi.aborted++; return null; }
       return Math.max(0, r.loss - mine);
     };
