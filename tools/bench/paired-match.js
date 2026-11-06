@@ -46,7 +46,9 @@ const SENSITIVITY = { candidate: { difficulty: 'strong', nodeLimit: 3000 }, base
 //   safety2 / no-safety2, antiFork / no-antiFork — переопределить поля уровня.
 //   fork        — #81: детектор спасения по forkLoss4 для крупных групп
 //                 (arbiter: forkRescue, alarmCostLarge 3; только вместе с monitor);
-const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork', 'fork'];
+//   fork4sc     — #83: forkRescue для групп >= 4, проверка 8 лучших кандидатов
+//                 поиска по forkLoss4, бюджет 6 с (как fork4-sc в tactical-set.js);
+const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork', 'fork', 'fork4sc'];
 
 function parseSide(s){
   const segs = String(s).split('+');
