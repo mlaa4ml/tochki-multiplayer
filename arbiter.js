@@ -180,6 +180,9 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
     const opp = mover === 1 ? 2 : 1;
     const fi = { checked: 0, aborted: 0 };
     info.fork = fi;
+    // #83: жёсткий дедлайн внутри forkLoss4 (раньше время проверялось только
+    // между вызовами, и один вызов мог занять десятки секунд).
+    const fDeadline = Date.now() + fBudget;
     const lossOf = mv => {
       if (!E.isTransitionLegal(node, mv.x, mv.y)) return null;
       const t = E.applyTransition(node, mover, mv.x, mv.y);
@@ -189,7 +192,7 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
       let mine = 0;
       for (const c of t.result.gained) if (c.kind === 'captured') mine++;
       fi.checked++;
-      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false });
+      const r = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: fCap, thr: 3, aborted: false, deadline: fDeadline });
       if (!r){ fi.aborted++; return null; }
       return Math.max(0, r.loss - mine);
     };
@@ -215,7 +218,23 @@ function arbiterMove(state, rows, cols, mover, diff, weights, opts){
           if (!best || l < best.loss || (l === best.loss && ev(mv) > (best.ev === undefined ? (best.ev = ev(best)) : best.ev)))
             best = { x, y, loss: l };
         }
-        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss }; }
+                // #83: forkSearchCands — дополнительно проверить по forkLoss4 K лучших
+        // кандидатов общего поиска. Спасение может лежать дальше радиуса
+        // forkRadius от группы, например на цепи соперника. 0 — выключено.
+        const K = Math.max(0, num(ao.forkSearchCands, 0));
+        if (K > 0 && !fi.timeout){
+          const top = cands.slice().sort((a, b) => b.score - a.score).slice(0, K);
+          for (const c of top){
+            if (nowMs() - tF >= fBudget){ fi.timeout = true; break; }
+            const k = c.y * node.cols + c.x;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            const l = lossOf({ x: c.x, y: c.y });
+            if (l === null) continue;
+            if (!best || l < best.loss) best = { x: c.x, y: c.y, loss: l, src: 'search' };
+          }
+        }
+        if (best){ fi.best = { x: best.x, y: best.y, loss: best.loss, src: best.src || 'near' }; }
         fi.ms = +(nowMs() - tF).toFixed(1);
         if (best && best.loss <= bl - 3) return pick({ x: best.x, y: best.y }, 'rescue');
       }

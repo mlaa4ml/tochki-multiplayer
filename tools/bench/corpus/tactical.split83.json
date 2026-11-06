@@ -1,0 +1,29 @@
+{
+ "format": "tochki-tactical-split",
+ "version": 1,
+ "issue": 83,
+ "description": "Разбиение тактического набора (tactical.v1.json) для #83 ПО ЦЕЛЫМ ПАРТИЯМ: каждая партия (поле game позиции) входит ровно в одну часть. train — настройка оценки/ранжирования/параметров тактического поиска; validation — выбор конфигурации; test — только новые реплеи, ещё не просмотренные ни одной конфигурацией. Все 19 партий текущего набора уже видны в отчёте tactical-81 (комментарий владельца в #83), поэтому ни одна из них не считается независимым тестом. Партия, не указанная здесь явно, попадает в defaultSplit (test). Перенос партии из test в train/validation допустим только после того, как по ней посчитан тестовый результат зафиксированной конфигурации.",
+ "splits": ["train", "validation", "test"],
+ "defaultSplit": "test",
+ "games": {
+  "issue52-r01-g0": "train",
+  "issue52-r01-g1": "train",
+  "issue52-r02-g0": "train",
+  "issue52-r02-g1": "train",
+  "issue52-r02-g2": "train",
+  "issue52-r02-g3": "train",
+  "replay-2026-10-29T10-16": "train",
+  "replay-2026-10-29T10-47": "train",
+  "replay-2026-10-29T10-57": "train",
+  "tochki-replay-2026-11-03T11-14-03-030Z#0": "train",
+  "tochki-replay-2026-11-03T12-18-24-883Z#0": "train",
+  "tochki-replay-2026-11-04T11-21-08-416Z#0": "train",
+  "tochki-replay-2026-11-04T12-07-15-086Z#0": "train",
+  "replay-2026-11-02T07-20": "validation",
+  "replay-2026-11-02T07-27": "validation",
+  "replay-2026-11-02T07-33": "validation",
+  "tochki-replay-2026-11-04T11-31-34-254Z#0": "validation",
+  "tochki-replay-2026-11-04T12-27-50-407Z#0": "validation",
+  "tochki-replay-2026-11-05T09-56-32-902Z#0": "validation"
+ }
+}

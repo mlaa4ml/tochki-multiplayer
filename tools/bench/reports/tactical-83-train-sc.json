@@ -1,0 +1,1083 @@
+{
+ "format": "tochki-tactical-report",
+ "version": 2,
+ "set": "tactical.v1.json",
+ "splitFile": "tactical.split83.json",
+ "split": "train",
+ "offset": 0,
+ "limit": 0,
+ "level": "strong",
+ "nodeLimit": 3000,
+ "configs": {
+  "base": {
+   "monitor": false
+  },
+  "fork4-sc": {
+   "monitor": true,
+   "arbiter": {
+    "alarmCostLarge": 3,
+    "largeGroupSize": 4,
+    "forkMinSize": 4,
+    "maxGroups": 4,
+    "forkRescue": true,
+    "forkSearchCands": 8,
+    "forkTimeLimit": 6000
+   }
+  }
+ },
+ "summary": {
+  "base": {
+   "solved": 3,
+   "positions": 21,
+   "alarms": 0,
+   "solverSaved": 0,
+   "illegal": 0,
+   "msMax": 921,
+   "bySplit": {
+    "train": {
+     "solved": 3,
+     "positions": 21
+    }
+   },
+   "rate": 0.143,
+   "msMean": 663
+  },
+  "fork4-sc": {
+   "solved": 10,
+   "positions": 21,
+   "alarms": 21,
+   "solverSaved": 10,
+   "illegal": 0,
+   "msMax": 8515,
+   "bySplit": {
+    "train": {
+     "solved": 10,
+     "positions": 21
+    }
+   },
+   "rate": 0.476,
+   "msMean": 7007
+  }
+ },
+ "positions": [
+  {
+   "id": "issue52-r01-g0@42",
+   "game": "issue52-r01-g0",
+   "part": "train",
+   "captured": 12,
+   "rescue": [
+    "8,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 595,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 8,
+      "y": 5
+     },
+     "ms": 6755,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 9,
+      "best": {
+       "x": 8,
+       "y": 5,
+       "loss": 0,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 14,
+      "aborted": 1,
+      "ms": 6004.4
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r01-g1@42",
+   "game": "issue52-r01-g1",
+   "part": "train",
+   "captured": 7,
+   "rescue": [
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 412,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 6,
+      "y": 6
+     },
+     "ms": 7888,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 7,
+      "best": {
+       "x": 3,
+       "y": 7,
+       "loss": 6,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 13,
+      "aborted": 1,
+      "ms": 6001.1
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g0@62",
+   "game": "issue52-r02-g0",
+   "part": "train",
+   "captured": 22,
+   "rescue": [
+    "3,7",
+    "4,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 552,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": true
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 2489,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 1,
+      "best": null,
+      "timeout": false,
+      "checked": 1,
+      "aborted": 0,
+      "ms": 438.5
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g1@24",
+   "game": "issue52-r02-g1",
+   "part": "train",
+   "captured": 11,
+   "rescue": [
+    "2,6",
+    "3,6",
+    "2,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "ms": 545,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 6,
+      "y": 2
+     },
+     "ms": 7830,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 5,
+      "best": {
+       "x": 1,
+       "y": 2,
+       "loss": 5,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 14,
+      "aborted": 1,
+      "ms": 6004.7
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g2@54",
+   "game": "issue52-r02-g2",
+   "part": "train",
+   "captured": 7,
+   "rescue": [
+    "11,8",
+    "12,8",
+    "11,9",
+    "12,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 5
+     },
+     "ms": 555,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 11,
+      "y": 8
+     },
+     "ms": 6776,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 5,
+      "best": {
+       "x": 11,
+       "y": 8,
+       "loss": 0,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 12,
+      "aborted": 1,
+      "ms": 6006.5
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g2@94",
+   "game": "issue52-r02-g2",
+   "part": "train",
+   "captured": 6,
+   "rescue": [
+    "3,7"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 2,
+      "y": 10
+     },
+     "ms": 872,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 3,
+      "y": 7
+     },
+     "ms": 7253,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 6,
+      "best": {
+       "x": 3,
+       "y": 7,
+       "loss": 2,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 11,
+      "aborted": 1,
+      "ms": 6014.3
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g3@46",
+   "game": "issue52-r02-g3",
+   "part": "train",
+   "captured": 6,
+   "rescue": [
+    "4,6",
+    "5,8",
+    "6,8",
+    "5,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 2
+     },
+     "ms": 556,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 4,
+      "y": 6
+     },
+     "ms": 6935,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 5,
+      "best": {
+       "x": 1,
+       "y": 0,
+       "loss": 5,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 4,
+      "aborted": 1,
+      "ms": 6018.6
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "issue52-r02-g3@66",
+   "game": "issue52-r02-g3",
+   "part": "train",
+   "captured": 8,
+   "rescue": [
+    "2,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "ms": 870,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 6,
+      "y": 9
+     },
+     "ms": 8306,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": null,
+      "best": null,
+      "timeout": false,
+      "checked": 1,
+      "aborted": 1,
+      "ms": 6024.1
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-16@42",
+   "game": "replay-2026-10-29T10-16",
+   "part": "train",
+   "captured": 6,
+   "rescue": [
+    "2,5",
+    "2,6"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 6,
+      "y": 8
+     },
+     "ms": 491,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 2,
+      "y": 6
+     },
+     "ms": 7688,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 4,
+      "best": {
+       "x": 2,
+       "y": 6,
+       "loss": 0,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 15,
+      "aborted": 1,
+      "ms": 6002.4
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-47@32",
+   "game": "replay-2026-10-29T10-47",
+   "part": "train",
+   "captured": 11,
+   "rescue": [
+    "9,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 10,
+      "y": 7
+     },
+     "ms": 505,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 9,
+      "y": 3
+     },
+     "ms": 8030,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 8,
+      "best": {
+       "x": 9,
+       "y": 3,
+       "loss": 2,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 10,
+      "aborted": 1,
+      "ms": 6014.7
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-47@64",
+   "game": "replay-2026-10-29T10-47",
+   "part": "train",
+   "captured": 14,
+   "rescue": [
+    "2,2",
+    "2,3",
+    "0,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 4
+     },
+     "ms": 502,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": true
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 0,
+      "y": 4
+     },
+     "ms": 1860,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 0,
+      "best": null,
+      "timeout": false,
+      "checked": 1,
+      "aborted": 0,
+      "ms": 90.1
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "replay-2026-10-29T10-57@62",
+   "game": "replay-2026-10-29T10-57",
+   "part": "train",
+   "captured": 8,
+   "rescue": [
+    "1,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 8
+     },
+     "ms": 488,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 0,
+      "y": 8
+     },
+     "ms": 6774,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 7,
+      "best": {
+       "x": 10,
+       "y": 1,
+       "loss": 7,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 8,
+      "aborted": 1,
+      "ms": 6003.6
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T11-14-03-030Z#0@44",
+   "game": "tochki-replay-2026-11-03T11-14-03-030Z#0",
+   "part": "train",
+   "captured": 8,
+   "rescue": [
+    "4,9",
+    "7,8",
+    "7,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 781,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": true
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 4705,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 0,
+      "best": null,
+      "timeout": false,
+      "checked": 1,
+      "aborted": 0,
+      "ms": 2447.3
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@100",
+   "game": "tochki-replay-2026-11-03T12-18-24-883Z#0",
+   "part": "train",
+   "captured": 10,
+   "rescue": [
+    "2,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 0,
+      "y": 5
+     },
+     "ms": 683,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 0,
+      "y": 5
+     },
+     "ms": 8056,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 9,
+      "best": {
+       "x": 0,
+       "y": 6,
+       "loss": 9,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 4,
+      "aborted": 1,
+      "ms": 6011.9
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@28",
+   "game": "tochki-replay-2026-11-03T12-18-24-883Z#0",
+   "part": "train",
+   "captured": 8,
+   "rescue": [
+    "11,4"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 613,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 12,
+      "y": 6
+     },
+     "ms": 8083,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 8,
+      "best": {
+       "x": 4,
+       "y": 6,
+       "loss": 8,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 11,
+      "aborted": 1,
+      "ms": 6003.2
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@42",
+   "game": "tochki-replay-2026-11-03T12-18-24-883Z#0",
+   "part": "train",
+   "captured": 9,
+   "rescue": [
+    "7,8"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 11,
+      "y": 9
+     },
+     "ms": 708,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 7,
+      "y": 8
+     },
+     "ms": 8241,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 6,
+      "best": {
+       "x": 7,
+       "y": 8,
+       "loss": 2,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 8,
+      "aborted": 1,
+      "ms": 6005.7
+     },
+     "solved": true
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-03T12-18-24-883Z#0@76",
+   "game": "tochki-replay-2026-11-03T12-18-24-883Z#0",
+   "part": "train",
+   "captured": 13,
+   "rescue": [
+    "0,3"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 4,
+      "y": 0
+     },
+     "ms": 869,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 4,
+      "y": 0
+     },
+     "ms": 8349,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 13,
+      "best": null,
+      "timeout": true,
+      "checked": 2,
+      "aborted": 1,
+      "ms": 6035.5
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T11-21-08-416Z#0@66",
+   "game": "tochki-replay-2026-11-04T11-21-08-416Z#0",
+   "part": "train",
+   "captured": 6,
+   "rescue": [
+    "9,9",
+    "10,9",
+    "9,10",
+    "10,10",
+    "11,9",
+    "12,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 2,
+      "y": 11
+     },
+     "ms": 712,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 2,
+      "y": 11
+     },
+     "ms": 8238,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 5,
+      "best": {
+       "x": 2,
+       "y": 8,
+       "loss": 5,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 7,
+      "aborted": 1,
+      "ms": 6009.5
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@38",
+   "game": "tochki-replay-2026-11-04T12-07-15-086Z#0",
+   "part": "train",
+   "captured": 10,
+   "rescue": [
+    "4,4",
+    "3,5",
+    "3,7",
+    "6,7",
+    "6,9",
+    "2,5"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 5,
+      "y": 8
+     },
+     "ms": 794,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 5,
+      "y": 8
+     },
+     "ms": 7148,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 10,
+      "best": null,
+      "timeout": true,
+      "checked": 2,
+      "aborted": 1,
+      "ms": 6018.7
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@70",
+   "game": "tochki-replay-2026-11-04T12-07-15-086Z#0",
+   "part": "train",
+   "captured": 11,
+   "rescue": [
+    "9,2",
+    "10,2"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "ms": 921,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 8,
+      "y": 3
+     },
+     "ms": 7226,
+     "legal": true,
+     "alarm": true,
+     "decision": "rescue",
+     "solverSaved": true,
+     "fork": {
+      "baseLoss": 9,
+      "best": null,
+      "timeout": true,
+      "checked": 2,
+      "aborted": 1,
+      "ms": 6053.3
+     },
+     "solved": false
+    }
+   }
+  },
+  {
+   "id": "tochki-replay-2026-11-04T12-07-15-086Z#0@94",
+   "game": "tochki-replay-2026-11-04T12-07-15-086Z#0",
+   "part": "train",
+   "captured": 9,
+   "rescue": [
+    "13,9"
+   ],
+   "res": {
+    "base": {
+     "move": {
+      "x": 14,
+      "y": 7
+     },
+     "ms": 890,
+     "legal": true,
+     "alarm": false,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": null,
+     "solved": false
+    },
+    "fork4-sc": {
+     "move": {
+      "x": 14,
+      "y": 7
+     },
+     "ms": 8515,
+     "legal": true,
+     "alarm": true,
+     "decision": "base",
+     "solverSaved": false,
+     "fork": {
+      "baseLoss": 8,
+      "best": {
+       "x": 12,
+       "y": 9,
+       "loss": 9,
+       "src": "near"
+      },
+      "timeout": true,
+      "checked": 4,
+      "aborted": 1,
+      "ms": 6037.8
+     },
+     "solved": false
+    }
+   }
+  }
+ ]
+}

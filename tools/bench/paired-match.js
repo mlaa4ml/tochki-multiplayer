@@ -46,7 +46,9 @@ const SENSITIVITY = { candidate: { difficulty: 'strong', nodeLimit: 3000 }, base
 //   safety2 / no-safety2, antiFork / no-antiFork — переопределить поля уровня.
 //   fork        — #81: детектор спасения по forkLoss4 для крупных групп
 //                 (arbiter: forkRescue, alarmCostLarge 3; только вместе с monitor);
-const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork', 'fork'];
+//   fork4sc     — #83: forkRescue для групп >= 4, проверка 8 лучших кандидатов
+//                 поиска по forkLoss4, бюджет 6 с (как fork4-sc в tactical-set.js);
+const SIDE_FLAGS = ['monitor', 'no-solver', 'safety2', 'no-safety2', 'antiFork', 'no-antiFork', 'fork', 'fork4sc'];
 
 function parseSide(s){
   const segs = String(s).split('+');
@@ -162,6 +164,9 @@ function makePlayer(side){
   // #81: детектор спасения по forkLoss4 (см. arbiter.js, forkRescue).
   if (flags.includes('fork')) opts.arbiter = Object.assign({}, opts.arbiter || {},
     { forkRescue: true, alarmCostLarge: 3, largeGroupSize: 6, forkTimeLimit: 3000 });
+  // #83: усиленный детектор (конфигурация fork4-sc тактического набора).
+  if (flags.includes('fork4sc')) opts.arbiter = Object.assign({}, opts.arbiter || {},
+    { forkRescue: true, alarmCostLarge: 3, largeGroupSize: 4, forkMinSize: 4, maxGroups: 4, forkSearchCands: 8, forkTimeLimit: 6000 });
       r = A.arbiterMove(state, snap.rows, snap.cols, snap.current, diff, w, opts);
       recordArbiter(stats, r.trace && r.trace.arbiter);
     } else {
