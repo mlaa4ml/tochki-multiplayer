@@ -71,4 +71,26 @@ const a = E.searchMove(st, s.rows, s.cols, s.current || 1, E.DIFFICULTY.strong, 
 const b = A.arbiterMove(st, s.rows, s.cols, s.current || 1, E.DIFFICULTY.strong, null,
   Object.assign({}, opts, { monitor: false, arbiter: T.CONFIGS['fork4-10s'].arbiter }));
 assert.deepStrictEqual({ x: b.move.x, y: b.move.y }, { x: a.move.x, y: a.move.y });
+// 6. #83: дедлайн forkLoss4. С уже прошедшим дедлайном вызов прерывается
+// (null, aborted). Без дедлайна результат детерминирован, как раньше.
+{
+  const mm = E.createMatch({ sizeKey: 'small' });
+  const ss = mm.getSnapshot();
+  const n0 = E.createSearchNode(ss);
+  const mover = n0.current, opp = mover === 1 ? 2 : 1;
+  let mv = null;
+  for (let y = 0; y < n0.rows && !mv; y++) for (let x = 0; x < n0.cols && !mv; x++)
+    if (E.isTransitionLegal(n0, x, y)) mv = { x, y };
+  const t = E.applyTransition(n0, mover, mv.x, mv.y);
+  assert.ok(t.ok);
+  const ctxD = { calls: 0, cap: 1e6, thr: 3, aborted: false, deadline: Date.now() - 1 };
+  assert.strictEqual(E.twoMoveThreat.forkLoss4(t.node, opp, mover, ctxD), null);
+  assert.strictEqual(ctxD.aborted, true);
+  const r1 = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: 1e6, thr: 3, aborted: false });
+  const r2 = E.twoMoveThreat.forkLoss4(t.node, opp, mover, { calls: 0, cap: 1e6, thr: 3, aborted: false });
+  assert.ok(r1 && r2);
+  assert.deepStrictEqual(r1, r2);
+}
+assert.strictEqual(T.CONFIGS['fork4-sc'].arbiter.forkSearchCands, 8);
+assert.ok(!A.ARBITER_DEFAULTS.forkSearchCands);
 console.log('tactical-split: OK');
