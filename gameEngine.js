@@ -1521,7 +1521,7 @@
           let bestDef = Infinity;
           for (const k of defs){
             if (bestDef < ctx.thr) break;
-            if (ctx.calls > ctx.cap){ ctx.aborted = true; return null; }
+            if (ctx.calls > ctx.cap || (ctx.deadline && Date.now() > ctx.deadline)){ ctx.aborted = true; return null; }
             const ex = k % cols, ey = Math.floor(k / cols);
             if (!isTransitionLegal(t.node, ex, ey)) continue;
             const u = applyTransition(t.node, mover, ex, ey);
