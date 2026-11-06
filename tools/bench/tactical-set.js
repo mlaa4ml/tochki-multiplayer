@@ -214,7 +214,10 @@ function moveAt(replay, p, cfg, o){
   const ar = r.trace && r.trace.arbiter;
   return { move: mv, ms, legal: !!mv && E.isTransitionLegal(node, mv.x, mv.y),
     alarm: !!(ar && ar.alarm), decision: ar ? ar.decision : 'base',
-    solverSaved: ar ? ar.groups.some(g => g.saved) : false };
+    solverSaved: ar ? ar.groups.some(g => g.saved) : false,
+    // #83: диагностика детектора forkRescue (потеря хода поиска, лучший кандидат, таймаут).
+    fork: ar && ar.fork ? { baseLoss: ar.fork.baseLoss, best: ar.fork.best || null, timeout: !!ar.fork.timeout,
+      checked: ar.fork.checked, aborted: ar.fork.aborted, ms: ar.fork.ms } : null };
 }
 
 function emptyStat(){ return { solved: 0, positions: 0, alarms: 0, solverSaved: 0, illegal: 0, msMax: 0, msSum: 0, bySplit: {} }; }
