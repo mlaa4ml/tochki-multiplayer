@@ -8,21 +8,7 @@
   "radius": 1,
   "forkCap": 1000000,
   "files": [
-   "issue52-replays01.json",
-   "issue52-replays02.json",
-   "tochki-replay-2026-10-29T10-16-05-704Z.json",
-   "tochki-replay-2026-10-29T10-47-41-629Z.json",
-   "tochki-replay-2026-10-29T10-57-30-984Z.json",
-   "tochki-replay-2026-11-02T07-20-03-122Z.json",
-   "tochki-replay-2026-11-02T07-27-38-717Z.json",
-   "tochki-replay-2026-11-02T07-33-12-235Z.json",
-   "tochki-replay-2026-11-03T11-14-03-030Z.json",
-   "tochki-replay-2026-11-03T12-18-24-883Z.json",
-   "tochki-replay-2026-11-04T11-21-08-416Z.json",
-   "tochki-replay-2026-11-04T11-31-34-254Z.json",
-   "tochki-replay-2026-11-04T12-07-15-086Z.json",
-   "tochki-replay-2026-11-04T12-27-50-407Z.json",
-   "tochki-replay-2026-11-05T09-56-32-902Z.json"
+   "tochki-replay-2026-11-06T05-42-54-500Z.json"
   ]
  },
  "doneGames": [
@@ -44,7 +30,9 @@
   "tochki-replay-2026-11-04T11-21-08-416Z#0",
   "tochki-replay-2026-11-04T11-31-34-254Z#0",
   "tochki-replay-2026-11-04T12-07-15-086Z#0",
-  "tochki-replay-2026-11-04T12-27-50-407Z#0"
+  "tochki-replay-2026-11-04T12-27-50-407Z#0",
+  "tochki-replay-2026-11-05T13-56-12-661Z#0",
+  "tochki-replay-2026-11-06T05-42-54-500Z#0"
  ],
  "positions": [
   {
@@ -1054,6 +1042,93 @@
      "x": 14,
      "y": 10,
      "loss": 0
+    }
+   ]
+  },
+  {
+   "id": "tochki-replay-2026-11-05T13-56-12-661Z#0@54",
+   "game": "tochki-replay-2026-11-05T13-56-12-661Z#0",
+   "file": "tochki-replay-2026-11-05T13-56-12-661Z.json",
+   "index": 0,
+   "split": "holdout",
+   "ply": 54,
+   "botSeat": 2,
+   "captureAt": 59,
+   "captured": 16,
+   "played": {
+    "x": 10,
+    "y": 10
+   },
+   "playedLoss": 15,
+   "minLoss": 0,
+   "rescue": [
+    {
+     "x": 12,
+     "y": 6,
+     "loss": 0
+    },
+    {
+     "x": 13,
+     "y": 8,
+     "loss": 0
+    },
+    {
+     "x": 11,
+     "y": 10,
+     "loss": 0
+    },
+    {
+     "x": 14,
+     "y": 8,
+     "loss": 0
+    }
+   ]
+  },
+  {
+   "id": "tochki-replay-2026-11-05T13-56-12-661Z#0@76",
+   "game": "tochki-replay-2026-11-05T13-56-12-661Z#0",
+   "file": "tochki-replay-2026-11-05T13-56-12-661Z.json",
+   "index": 0,
+   "split": "holdout",
+   "ply": 76,
+   "botSeat": 2,
+   "captureAt": 85,
+   "captured": 7,
+   "played": {
+    "x": 6,
+    "y": 10
+   },
+   "playedLoss": 3,
+   "minLoss": 0,
+   "rescue": [
+    {
+     "x": 4,
+     "y": 6,
+     "loss": 0
+    }
+   ]
+  },
+  {
+   "id": "tochki-replay-2026-11-06T05-42-54-500Z#0@56",
+   "game": "tochki-replay-2026-11-06T05-42-54-500Z#0",
+   "file": "tochki-replay-2026-11-06T05-42-54-500Z.json",
+   "index": 0,
+   "split": "holdout",
+   "ply": 56,
+   "botSeat": 2,
+   "captureAt": 65,
+   "captured": 7,
+   "played": {
+    "x": 1,
+    "y": 2
+   },
+   "playedLoss": 4,
+   "minLoss": 1,
+   "rescue": [
+    {
+     "x": 8,
+     "y": 4,
+     "loss": 1
     }
    ]
   }
