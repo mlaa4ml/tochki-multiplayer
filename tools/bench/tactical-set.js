@@ -57,7 +57,9 @@ const CONFIGS = {
   // #83: усиленный тактический поиск (без запоминания координат).
   fork4: { monitor: true, arbiter: Object.assign({}, FORK4, { forkTimeLimit: 3000 }) },
   'fork4-r2': { monitor: true, arbiter: Object.assign({}, FORK4, { forkRadius: 2, forkTimeLimit: 6000 }) },
-  'fork4-10s': { monitor: true, arbiter: Object.assign({}, FORK4, { forkRadius: 2, forkTimeLimit: 10000 }) }
+    'fork4-10s': { monitor: true, arbiter: Object.assign({}, FORK4, { forkRadius: 2, forkTimeLimit: 10000 }) },
+  // #83: fork4 + проверка по forkLoss4 восьми лучших кандидатов общего поиска, 6 с.
+  'fork4-sc': { monitor: true, arbiter: Object.assign({}, FORK4, { forkSearchCands: 8, forkTimeLimit: 6000 }) }
 };
 
 function parseArgs(argv){
