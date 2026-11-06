@@ -1494,7 +1494,9 @@
     const { rows, cols } = node;
     let worst = 0, worstAt = null;
     for (let y=0; y<rows; y++) for (let x=0; x<cols; x++){
-      if (ctx.calls > ctx.cap){ ctx.aborted = true; return null; }
+      // ctx.deadline (Date.now(), мс; #83) — необязательный жёсткий дедлайн:
+      // без него поведение детерминировано, как раньше.
+      if (ctx.calls > ctx.cap || (ctx.deadline && Date.now() > ctx.deadline)){ ctx.aborted = true; return null; }
       if (!nearOccupied(node.state, rows, cols, x, y) || !isTransitionLegal(node, x, y)) continue;
       const t = applyTransition(node, opp, x, y);
       if (!t.ok) continue;
